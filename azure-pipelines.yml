@@ -202,7 +202,7 @@ jobs:
 #
 - job: devpack
   displayName: Developer Packages
-  condition: and(succeeded(), eq(variables['RELEASE_BUILD'], ''))
+  condition: and(succeeded(), or(eq(variables['RELEASE_BUILD'], ''), ne(variables['SKIP_NUGET'], '')))
   dependsOn:
     - sdl
     - buildall
