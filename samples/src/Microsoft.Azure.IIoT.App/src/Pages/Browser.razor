@@ -8,16 +8,15 @@
 @using Microsoft.Azure.IIoT.App.Components.Drawer
 @using Microsoft.Azure.IIoT.App.Data
 @using Microsoft.AspNetCore.Components;
-@using Microsoft.AspNetCore.Components.Web;
 @using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;
 
 
 @inject NavigationManager NavigationManager
-@inject Services.Browser Tree
+@inject Services.Browser BrowseManager
 
 <h1>Browser</h1>
 
-<div>@supervisorId/@endpointId/@Tree.Path</div>
+<div>@supervisorId/@endpointId/@BrowseManager.Path</div>
 
 <table class="table">
     <thead>
@@ -75,7 +74,7 @@
                 {
                     <td>@node.NodeClass</td>
                     @if ((node.NodeClass == NodeClass.Variable && (node.AccessLevel == NodeAccessLevel.CurrentRead || node.AccessLevel == NodeAccessLevel.CurrentWrite)) ||
-                        node.NodeClass == NodeClass.Method)
+                         node.NodeClass == NodeClass.Method)
                     {
                         <td>
                             <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(node))">
@@ -99,30 +98,48 @@
                 <br>
                 <div class="dropdown">
                     <div class="select">
-                        <select name="dropdown" id="dropdown" @onchange="((eventArgs) => SelectAction(eventArgs))">
-                            <option value="0">Select an action</option>
+                        <select name="dropdown" @onchange="((eventArgs) => SelectActionAsync(nodeData.Id, eventArgs))">
+                            <option value="@ActionType.Nothing">Select an action</option>
                             @if (nodeData.NodeClass == NodeClass.Variable)
                             {
                                 if (nodeData.AccessLevel == NodeAccessLevel.CurrentRead)
                                 {
-                                    <option value="Read">Read</option>
+                                    <option value="@ActionType.Read">@ActionType.Read.ToString()</option>
                                 }
                                 if (nodeData.AccessLevel == NodeAccessLevel.CurrentWrite)
                                 {
-                                    <option value="Write">Write</option>
+                                    <option value="@ActionType.Write">@ActionType.Write.ToString()</option>
                                 }
-                                <option value="Publish">Publish</option>
+                                <option value="@ActionType.Publish">@ActionType.Publish.ToString()</option>
                             }
                             else if (nodeData.NodeClass == NodeClass.Method)
                             {
-                                <option value="Call">Call</option>
+                                <option value="@ActionType.Call">@ActionType.Call.ToString()</option>
                             }
                         </select>
                     </div>
                 </div>
             </div>
             <hr />
-            <div class="list-group-item text-left"></div>
+            <div class="list-group-item text-left">
+                @if (TypeOfAction == ActionType.Read)
+                {
+                    <span>value = </span>
+                    <span>@ReadValue</span>
+                }
+                else if (TypeOfAction == ActionType.Write)
+                {
+
+                }
+                else if (TypeOfAction == ActionType.Publish)
+                {
+
+                }
+                else if (TypeOfAction == ActionType.Call)
+                {
+
+                }
+            </div>
         </div>
     </Drawer>
 }
@@ -146,6 +163,10 @@
     PagedResult<ListNode> pagedNodeList = new PagedResult<ListNode>();
     public bool IsOpened { get; set; } = false;
     public ListNode nodeData { get; set; }
+
+    private enum ActionType { Nothing, Read, Write, Call, Publish };
+    private ActionType TypeOfAction { get; set; } = ActionType.Nothing;
+    private string ReadValue { get; set; } = string.Empty;
 
     public void PagerPageChanged(int page)
     {
@@ -171,7 +192,7 @@
 
     private async Task GetTree(String id, List<string> parentId, BrowseDirection direction)
     {
-        NodeList = await Tree.GetTreeAsync(endpointId, id, parentId, supervisorId, direction);
+        NodeList = await BrowseManager.GetTreeAsync(endpointId, id, parentId, supervisorId, direction);
         Page = "1";
         pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
     }
@@ -185,22 +206,36 @@
     private void CloseDrawer()
     {
         IsOpened = false;
+        TypeOfAction = ActionType.Nothing;
         this.StateHasChanged();
     }
 
-    private void SelectAction(ChangeEventArgs action)
+    private async Task SelectActionAsync(string nodeId, ChangeEventArgs action)
     {
-        switch (action.Value) {
+        switch (action.Value)
+        {
             case "Read":
+                TypeOfAction = ActionType.Read;
+                await ReadAsync(nodeId);
                 break;
             case "Write":
+                TypeOfAction = ActionType.Write;
                 break;
             case "Publish":
+                TypeOfAction = ActionType.Publish;
                 break;
             case "Call":
+                TypeOfAction = ActionType.Call;
                 break;
             default:
                 break;
         }
+        this.StateHasChanged();
     }
+
+    private async Task ReadAsync(string nodeId)
+    {
+        ReadValue = await BrowseManager.ReadValueAsync(endpointId, nodeId);
+    }
+
 }
