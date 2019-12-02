@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.App.Services {
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
     using Microsoft.Azure.IIoT.App.Data;
     using Microsoft.Azure.IIoT.OpcUa.Api.Twin;
     using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;
@@ -79,12 +80,16 @@ namespace Microsoft.Azure.IIoT.App.Services {
                         foreach (var nodeReference in references) {
                             pageResult.Results.Add(new ListNode {
                                 Id = nodeReference.Target.NodeId.ToString(),
-                                NodeClass = nodeReference.Target.NodeClass.ToString(),
+                                NodeClass = nodeReference.Target.NodeClass ?? 0,
                                 nodeName = nodeReference.Target.DisplayName.ToString(),
                                 children = (bool)nodeReference.Target.Children,
                                 ParentIdList = parentId,
                                 supervisorId = supervisorId,
-                                parentName = browseData.Node.DisplayName
+                                AccessLevel = nodeReference.Target.AccessLevel ?? 0,
+                                parentName = browseData.Node.DisplayName,
+                                value = nodeReference.Target.NodeClass.ToString() == "Variable" ? 
+                                        await ReadValueAsync(endpointId, nodeReference.Target.NodeId.ToString()) :
+                                        string.Empty
                             });
                         }
                     }
@@ -115,6 +120,14 @@ namespace Microsoft.Azure.IIoT.App.Services {
             pageResult.RowCount = pageResult.Results.Count;
             pageResult.PageCount = (int)Math.Ceiling((decimal)pageResult.RowCount / 10);
             return pageResult;
+        }
+
+        public async Task<string> ReadValueAsync(string endpointId, string nodeId) {
+            var model = new ValueReadRequestApiModel() {
+                NodeId = nodeId
+            };
+            var data = await _twinService.NodeValueReadAsync(endpointId, model);
+            return data.Value?.ToString();
         }
 
         private readonly ITwinServiceApi _twinService;

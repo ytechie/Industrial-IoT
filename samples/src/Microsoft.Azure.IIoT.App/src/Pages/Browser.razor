@@ -5,9 +5,12 @@
 
 @using Microsoft.Azure.IIoT.App.Services
 @using Microsoft.Azure.IIoT.App.Components.Pager
+@using Microsoft.Azure.IIoT.App.Components.Drawer
 @using Microsoft.Azure.IIoT.App.Data
 @using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.Web;
 @using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;
+
 
 @inject NavigationManager NavigationManager
 @inject Services.Browser Tree
@@ -22,6 +25,16 @@
             <th>Name</th>
             <th>NodeId</th>
             <th>NodeType</th>
+            @foreach (var node in pagedNodeList.Results)
+            {
+                if (node.value != string.Empty)
+                {
+                    <th>
+                        Value
+                    </th>
+                    break;
+                }
+            }
             <th>
                 @if (pagedNodeList.Results.Count > 0)
                 {
@@ -47,26 +60,73 @@
     <tbody>
         @foreach (var node in pagedNodeList.Results)
         {
-        <tr>
-            <td>@node.nodeName</td>
-            <td>@node.Id</td>
-            @if (node.children == true)
-            {
-                <td>
-                    <a href="javascript: void(0)" @onclick="@(() => GetTreeAsync(node.Id, node.ParentIdList))">
-                        @node.NodeClass
-                    </a>
-                </td>
-            }
-            else
-            {
-                <td>@node.NodeClass</td>
-            }
-        </tr>
+            <tr>
+                <td>@node.nodeName</td>
+                <td>@node.Id</td>
+                @if (node.children == true)
+                {
+                    <td>
+                        <a href="javascript: void(0)" @onclick="@(() => GetTreeAsync(node.Id, node.ParentIdList))">
+                            @node.NodeClass
+                        </a>
+                    </td>
+                }
+                else
+                {
+                    <td>@node.NodeClass</td>
+                    @if ((node.NodeClass == NodeClass.Variable && (node.AccessLevel == NodeAccessLevel.CurrentRead || node.AccessLevel == NodeAccessLevel.CurrentWrite)) ||
+                        node.NodeClass == NodeClass.Method)
+                    {
+                        <td>
+                            <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(node))">
+                                @node.value
+                            </a>
+                        </td>
 
+                    }
+                }
+            </tr>
         }
     </tbody>
 </table>
+
+@if (IsOpened)
+{
+    <Drawer HeaderText="Select Action" ObjectData="@nodeData" CloseDrawer="@(() => CloseDrawer())">
+        <div class="drawer-content list-group">
+            <div class="list-group-item text-justify list-group-item-heading">
+                <b>Select an action.</b>
+                <br>
+                <div class="dropdown">
+                    <div class="select">
+                        <select name="dropdown" id="dropdown" @onchange="((eventArgs) => SelectAction(eventArgs))">
+                            <option value="0">Select an action</option>
+                            @if (nodeData.NodeClass == NodeClass.Variable)
+                            {
+                                if (nodeData.AccessLevel == NodeAccessLevel.CurrentRead)
+                                {
+                                    <option value="Read">Read</option>
+                                }
+                                if (nodeData.AccessLevel == NodeAccessLevel.CurrentWrite)
+                                {
+                                    <option value="Write">Write</option>
+                                }
+                                <option value="Publish">Publish</option>
+                            }
+                            else if (nodeData.NodeClass == NodeClass.Method)
+                            {
+                                <option value="Call">Call</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="list-group-item text-left"></div>
+        </div>
+    </Drawer>
+}
+
 
 <Pager Result=@NodeList PageChanged=@((Page) => PagerPageChanged(Page)) />
 
@@ -84,6 +144,8 @@
 
     PagedResult<ListNode> NodeList = new PagedResult<ListNode>();
     PagedResult<ListNode> pagedNodeList = new PagedResult<ListNode>();
+    public bool IsOpened { get; set; } = false;
+    public ListNode nodeData { get; set; }
 
     public void PagerPageChanged(int page)
     {
@@ -104,13 +166,41 @@
     private async Task GetTreeBackAsync(string id, List<string> parentId)
     {
         await GetTree(id, parentId, BrowseDirection.Backward);
-        NavigationManager.NavigateTo("/browser/" + supervisorId + "/" +endpointId);
+        NavigationManager.NavigateTo("/browser/" + supervisorId + "/" + endpointId);
     }
 
-    private async Task GetTree(String id, List<string> parentId, BrowseDirection direction )
+    private async Task GetTree(String id, List<string> parentId, BrowseDirection direction)
     {
         NodeList = await Tree.GetTreeAsync(endpointId, id, parentId, supervisorId, direction);
         Page = "1";
         pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+    }
+
+    private void OpenDrawer(ListNode node)
+    {
+        IsOpened = true;
+        nodeData = node;
+    }
+
+    private void CloseDrawer()
+    {
+        IsOpened = false;
+        this.StateHasChanged();
+    }
+
+    private void SelectAction(ChangeEventArgs action)
+    {
+        switch (action.Value) {
+            case "Read":
+                break;
+            case "Write":
+                break;
+            case "Publish":
+                break;
+            case "Call":
+                break;
+            default:
+                break;
+        }
     }
 }

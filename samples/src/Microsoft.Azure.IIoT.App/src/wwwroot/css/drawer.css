@@ -15,7 +15,9 @@
 
 .header {
     font-size: 1.5rem;
-    margin-right: auto;
+    /*margin-right: auto;*/
+    position: fixed;
+    right: 240px;
 }
 
 .drawer.drawer-right-open {

@@ -46,6 +46,7 @@
                 </td>
                 <td>
                     <input type="checkbox" @bind="@supervisor.ScanStatus" @onclick="@(() => SetScan(supervisor, true,
+                                                                                                    supervisor.SupervisorModel.DiscoveryConfig?.AddressRangesToScan,
                                                                                                     supervisor.SupervisorModel.DiscoveryConfig?.PortRangesToScan))" />
                     @{string output = supervisor.ScanStatus == true ?  "On" : "Off";}
                     @output
@@ -132,7 +133,7 @@
     private async Task SetScan(SupervisorInfo supervisor, bool forceScan, string ipMask=null, string portRange=null)
     {
 
-        RegistryHelper.SetScanAsync(supervisor, ipMask, portRange, forceScan);
+        await RegistryHelper.SetScanAsync(supervisor, ipMask, portRange, forceScan);
 
         if (supervisor.ScanStatus == false || forceScan == true)
         {
