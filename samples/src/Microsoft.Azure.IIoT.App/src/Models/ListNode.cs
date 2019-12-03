@@ -12,13 +12,14 @@ namespace Microsoft.Azure.IIoT.App.Services {
         public NodeAccessLevel AccessLevel { get; set; }
         public string Executable { get; set; }
         public NodeEventNotifier EventNotifier { get; set; }
-        public string nextParentId { get; set; }
-        public string parentName { get; set; }
-        public bool children { get; set; }
+        public string NextParentId { get; set; }
+        public string ParentName { get; set; }
+        public bool Children { get; set; }
         public string ImageUrl { get; set; }
-        public string nodeName { get; set; }
-        public string supervisorId { get; set; }
-        public string value { get; set; }
+        public string NodeName { get; set; }
+        public string SupervisorId { get; set; }
+        public string Value { get; set; }
+        public string DataType { get; set; }
 
         public List<string> ParentIdList { get; set; }
 

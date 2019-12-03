@@ -17,7 +17,12 @@
     font-size: 1.5rem;
     /*margin-right: auto;*/
     position: fixed;
-    right: 240px;
+    /*right: 240px;*/
+    justify-content: flex-start;
+}
+
+.drawer-top {
+    justify-content: flex-start !important;
 }
 
 .drawer.drawer-right-open {

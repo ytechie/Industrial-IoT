@@ -81,13 +81,14 @@ namespace Microsoft.Azure.IIoT.App.Services {
                             pageResult.Results.Add(new ListNode {
                                 Id = nodeReference.Target.NodeId.ToString(),
                                 NodeClass = nodeReference.Target.NodeClass ?? 0,
-                                nodeName = nodeReference.Target.DisplayName.ToString(),
-                                children = (bool)nodeReference.Target.Children,
+                                NodeName = nodeReference.Target.DisplayName.ToString(),
+                                Children = (bool)nodeReference.Target.Children,
                                 ParentIdList = parentId,
-                                supervisorId = supervisorId,
+                                SupervisorId = supervisorId,
                                 AccessLevel = nodeReference.Target.AccessLevel ?? 0,
-                                parentName = browseData.Node.DisplayName,
-                                value = nodeReference.Target.NodeClass.ToString() == "Variable" ? 
+                                ParentName = browseData.Node.DisplayName,
+                                DataType = nodeReference.Target.DataType,
+                                Value = nodeReference.Target.NodeClass.ToString() == "Variable" ? 
                                         await ReadValueAsync(endpointId, nodeReference.Target.NodeId.ToString()) :
                                         string.Empty
                             });
@@ -122,12 +123,66 @@ namespace Microsoft.Azure.IIoT.App.Services {
             return pageResult;
         }
 
+        /// <summary>
+        /// ReadValueAsync
+        /// </summary>
+        /// <param name="endpointId"></param>
+        /// <param name="nodeId"></param>
+        /// <returns>Read value</returns>
         public async Task<string> ReadValueAsync(string endpointId, string nodeId) {
+
             var model = new ValueReadRequestApiModel() {
                 NodeId = nodeId
             };
-            var data = await _twinService.NodeValueReadAsync(endpointId, model);
-            return data.Value?.ToString();
+            
+            try {
+                var value = await _twinService.NodeValueReadAsync(endpointId, model);
+                
+                if (value.ErrorInfo == null) {
+                    return value.Value?.ToString();
+                }
+                else {
+                    return value.ErrorInfo.ToString();
+                }
+            }
+            catch (Exception e) {
+                Trace.TraceError("Can not read value of node '{0}'", nodeId);
+                var errorMessage = string.Format(e.Message, e.InnerException?.Message ?? "--", e?.StackTrace ?? "--");
+                Trace.TraceError(errorMessage);
+                return errorMessage;
+            }
+        }
+
+        /// <summary>
+        /// WriteValueAsync
+        /// </summary>
+        /// <param name="endpointId"></param>
+        /// <param name="nodeId"></param>
+        /// <param name="value"></param>
+        /// <returns>Status</returns>
+        public async Task<string> WriteValueAsync(string endpointId, string nodeId, string value) {
+
+            var model = new ValueWriteRequestApiModel() {
+                NodeId = nodeId, 
+                Value = value
+            };
+
+            try {
+                var response = await _twinService.NodeValueWriteAsync(endpointId, model);
+
+                if (response.ErrorInfo == null) {
+                    return string.Format("value successfully written to node '{0}'", nodeId);
+                }
+                else {
+                    return response.ErrorInfo.ToString();
+                }
+            }
+            catch (Exception e) {
+                Trace.TraceError("Can not write value of node '{0}'", nodeId);
+                var errorMessage = string.Format(e.Message, e.InnerException?.Message ?? "--", e?.StackTrace ?? "--");
+                Trace.TraceError(errorMessage);
+                return errorMessage;
+            }
         }
 
         private readonly ITwinServiceApi _twinService;
