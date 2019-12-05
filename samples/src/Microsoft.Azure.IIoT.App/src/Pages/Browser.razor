@@ -40,7 +40,7 @@
                 {
                     if (PagedNodeList.Results[0].ParentName != "Root")
                     {
-                        <a href="javascript: void(0)" @onclick="@(() => GetTreeBackAsync(PagedNodeList.Results[0].NextParentId, pagedNodeList.Results[0].ParentIdList))">
+                        <a href="javascript: void(0)" @onclick="@(() => GetTreeBackAsync(PagedNodeList.Results[0].NextParentId, PagedNodeList.Results[0].ParentIdList))">
                             <span class="oi oi-arrow-left"></span>
                         </a>
                     }
