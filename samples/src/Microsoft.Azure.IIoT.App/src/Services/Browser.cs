@@ -90,9 +90,12 @@ namespace Microsoft.Azure.IIoT.App.Services {
                                 AccessLevel = nodeReference.Target.AccessLevel ?? 0,
                                 ParentName = browseData.Node.DisplayName,
                                 DataType = nodeReference.Target.DataType,
-                                Value = nodeReference.Target.NodeClass.ToString() == "Variable" ? 
-                                        await ReadValueAsync(endpointId, nodeReference.Target.NodeId.ToString()) :
-                                        string.Empty
+                                //Value = nodeReference.Target.NodeClass.ToString() == "Variable" ? 
+                                //        await ReadValueAsync(endpointId, nodeReference.Target.NodeId.ToString()) :
+                                //        string.Empty
+                                Value = string.Empty,
+                                Publishing = false,
+                                PublishedNode = null
                             });
                         }
                     }

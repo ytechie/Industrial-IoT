@@ -7,13 +7,14 @@
 @using Microsoft.Azure.IIoT.App.Components.Pager
 @using Microsoft.Azure.IIoT.App.Components.Drawer
 @using Microsoft.Azure.IIoT.App.Data
-@using Microsoft.AspNetCore.Components;
-@using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;
-@using System.Collections.Generic;
+@using Microsoft.AspNetCore.Components
+@using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models
+@using System.Collections.Generic
 
 
 @inject NavigationManager NavigationManager
 @inject Services.Browser BrowseManager
+@inject Services.Publisher Publisher
 
 <h1>Browser</h1>
 
@@ -25,16 +26,8 @@
             <th>Name</th>
             <th>NodeId</th>
             <th>NodeType</th>
-            @foreach (var node in PagedNodeList.Results)
-            {
-                if (node.Value != string.Empty)
-                {
-                    <th>
-                        Value
-                    </th>
-                    break;
-                }
-            }
+            <th>Value</th>
+	    <th>Publishing</th>
             <th>
                 @if (PagedNodeList.Results.Count > 0)
                 {
@@ -82,15 +75,35 @@
                 else
                 {
                     <td>@node.NodeClass</td>
-                    @if (node.NodeClass == NodeClass.Variable && (node.AccessLevel == NodeAccessLevel.CurrentRead || node.AccessLevel == NodeAccessLevel.CurrentWrite ||
-                        node.AccessLevel == (NodeAccessLevel.CurrentRead | NodeAccessLevel.CurrentWrite)))
-                    {
-                        <td>
-                            <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(node))">
-                                @node.Value
-                            </a>
-                        </td>
-                    }
+                }
+                @if (node.NodeClass == NodeClass.Variable && (node.AccessLevel == NodeAccessLevel.CurrentRead || node.AccessLevel == NodeAccessLevel.CurrentWrite ||
+                    node.AccessLevel == (NodeAccessLevel.CurrentRead | NodeAccessLevel.CurrentWrite)))
+                {
+                    <td>
+                        <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(node))">
+                            @{string output = $"{node.Value} ({node.DataType})";}
+                        @output
+                        </a>
+                    </td>
+                }
+		        else
+	            {
+	                <td>N/A</td>
+	            }
+		
+		        @if (node.NodeClass == NodeClass.Variable)
+                {
+	                <td>
+	                    <input type="checkbox" @bind="@node.Publishing" @onclick="@(() => SetPublishing(endpointId, node) )" />
+	                    <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(node))">
+	                        @{string output = (node.Publishing == true && node.PublishedNode != null) ? $"On, sampling {node.PublishedNode.SampligInterval} ms" : "Off";}
+	                        @output
+	                    </a>
+	                </td>
+                }
+                else
+                {
+                    <td>N/A</td>
                 }
             </tr>
         }
@@ -101,7 +114,7 @@
     <_DrawerActionContent nodeData="@NodeData" endpointId="@endpointId" pagedNodeList="@PagedNodeList"></_DrawerActionContent>
 </Drawer>
 
-<Pager Result=@NodeList PageChanged=@((Page) => PagerPageChanged(Page)) />
+<Pager Result=@NodeList PageChanged=@(async(Page) => PagerPageChanged(Page)) />
 
 @code {
 
@@ -120,9 +133,18 @@
     public ListNode NodeData { get; set; }
     
 
-    public void PagerPageChanged(int page)
+
+    public async void PagerPageChanged(int page)
     {
         PagedNodeList = NodeList.GetPaged(page, 10);
+        foreach (var node in PagedNodeList.Results)
+        {
+            // fetch the actual value
+            if (node.NodeClass == NodeClass.Variable)
+            {
+                node.Value = await BrowseManager.ReadValueAsync(endpointId, node.Id);
+            }
+        }
         NavigationManager.NavigateTo("/browser/" + supervisorId + "/" + endpointId + "/" + page);
     }
 
@@ -145,8 +167,63 @@
     private async Task BrowseTreeAsync(String id, List<string> parentId, BrowseDirection direction)
     {
         NodeList = await BrowseManager.GetTreeAsync(endpointId, id, parentId, supervisorId, direction);
+        var publishedNodes = await Publisher.PublishedAsync(endpointId);
+
+        foreach (var node in NodeList.Results)
+        {
+            // fetch the actual value
+            if (node.NodeClass == NodeClass.Variable)
+            {
+                // check if publishing enabled
+                foreach (var publishedNode in publishedNodes.Results)
+                {
+                    if (node.Id == publishedNode.NodeId)
+                    {
+                        node.PublishedNode = publishedNode;
+                        node.Publishing = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         Page = "1";
         PagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+        foreach (var node in PagedNodeList.Results)
+        {
+            // fetch the actual value
+            if (node.NodeClass == NodeClass.Variable)
+            {
+                node.Value = await BrowseManager.ReadValueAsync(endpointId, node.Id);
+            }
+        }
+    }
+
+    private async Task SetPublishing(string endpointId, ListNode node)
+    {
+        if (!node.Publishing)
+        {
+            var result = await Publisher.StartPublishing(endpointId, node.Id, 1000, 1000);
+            if (result)
+            {
+                node.PublishedNode = new PublishedNode() { NodeId = node.Id, PublishingInterval = 1000, SampligInterval = 1000};
+                node.Publishing = true;
+            }
+            else
+            {
+                node.PublishedNode = null;
+                node.Publishing = false;
+            }
+        }
+        else
+        {
+            var result = await Publisher.StopPublishing(endpointId, node.Id);
+            if (result)
+            {
+                node.PublishedNode = null;
+                node.Publishing = false;
+            }
+        }
     }
 
     private void OpenDrawer(ListNode node)
