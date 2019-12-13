@@ -417,7 +417,14 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
                     IndexRange = model.IndexRange
                 };
             }
-            return ((SimpleAttributeOperandModel)model).ToStackModel(context);
+            return new SimpleAttributeOperand {
+                TypeDefinitionId = model.NodeId.ToNodeId(context),
+                AttributeId = (uint)(model.AttributeId ?? NodeAttribute.Value),
+                BrowsePath = new QualifiedNameCollection(model.BrowsePath == null ?
+                    Enumerable.Empty<QualifiedName>() :
+                    model.BrowsePath?.Select(n => n.ToQualifiedName(context))),
+                IndexRange = model.IndexRange
+            };
         }
 
         /// <summary>
@@ -493,7 +500,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
             if (model == null) {
                 return null;
             }
-            return new FilterOperandModel {
+            return new SimpleAttributeOperandModel {
                 NodeId = model.TypeDefinitionId.AsString(context),
                 AttributeId = (NodeAttribute)model.AttributeId,
                 BrowsePath = model.BrowsePath?.Select(p => p.AsString(context)).ToArray(),

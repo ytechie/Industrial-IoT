@@ -28,7 +28,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
     internal sealed class ClientSession : IClientSession {
 
         /// <inheritdoc/>
-        public bool Inactive => _referenceCount == 0 && Pending == 0 &&
+        public bool Inactive => _handles.Count == 0 && Pending == 0 &&
             DateTime.UtcNow > _lastActivity + _timeout;
 
         /// <inheritdoc/>
@@ -37,7 +37,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         private ClientSession(ApplicationConfiguration config, ConnectionModel connection,
             ILogger logger, Func<ConnectionModel, EndpointConnectivityState, Task> statusCb,
             TimeSpan? maxOpTimeout, string sessionName, TimeSpan? timeout,
-            TimeSpan? keepAlive, int referenceCount = 0) {
+            TimeSpan? keepAlive) {
             _logger = logger ?? Log.Logger;
             _connection = connection.Clone();
             _config = config;
@@ -49,7 +49,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             _lastState = EndpointConnectivityState.Connecting;
             _keepAlive = keepAlive ?? TimeSpan.FromSeconds(5);
             _lastActivity = DateTime.UtcNow;
-            _referenceCount = referenceCount;
             _sessionName = sessionName ?? Guid.NewGuid().ToString();
             // Align the default device method timeout
             _opTimeout = maxOpTimeout ?? TimeSpan.FromMinutes(5);
@@ -105,9 +104,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             TimeSpan? timeout = null, TimeSpan? keepAlive = null) {
 
             var session = new ClientSession(config, connection, logger, statusCb,
-                maxOpTimeout, sessionName, timeout, keepAlive, 1);
+                maxOpTimeout, sessionName, timeout, keepAlive);
             var handle = session.GetSafeHandle();
-            Interlocked.Decrement(ref session._referenceCount);
             return (session, handle);
         }
 
@@ -165,41 +163,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             return new ClientSessionHandle(this);
         }
 
-        private sealed class ClientSessionHandle : ISessionHandle {
-
-            /// <inheritdoc/>
-            public ConnectionModel Connection => _outer._connection;
-
-            /// <inheritdoc/>
-            public Session Session => _outer._session;
-
-            /// <inheritdoc/>
-            internal ClientSessionHandle(ClientSession outer) {
-                _outer = outer;
-                Interlocked.Increment(ref _outer._referenceCount);
-            }
-
-            /// <inheritdoc/>
-            public Task<Session> AcquireSessionAsync() {
-                if (_disposed) {
-                    throw new ObjectDisposedException(nameof(ClientSessionHandle));
-                }
-                return _outer._acquired.Task;
-            }
-
-            /// <inheritdoc/>
-            public void Dispose() {
-                if (_disposed) {
-                    throw new ObjectDisposedException(nameof(ClientSessionHandle));
-                }
-                _disposed = true;
-                Interlocked.Decrement(ref _outer._referenceCount);
-            }
-
-            private readonly ClientSession _outer;
-            private bool _disposed;
-        }
-
         /// <summary>
         /// Process operations and manage session
         /// </summary>
@@ -216,7 +179,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             var reconnect = false;
             var recreate = false;
             var retryCount = 0;
-            var everSuccessful = _referenceCount != 0;
 
             // Save identity and certificate to update session if there are changes.
             var identity = _curOperation?.Identity ??
@@ -333,13 +295,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                         }
 
                         ++retryCount;
-                        if (_referenceCount == 0 && retryCount > kMaxEmptyReconnectAttempts &&
-                            Pending == 0) {
-                            _logger.Warning(
-                                "{session}: Give up on refcount 0 session to {url} via {endpoint}...",
-                                _sessionId, _connection.Endpoint.Url, _endpointUrl);
-                            break;
-                        }
                         // Try again to connect with an exponential delay
                         var delay = Retry.GetExponentialDelay(retryCount,
                             kMaxReconnectDelayWhenPendingOperations / 2, kMaxRetries);
@@ -414,7 +369,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                         await Task.Run(() => _curOperation.Complete(_session), _cts.Token);
                         _lastActivity = DateTime.UtcNow;
                         await NotifyConnectivityStateChangeAsync(EndpointConnectivityState.Ready);
-                        everSuccessful = true;
                         _logger.Verbose("{session}: Session operation completed.", _sessionId);
                         _curOperation = null;
                     }
@@ -429,7 +383,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                             case TimeoutException te:
                             case ServerBusyException sb:
                                 _logger.Debug(e, "{session}: Server timeout error.", _sessionId);
-                                if (everSuccessful && _curOperation.ShouldRetry(e)) {
+                                if (_curOperation.ShouldRetry(e)) {
                                     _logger.Information("{session}: Timeout error talking to " +
                                         "{url} via {endpoint} - {error} - try again later...",
                                         _sessionId, _connection.Endpoint.Url, _endpointUrl, e.Message);
@@ -451,7 +405,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                             case ProtocolException pe:
                             case CommunicationException ce:
                                 _logger.Debug(e, "{session}: Server communication error.", _sessionId);
-                                if (everSuccessful && _curOperation.ShouldRetry(e)) {
+                                if (_curOperation.ShouldRetry(e)) {
                                     _logger.Information("{session}: Communication error talking to " +
                                         "{url} via {endpoint} - {error} - Reconnect and try again...",
                                         _sessionId, _connection.Endpoint.Url, _endpointUrl, e.Message);
@@ -488,11 +442,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                                 _curOperation = null;
                                 break;
                         }
-                        if (reconnect || !everSuccessful) {
+                        if (reconnect) {
                             await NotifyConnectivityStateChangeAsync(ToConnectivityState(oex, false));
-                        }
-                        if (!everSuccessful) {
-                            break; // Give up here - might have just been used to test endpoint
                         }
                     }
                 } // end while
@@ -970,13 +921,57 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             private readonly TimeSpan _timeout;
         }
 
+        /// <summary>
+        /// A session handle exposes the session to multiple owners. The session
+        /// Handle is reference counted and contains the subscriptions managed
+        /// for the owner.
+        /// </summary>
+        private sealed class ClientSessionHandle : ISessionHandle {
+
+            /// <inheritdoc/>
+            public ConnectionModel Connection => _outer._connection;
+
+            /// <inheritdoc/>
+            public Session Session => _outer._session;
+
+            /// <inheritdoc/>
+            internal ClientSessionHandle(ClientSession outer) {
+                _outer = outer;
+                lock (_outer._handles) {
+                    _outer._handles.Add(this);
+                }
+            }
+
+            /// <inheritdoc/>
+            public Task<Session> AcquireSessionAsync() {
+                if (_disposed) {
+                    throw new ObjectDisposedException(nameof(ClientSessionHandle));
+                }
+                return _outer._acquired.Task;
+            }
+
+            /// <inheritdoc/>
+            public void Dispose() {
+                if (_disposed) {
+                    throw new ObjectDisposedException(nameof(ClientSessionHandle));
+                }
+                _disposed = true;
+                lock (_outer._handles) {
+                    _outer._handles.Remove(this);
+                }
+            }
+
+            private readonly ClientSession _outer;
+            private bool _disposed;
+        }
+
         private const int kMaxReconnectAttempts = 4;
-        private const int kMaxEmptyReconnectAttempts = 2;
         private const int kMaxRetries = 15;
         private const int kMaxReconnectDelayWhenPendingOperations = 5 * 1000;
         private const int kMaxReconnectDelayWhenNoPendingOperations = 300 * 1000;
 
-        private volatile int _referenceCount;
+        private readonly HashSet<ClientSessionHandle> _handles =
+            new HashSet<ClientSessionHandle>();
         private static int _sessionCounter;
         private SessionOperation _curOperation;  // Only update from RunAsync task
         private DateTime _lastActivity;

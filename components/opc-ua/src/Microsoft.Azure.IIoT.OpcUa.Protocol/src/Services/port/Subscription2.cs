@@ -463,15 +463,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
         //    }
 
         /// <summary>
-        /// Sends a notification that the state of the subscription has changed.
-        /// </summary>
-        public void ChangesCompleted() {
-            _StateChanged?.Invoke(this, new SubscriptionStateChangedEventArgs(_changeMask));
-
-            _changeMask = SubscriptionChangeMask.None;
-        }
-
-        /// <summary>
         /// Returns true if the subscription is not receiving publishes.
         /// </summary>
         public bool PublishingStopped {
@@ -1276,28 +1267,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
             ChangesCompleted();
         }
 
-        /// <summary>
-        /// Adds an item to the subscription.
-        /// </summary>
-        public void AddItems(IEnumerable<MonitoredItem> monitoredItems) {
-            if (monitoredItems == null) {
-                throw new ArgumentNullException("monitoredItems");
-            }
-            var added = false;
-            lock (_cache) {
-                foreach (var monitoredItem in monitoredItems) {
-                    if (!_monitoredItems.ContainsKey(monitoredItem.ClientHandle)) {
-                        _monitoredItems.Add(monitoredItem.ClientHandle, monitoredItem);
-                        monitoredItem.Subscription = this;
-                        added = true;
-                    }
-                }
-            }
-            if (added) {
-                _changeMask |= SubscriptionChangeMask.ItemsAdded;
-                ChangesCompleted();
-            }
-        }
 
         /// <summary>
         /// Removes an item from the subscription.

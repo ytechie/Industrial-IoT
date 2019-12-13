@@ -24,5 +24,30 @@ namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
                 DeadBandValue = model.DeadBandValue
             };
         }
+
+        /// <summary>
+        /// Compare filters
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static bool IsSameAs(this DataChangeFilterModel model, DataChangeFilterModel other) {
+            if (model == null && other == null) {
+                return true;
+            }
+            if (model == null || other == null) {
+                return false;
+            }
+            if (model.DataChangeTrigger != other.DataChangeTrigger) {
+                return false;
+            }
+            if (model.DeadBandType != other.DeadBandType) {
+                return false;
+            }
+            if (model.DeadBandValue != other.DeadBandValue) {
+                return false;
+            }
+            return true;
+        }
     }
 }

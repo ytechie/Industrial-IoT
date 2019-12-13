@@ -81,6 +81,29 @@ namespace System.Collections.Generic {
         /// <typeparam name="T"></typeparam>
         /// <param name="seq"></param>
         /// <param name="that"></param>
+        /// <returns></returns>
+        public static bool SetEqualsSafe<T>(this IEnumerable<T> seq, IEnumerable<T> that) {
+            if (seq == that) {
+                return true;
+            }
+            if (seq == null || that == null) {
+                if (!(that?.Any() ?? false)) {
+                    return seq == null || !seq.Any();
+                }
+                return false;
+            }
+            if (seq is ISet<T> set) {
+                return set.SetEquals(that);
+            }
+            return seq.ToHashSetSafe().SetEquals(that);
+        }
+
+        /// <summary>
+        /// Safe set equals with comparator
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="seq"></param>
+        /// <param name="that"></param>
         /// <param name="func"></param>
         /// <returns></returns>
         public static bool SetEqualsSafe<T>(this IEnumerable<T> seq, IEnumerable<T> that,
