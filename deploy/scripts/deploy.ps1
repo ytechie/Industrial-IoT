@@ -47,7 +47,7 @@ param(
     [string] $accountName,
     [string] $aadApplicationName,
     [string] $acrRegistryName,
-    [string] $acrSubscriptionName,
+    [string] $acrSubscriptionName = "IOT_GERMANY",
     $aadConfig,
     $context = $null,
     [ValidateSet("AzureCloud")] [string] $environmentName = "AzureCloud"
