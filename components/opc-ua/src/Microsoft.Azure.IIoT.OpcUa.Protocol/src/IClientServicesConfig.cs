@@ -9,7 +9,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
     /// <summary>
     /// Client Services configuration
     /// </summary>
-    public interface IClientServicesConfigOld {
+    public interface IClientServicesConfig {
 
         /// <summary>
         /// application's certificate store type: Directory or X509Store

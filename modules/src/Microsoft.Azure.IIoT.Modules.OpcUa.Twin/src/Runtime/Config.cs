@@ -11,14 +11,12 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.Runtime {
     using Microsoft.Azure.IIoT.OpcUa.Protocol.Runtime;
     using Microsoft.Azure.IIoT.Diagnostics;
     using Microsoft.Extensions.Configuration;
-    using System.Runtime.InteropServices;
     using System;
 
     /// <summary>
     /// Wraps a configuration root
     /// </summary>
-    public class Config : DiagnosticsConfig, IModuleConfig, IClientServicesConfig,
-        ISecurityConfig, ITransportQuotaConfig, IClientServicesConfigOld {
+    public class Config : DiagnosticsConfig, IModuleConfig, IClientServicesConfig {
 
         /// <inheritdoc/>
         public string EdgeHubConnectionString => _module.EdgeHubConnectionString;
@@ -26,95 +24,27 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.Runtime {
         public bool BypassCertVerification => _module.BypassCertVerification;
         /// <inheritdoc/>
         public TransportOption Transport => _module.Transport;
+
         /// <inheritdoc/>
-        public string ApplicationName => _opc.ApplicationName;
+        public string AppCertStoreType => _opc.AppCertStoreType;
         /// <inheritdoc/>
-        public string ApplicationUri => _opc.ApplicationUri;
+        public string PkiRootPath => _opc.PkiRootPath;
         /// <inheritdoc/>
-        public string ProductUri => _opc.ProductUri;
+        public string OwnCertPath => _opc.OwnCertPath;
         /// <inheritdoc/>
-        public uint DefaultSessionTimeout => _opc.DefaultSessionTimeout;
+        public string TrustedCertPath => _opc.TrustedCertPath;
         /// <inheritdoc/>
-        public int KeepAliveInterval => _opc.KeepAliveInterval;
+        public string IssuerCertPath => _opc.IssuerCertPath;
         /// <inheritdoc/>
-        public uint MaxKeepAliveCount => _opc.MaxKeepAliveCount;
-        /// <inheritdoc/>
-        public int MinSubscriptionLifetime => _opc.MinSubscriptionLifetime;
-        /// <inheritdoc/>
-        public CertificateInfo ApplicationCertificate => _opc.ApplicationCertificate;
+        public string RejectedCertPath => _opc.RejectedCertPath;
         /// <inheritdoc/>
         public bool AutoAcceptUntrustedCertificates => _opc.AutoAcceptUntrustedCertificates;
         /// <inheritdoc/>
-        public ushort MinimumCertificateKeySize => _opc.MinimumCertificateKeySize;
+        public string OwnCertX509StorePathDefault => _opc.OwnCertX509StorePathDefault;
         /// <inheritdoc/>
-        public CertificateStore RejectedCertificateStore => _opc.RejectedCertificateStore;
+        public TimeSpan? DefaultSessionTimeout => _opc.DefaultSessionTimeout;
         /// <inheritdoc/>
-        public bool RejectSha1SignedCertificates => _opc.RejectSha1SignedCertificates;
-        /// <inheritdoc/>
-        public CertificateStore TrustedIssuerCertificates => _opc.TrustedIssuerCertificates;
-        /// <inheritdoc/>
-        public CertificateStore TrustedPeerCertificates => _opc.TrustedPeerCertificates;
-        /// <inheritdoc/>
-        public int ChannelLifetime => _opc.ChannelLifetime;
-        /// <inheritdoc/>
-        public int MaxArrayLength => _opc.MaxArrayLength;
-        /// <inheritdoc/>
-        public int MaxBufferSize => _opc.MaxBufferSize;
-        /// <inheritdoc/>
-        public int MaxByteStringLength => _opc.MaxByteStringLength;
-        /// <inheritdoc/>
-        public int MaxMessageSize => _opc.MaxMessageSize;
-        /// <inheritdoc/>
-        public int MaxStringLength => _opc.MaxStringLength;
-        /// <inheritdoc/>
-        public int OperationTimeout => _opc.OperationTimeout;
-        /// <inheritdoc/>
-        public int SecurityTokenLifetime => _opc.SecurityTokenLifetime;
-
-        /// <summary>
-        /// ClientServicesConfigOld
-        /// </summary>
-        private const string kAppCertStoreType = "AppCertStoreType";
-        private const string kPkiRootPath = "PkiRootPath";
-        private const string kOwnCertPath = "OwnCertPath";
-        private const string kTrustedCertPath = "TrustedCertPath";
-        private const string kIssuerCertPath = "IssuerCertPath";
-        private const string kRejectedCertPath = "RejectedCertPath";
-        private const string kAutoAccept = "AutoAccept";
-        private const string kOwnCertX509StorePathDefault = "OwnCertX509StorePathDefault";
-        private const string kSessionTimeout = "SessionTimeout";
-        private const string kOperationTimeout = "OperationTimeout";
-
-        /// <inheritdoc/>
-        public string AppCertStoreType => GetStringOrDefault(kAppCertStoreType,
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "X509Store" : "Directory");
-        /// <inheritdoc/>
-        public string PkiRootPath =>
-            GetStringOrDefault(kPkiRootPath, "pki");
-        /// <inheritdoc/>
-        public string OwnCertPath =>
-            GetStringOrDefault(kOwnCertPath, PkiRootPath + "/own");
-        /// <inheritdoc/>
-        public string TrustedCertPath =>
-            GetStringOrDefault(kTrustedCertPath, PkiRootPath + "/trusted");
-        /// <inheritdoc/>
-        public string IssuerCertPath =>
-            GetStringOrDefault(kIssuerCertPath, PkiRootPath + "/issuer");
-        /// <inheritdoc/>
-        public string RejectedCertPath =>
-            GetStringOrDefault(kRejectedCertPath, PkiRootPath + "/rejected");
-        /// <inheritdoc/>
-        public string OwnCertX509StorePathDefault =>
-            GetStringOrDefault(kOwnCertX509StorePathDefault, "CurrentUser\\UA_MachineDefault");
-        /// <inheritdoc/>
-        bool IClientServicesConfigOld.AutoAcceptUntrustedCertificates =>
-            GetBoolOrDefault(kAutoAccept, false);
-        /// <inheritdoc/>
-        TimeSpan? IClientServicesConfigOld.DefaultSessionTimeout =>
-            GetDurationOrNull(kSessionTimeout);
-        /// <inheritdoc/>
-        TimeSpan? IClientServicesConfigOld.OperationTimeout =>
-            GetDurationOrNull(kOperationTimeout);
+        public TimeSpan? OperationTimeout => _opc.OperationTimeout;
 
         /// <summary>
         /// Configuration constructor

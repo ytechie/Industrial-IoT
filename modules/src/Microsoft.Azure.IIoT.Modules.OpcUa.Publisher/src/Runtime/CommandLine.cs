@@ -65,30 +65,24 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher.Runtime {
                 ModuleConfig.EdgeHubConnectionStringKey;
 
             private const string kOpcOperationTimeout =
-                TransportQuotaConfig.OperationTimeoutKey;
-            private const string kOpcMaxStringLength =
-                TransportQuotaConfig.MaxStringLengthKey;
+                ClientServicesConfig.OperationTimeoutKey;
             private const string kOpcSessionCreationTimeout =
-                ClientServicesConfig.DefaultSessionTimeoutKey;
-            private const string kOpcKeepAliveIntervalInSec =
-                ClientServicesConfig.KeepAliveIntervalKey;
-            private const string kOpcKeepAliveDisconnectThreshold =
-                ClientServicesConfig.MaxKeepAliveCountKey;
+                ClientServicesConfig.SessionTimeoutKey;
 
             private const string kTrustMyself =
                 "TrustSelf";
             private const string kAutoAcceptCerts =
-                SecurityConfig.AutoAcceptUntrustedCertificatesKey;
+                ClientServicesConfig.AutoAcceptKey;
             private const string kOpcOwnCertStoreType =
-                SecurityConfig.ApplicationCertificateStoreTypeKey;
+                ClientServicesConfig.AppCertStoreTypeKey;
             private const string kOpcOwnCertStorePath =
-                SecurityConfig.ApplicationCertificateStorePathKey;
+                ClientServicesConfig.OwnCertPathKey;
             private const string kOpcTrustedCertStorePath =
-                SecurityConfig.TrustedPeerCertificatesPathKey;
+                ClientServicesConfig.TrustedCertPathKey;
             private const string kOpcRejectedCertStorePath =
-                SecurityConfig.RejectedCertificateStorePathKey;
+                ClientServicesConfig.RejectedCertPathKey;
             private const string kOpcIssuerCertStorePath =
-                SecurityConfig.TrustedIssuerCertificatesPathKey;
+                ClientServicesConfig.TrustedCertPathKey;
 
             /// <summary>
             /// Parse arguments and set values in the environment the way the new configuration expects it.
@@ -133,8 +127,6 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher.Runtime {
                     // Client settings
                     { "ot|operationtimeout=", "the operation timeout of the publisher OPC UA client in ms.",
                         (uint i) => this[kOpcOperationTimeout] = i.ToString() },
-                    { "ol|opcmaxstringlen=", $"the max length of a string opc can transmit/receive.",
-                        (uint i) => this[kOpcMaxStringLength] = i.ToString() },
                     { "oi|opcsamplinginterval=", "Default value in milliseconds to request the servers to " +
                         "sample values.",
                         (int i) => this[kOpcSamplingInterval] = i.ToString() },
@@ -143,12 +135,6 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher.Runtime {
                         (int i) => this[kOpcPublishingInterval] = i.ToString() },
                     { "ct|createsessiontimeout=", "The timeout in seconds used when creating a session to an endpoint.",
                         (uint u) => this[kOpcSessionCreationTimeout] = u.ToString() },
-                    { "ki|keepaliveinterval=", "The interval in seconds the publisher is sending keep alive messages " +
-                            "to the OPC servers on the endpoints it is connected to.",
-                        (int i) => this[kOpcKeepAliveIntervalInSec] = i.ToString() },
-                    { "kt|keepalivethreshold=", "specify the number of keep alive packets a server can miss, " +
-                        "before the session is disconneced.",
-                        (uint u) => this[kOpcKeepAliveDisconnectThreshold] = u.ToString() },
                     { "fd|fetchdisplayname=", "same as fetchname.",
                         (bool b) => this[kFetchOpcNodeDisplayName] = b.ToString() },
                     { "sw|sessionconnectwait=", "Wait time in seconds publisher is trying to connect " +
@@ -183,6 +169,9 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher.Runtime {
                     { "it|issuercertstoretype=", "Legacy - do not use.", _ => {} },
 
                     // Legacy unsupported
+                    { "ol|opcmaxstringlen=", "Legacy - do not use.", _ => {} },
+                    { "ki|keepaliveinterval=", "Legacy - do not use.", _ => {} },
+                    { "kt|keepalivethreshold=", "Legacy - do not use.", _ => {} },
                     { "si|iothubsendinterval=", "Legacy - do not use.", _ => {} },
                     { "tc|telemetryconfigfile=", "Legacy - do not use.", _ => {} },
                     { "ic|iotcentral=", "Legacy - do not use.", _ => {} },

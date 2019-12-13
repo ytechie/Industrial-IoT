@@ -143,7 +143,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher {
                 .AsImplementedInterfaces().SingleInstance();
 
             // Opc specific parts
-            builder.RegisterType<DefaultSessionManager>()
+            builder.RegisterType<ClientServices>()
                 .SingleInstance().AsImplementedInterfaces();
             builder.RegisterType<SubscriptionServices>()
                 .SingleInstance().AsImplementedInterfaces();

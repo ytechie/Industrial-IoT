@@ -166,7 +166,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
             return codec.Encode(new ExtensionObject(new UpdateEventDetails {
                 NodeId = NodeId.Null,
                 PerformInsertReplace = PerformUpdateType.Replace,
-                Filter = details.Filter.ToStackModel(codec),
+                Filter = details.Filter.ToStackModel(null), // TODO
                 EventData = new HistoryEventFieldListCollection(details.Events
                     .Select(d => new HistoryEventFieldList {
                         EventFields = new VariantCollection(d.EventFields
@@ -191,7 +191,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
             return codec.Encode(new ExtensionObject(new UpdateEventDetails {
                 NodeId = NodeId.Null,
                 PerformInsertReplace = PerformUpdateType.Insert,
-                Filter = details.Filter.ToStackModel(codec),
+                Filter = details.Filter.ToStackModel(null), // TODO
                 EventData = new HistoryEventFieldListCollection(details.Events
                     .Select(d => new HistoryEventFieldList {
                         EventFields = new VariantCollection(d.EventFields
@@ -238,7 +238,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
             return codec.Encode(new ExtensionObject(new ReadEventDetails {
                 EndTime = details.EndTime ?? DateTime.MinValue,
                 StartTime = details.StartTime ?? DateTime.MinValue,
-                Filter = details.Filter.ToStackModel(codec),
+                Filter = details.Filter.ToStackModel(null), // TODO
                 NumValuesPerNode = details.NumEvents ?? 0
             }));
         }
@@ -264,19 +264,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
                 StartTime = details.StartTime ?? DateTime.MinValue,
                 AggregateType = aggregate == null ? null : new NodeIdCollection(aggregate.YieldReturn()),
                 ProcessingInterval = details.ProcessingInterval ?? 0,
-                AggregateConfiguration = details.AggregateConfiguration == null ? null :
-                    new AggregateConfiguration {
-                        PercentDataBad =
-                            details.AggregateConfiguration.PercentDataBad ?? 0,
-                        PercentDataGood =
-                            details.AggregateConfiguration.PercentDataGood ?? 0,
-                        TreatUncertainAsBad =
-                            details.AggregateConfiguration.TreatUncertainAsBad ?? false,
-                        UseServerCapabilitiesDefaults =
-                            details.AggregateConfiguration.UseServerCapabilitiesDefaults ?? false,
-                        UseSlopedExtrapolation =
-                            details.AggregateConfiguration.UseSlopedExtrapolation ?? false
-                    }
+                AggregateConfiguration = details.AggregateConfiguration.ToStackModel()
             }), context); // Reapplies the aggregate namespace uri during encoding using the context's table
         }
 

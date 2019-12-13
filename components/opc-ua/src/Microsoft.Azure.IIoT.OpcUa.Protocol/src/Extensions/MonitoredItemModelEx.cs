@@ -4,6 +4,8 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
+    using Microsoft.Azure.IIoT.OpcUa.Core.Models;
+
     /// <summary>
     /// Monitored item model extensions
     /// </summary>
@@ -25,12 +27,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
                 SamplingInterval = model.SamplingInterval,
                 QueueSize = model.QueueSize,
                 DiscardNew = model.DiscardNew,
-                DataChangeFilter = model.DataChangeFilter, // TODO
-                EventFilter = model.EventFilter, // TODO
-                AggregateFilter = model.AggregateFilter, // TODO
+                DataChangeFilter = model.DataChangeFilter.Clone(),
+                EventFilter = model.EventFilter.Clone(),
+                AggregateFilter = model.AggregateFilter.Clone(),
                 AttributeId = model.AttributeId,
                 IndexRange = model.IndexRange,
-                NodeClass = model.NodeClass,
                 MonitoringMode = model.MonitoringMode,
                 DisplayName = model.DisplayName,
                 RelativePath = model.RelativePath

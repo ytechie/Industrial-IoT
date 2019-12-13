@@ -3,21 +3,26 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Runtime {
+namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
 
     /// <summary>
-    /// Certificate store
+    /// Server connection model
     /// </summary>
-    public class CertificateStore {
+    public class ConnectionModel {
 
         /// <summary>
-        /// Store type
+        /// Endpoint
         /// </summary>
-        public string StoreType { get; set; }
+        public EndpointModel Endpoint { get; set; }
 
         /// <summary>
-        /// Store path
+        /// User
         /// </summary>
-        public string StorePath { get; set; }
+        public CredentialModel User { get; set; }
+
+        /// <summary>
+        /// Diagnostics
+        /// </summary>
+        public DiagnosticsModel Diagnostics { get; set; }
     }
 }

@@ -19,7 +19,14 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
     /// </summary>
     public class JsonVariantEncoder : IVariantEncoder {
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Get singletone instance
+        /// </summary>
+        public static JsonVariantEncoder Instance => new JsonVariantEncoder();
+
+        /// <summary>
+        /// Encoder scoped context
+        /// </summary>
         public ServiceMessageContext Context { get; } = new ServiceMessageContext();
 
         /// <inheritdoc/>

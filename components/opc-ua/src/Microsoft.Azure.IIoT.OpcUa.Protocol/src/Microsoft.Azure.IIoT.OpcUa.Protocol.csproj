@@ -5,6 +5,13 @@
     <Description>Azure Industrial IoT OPC UA Protocol and Stack services</Description>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Services\port\MonitoredItem2.cs" />
+    <Compile Remove="Services\port\MonitoredItemStatus2.cs" />
+    <Compile Remove="Services\port\Session2.cs" />
+    <Compile Remove="Services\port\Subscription2.cs" />
+    <Compile Remove="Services\port\SubscriptionChangeMask.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Stack\Design\BuiltIn\BuiltInTypes.xml" />
     <None Remove="Stack\Design\BuiltIn\StandardTypes.csv" />
     <None Remove="Stack\Design\BuiltIn\StandardTypes.xml" />
@@ -57,5 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\common\src\Microsoft.Azure.IIoT.Net\src\Microsoft.Azure.IIoT.Net.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\port\" />
   </ItemGroup>
 </Project>

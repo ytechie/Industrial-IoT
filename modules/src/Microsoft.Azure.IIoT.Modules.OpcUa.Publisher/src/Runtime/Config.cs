@@ -11,12 +11,12 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher.Runtime {
     using Microsoft.Azure.IIoT.OpcUa.Protocol;
     using Microsoft.Azure.IIoT.OpcUa.Protocol.Runtime;
     using Microsoft.Extensions.Configuration;
+    using System;
 
     /// <summary>
     /// Wraps a configuration root
     /// </summary>
-    public class Config : DiagnosticsConfig, IModuleConfig, IClientServicesConfig,
-        ISecurityConfig, ITransportQuotaConfig {
+    public class Config : DiagnosticsConfig, IModuleConfig, IClientServicesConfig {
 
         /// <inheritdoc/>
         public string EdgeHubConnectionString => _module.EdgeHubConnectionString;
@@ -24,50 +24,27 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Publisher.Runtime {
         public bool BypassCertVerification => _module.BypassCertVerification;
         /// <inheritdoc/>
         public TransportOption Transport => _module.Transport;
+
         /// <inheritdoc/>
-        public string ApplicationName => _opc.ApplicationName;
+        public string AppCertStoreType => _opc.AppCertStoreType;
         /// <inheritdoc/>
-        public string ApplicationUri => _opc.ApplicationUri;
+        public string PkiRootPath => _opc.PkiRootPath;
         /// <inheritdoc/>
-        public string ProductUri => _opc.ProductUri;
+        public string OwnCertPath => _opc.OwnCertPath;
         /// <inheritdoc/>
-        public uint DefaultSessionTimeout => _opc.DefaultSessionTimeout;
+        public string TrustedCertPath => _opc.TrustedCertPath;
         /// <inheritdoc/>
-        public int KeepAliveInterval => _opc.KeepAliveInterval;
+        public string IssuerCertPath => _opc.IssuerCertPath;
         /// <inheritdoc/>
-        public uint MaxKeepAliveCount => _opc.MaxKeepAliveCount;
-        /// <inheritdoc/>
-        public int MinSubscriptionLifetime => _opc.MinSubscriptionLifetime;
-        /// <inheritdoc/>
-        public CertificateInfo ApplicationCertificate => _opc.ApplicationCertificate;
+        public string RejectedCertPath => _opc.RejectedCertPath;
         /// <inheritdoc/>
         public bool AutoAcceptUntrustedCertificates => _opc.AutoAcceptUntrustedCertificates;
         /// <inheritdoc/>
-        public ushort MinimumCertificateKeySize => _opc.MinimumCertificateKeySize;
+        public string OwnCertX509StorePathDefault => _opc.OwnCertX509StorePathDefault;
         /// <inheritdoc/>
-        public CertificateStore RejectedCertificateStore => _opc.RejectedCertificateStore;
+        public TimeSpan? DefaultSessionTimeout => _opc.DefaultSessionTimeout;
         /// <inheritdoc/>
-        public bool RejectSha1SignedCertificates => _opc.RejectSha1SignedCertificates;
-        /// <inheritdoc/>
-        public CertificateStore TrustedIssuerCertificates => _opc.TrustedIssuerCertificates;
-        /// <inheritdoc/>
-        public CertificateStore TrustedPeerCertificates => _opc.TrustedPeerCertificates;
-        /// <inheritdoc/>
-        public int ChannelLifetime => _opc.ChannelLifetime;
-        /// <inheritdoc/>
-        public int MaxArrayLength => _opc.MaxArrayLength;
-        /// <inheritdoc/>
-        public int MaxBufferSize => _opc.MaxBufferSize;
-        /// <inheritdoc/>
-        public int MaxByteStringLength => _opc.MaxByteStringLength;
-        /// <inheritdoc/>
-        public int MaxMessageSize => _opc.MaxMessageSize;
-        /// <inheritdoc/>
-        public int MaxStringLength => _opc.MaxStringLength;
-        /// <inheritdoc/>
-        public int OperationTimeout => _opc.OperationTimeout;
-        /// <inheritdoc/>
-        public int SecurityTokenLifetime => _opc.SecurityTokenLifetime;
+        public TimeSpan? OperationTimeout => _opc.OperationTimeout;
 
         /// <summary>
         /// Configuration constructor

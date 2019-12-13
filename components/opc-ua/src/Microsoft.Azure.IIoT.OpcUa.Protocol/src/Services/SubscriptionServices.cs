@@ -31,11 +31,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         /// <summary>
         /// Create subscription manager
         /// </summary>
-        /// <param name="sessionManager"></param>
+        /// <param name="client"></param>
         /// <param name="logger"></param>
-        public SubscriptionServices(ISessionManager sessionManager, ILogger logger) {
-            _sessionManager = sessionManager;
-            _logger = logger;
+        public SubscriptionServices(IEndpointServices client, ILogger logger) {
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
@@ -97,24 +97,21 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
 
                 _timer = new Timer(_ => OnCheckAsync().Wait());
                 _lock = new SemaphoreSlim(1, 1);
+                _handle = _outer._client.GetSessionHandle(Connection);
             }
 
             /// <inheritdoc/>
             public async Task CloseAsync() {
-
                 _outer._subscriptions.TryRemove(Id, out _);
-
                 await _lock.WaitAsync();
                 try {
-                    var session = await _outer._sessionManager.GetOrCreateSessionAsync(Connection, false);
+                    var session = await _handle.AcquireSessionAsync();
                     if (session != null) {
                         var subscription = session.Subscriptions
                             .SingleOrDefault(s => s.DisplayName == Id);
                         if (subscription != null) {
                             session.RemoveSubscription(subscription);
                         }
-                        // Cleanup session if empty
-                        await _outer._sessionManager.RemoveSessionAsync(Connection);
                     }
                 }
                 finally {
@@ -125,6 +122,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             /// <inheritdoc/>
             public void Dispose() {
                 Try.Async(CloseAsync).Wait();
+                _handle.Dispose();
                 _timer.Dispose();
                 _lock.Dispose();
             }
@@ -133,11 +131,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             public async Task<SubscriptionNotificationModel> GetSnapshotAsync() {
                 await _lock.WaitAsync();
                 try {
-                    var subscription = await GetSubscriptionAsync();
+                    var session = _handle.Session;
+                    if (session == null) {
+                        return null;
+                    }
+
+                    // Get subscription in session
+                    var subscription = session.Subscriptions
+                        .SingleOrDefault(s => s.Handle == this);
+                    if (subscription == null) {
+                        return null;
+                    }
+
                     return new SubscriptionNotificationModel {
-                        ServiceMessageContext = subscription.Session.MessageContext,
-                        ApplicationUri = subscription.Session.Endpoint.Server.ApplicationUri,
-                        EndpointUrl = subscription.Session.Endpoint.EndpointUrl,
+                        ServiceMessageContext = session.MessageContext,
+                        ApplicationUri = session.Endpoint.Server.ApplicationUri,
+                        EndpointUrl = session.Endpoint.EndpointUrl,
                         SubscriptionId = Id,
                         Notifications = subscription.MonitoredItems
                             .Select(m => m.LastValue.ToMonitoredItemNotification(m))
@@ -155,16 +164,23 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                 SubscriptionConfigurationModel configuration) {
                 await _lock.WaitAsync();
                 try {
-                    var rawSubscription = await GetSubscriptionAsync(configuration);
+                    await _outer._client.ExecuteServiceAsync(_handle.Connection,
+                        CancellationToken.None, async session => {
 
-                    ReviseConfiguration(rawSubscription, configuration);
+                            var rawSubscription = await ApplyAsync(
+                                session, configuration, monitoredItems);
 
-                    await SetMonitoredItemsAsync(rawSubscription, monitoredItems);
+                            return rawSubscription;
+
+                    }, ex => {
+                        // Handle exception
+                        _logger.Error(ex, "Failed apply monitored items.");
+                        return true; // Retry operation but reconnect
+                    });
                 }
                 catch (ServiceResultException sre) {
-                    // TODO: Convert to better exception
+                    // Gave up - TODO: Convert to better exception
                     _logger.Error(sre, "Failed apply monitored items.");
-                    await _outer._sessionManager.RemoveSessionAsync(Connection, false);
                     throw sre;
                 }
                 finally {
@@ -188,7 +204,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                 var modifySubscription = false;
                 if ((configuration?.PublishingInterval ?? TimeSpan.Zero) !=
                         (_subscription.Configuration?.PublishingInterval ?? TimeSpan.Zero)) {
-                    _logger.Debug("{subscription} Changing publishing interval from {old} to {new}",
+                    _logger.Debug(
+                        "{subscription} Changing publishing interval from {old} to {new}",
                         _subscription.Id,
                         _subscription.Configuration?.PublishingInterval ?? TimeSpan.Zero,
                         configuration?.PublishingInterval ?? TimeSpan.Zero);
@@ -198,15 +215,17 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                 }
                 if ((configuration?.KeepAliveCount ?? 0) !=
                         (_subscription.Configuration?.KeepAliveCount ?? 0)) {
-                    _logger.Debug("{subscription} Changing KeepAlive Count from {old} to {new}",
+                    _logger.Debug(
+                        "{subscription} Changing KeepAlive Count from {old} to {new}",
                         _subscription.Id, _subscription.Configuration?.KeepAliveCount ?? 0,
                         configuration?.KeepAliveCount ?? 0);
                     rawSubscription.KeepAliveCount = configuration?.KeepAliveCount ?? 0;
                     modifySubscription = true;
                 }
-                if ((configuration?.LifetimeCount ?? 0)  !=
-                        (_subscription.Configuration?.LifetimeCount ?? 0) ) {
-                    _logger.Debug("{subscription} Changing Lifetime Count from {old} to {new}",
+                if ((configuration?.LifetimeCount ?? 0) !=
+                        (_subscription.Configuration?.LifetimeCount ?? 0)) {
+                    _logger.Debug(
+                        "{subscription} Changing Lifetime Count from {old} to {new}",
                         _subscription.Id, _subscription.Configuration?.LifetimeCount ?? 0,
                         configuration?.LifetimeCount ?? 0);
                     rawSubscription.LifetimeCount = configuration?.LifetimeCount ?? 0;
@@ -214,7 +233,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                 }
                 if ((configuration?.MaxNotificationsPerPublish ?? 0) !=
                         (_subscription.Configuration?.MaxNotificationsPerPublish ?? 0)) {
-                    _logger.Debug("{subscription} Changing Max NotificationsPerPublish from {old} to {new}",
+                    _logger.Debug(
+                        "{subscription} Changing Max NotificationsPerPublish from {old} to {new}",
                         _subscription.Id, _subscription.Configuration?.MaxNotificationsPerPublish ?? 0,
                         configuration?.MaxNotificationsPerPublish ?? 0);
                     rawSubscription.MaxNotificationsPerPublish =
@@ -222,7 +242,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                     modifySubscription = true;
                 }
                 if ((configuration?.Priority ?? 0) !=
-                        (_subscription.Configuration?.Priority ?? 0) ) {
+                        (_subscription.Configuration?.Priority ?? 0)) {
                     _logger.Debug("{subscription} Changing Priority from {old} to {new}",
                         _subscription.Id, _subscription.Configuration?.Priority ?? 0,
                         configuration?.Priority ?? 0);
@@ -232,7 +252,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
 
                 if (modifySubscription) {
                     _subscription.Configuration = configuration.Clone();
-                    rawSubscription.Modify();
+                    rawSubscription.ModifyAsync();
                 }
             }
 
@@ -366,13 +386,16 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             }
 
             /// <summary>
-            /// Create subscription
+            /// Retriev a raw subscription with all settings applied (no lock)
             /// </summary>
+            /// <param name="session"></param>
             /// <param name="configuration"></param>
+            /// <param name="monitoredItems"></param>
             /// <returns></returns>
-            private async Task<Subscription> GetSubscriptionAsync(
-                SubscriptionConfigurationModel configuration = null) {
-                var session = await _outer._sessionManager.GetOrCreateSessionAsync(Connection, true);
+            private async Task<Subscription> ApplyAsync(Session session,
+                SubscriptionConfigurationModel configuration,
+                IEnumerable<MonitoredItemModel> monitoredItems) {
+
                 var subscription = session.Subscriptions.SingleOrDefault(s => s.Handle == this);
                 if (subscription == null) {
 
@@ -393,14 +416,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                         LifetimeCount = _subscription.Configuration.LifetimeCount ?? 2400,
                         TimestampsToReturn = TimestampsToReturn.Both,
                         FastDataChangeCallback = OnSubscriptionDataChanged
+
                         // MaxMessageCount = 10,
                     };
 
                     session.AddSubscription(subscription);
-                    subscription.Create();
+                    subscription.CreateAsync();
+
                     _logger.Debug("Added subscription '{name}' to session '{session}'.",
                          Id, session.SessionName);
                 }
+                else {
+                    // Set configuration on original subscription
+                    ReviseConfiguration(subscription, configuration);
+                }
+                // Set currently monitored
+                await SetMonitoredItemsAsync(subscription, monitoredItems);
                 return subscription;
             }
 
@@ -438,7 +469,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             /// <param name="monitoredItem"></param>
             /// <param name="e"></param>
             private void OnMonitoredItemChanged(MonitoredItem monitoredItem,
-                MonitoredItemNotificationEventArgs e) {
+                Protocol.MonitoredItemNotificationEventArgs e) {
                 try {
                     if (OnMonitoredItemChange == null) {
                         return;
@@ -473,6 +504,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             private readonly SubscriptionServices _outer;
             private readonly ILogger _logger;
             private readonly SemaphoreSlim _lock;
+            private readonly ISessionHandle _handle;
             private readonly Timer _timer;
             private List<MonitoredItemWrapper> _currentlyMonitored;
         }
@@ -565,8 +597,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
 
                     DisplayName = Template.DisplayName,
                     AttributeId = ((uint?)Template.AttributeId) ?? Attributes.Value,
-                    NodeClass = (Template.NodeClass ?? Core.Models.NodeClass.Variable)
-                                .ToStackType(),
                     IndexRange = Template.IndexRange,
                     RelativePath = Template.RelativePath?
                                 .ToRelativePath(session.MessageContext)?
@@ -577,9 +607,14 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                     QueueSize = Template.QueueSize ?? 0,
                     SamplingInterval =
                         (int?)Template.SamplingInterval?.TotalMilliseconds ?? -1,
-                    DiscardOldest = !(Template.DiscardNew ?? false)
-
-                    //  Filter = monitoredItemInfo.Filter?.ToStackType(),
+                    DiscardOldest = !(Template.DiscardNew ?? false),
+                    Filter =
+                        Template.DataChangeFilter
+                            .ToStackModel() ??
+                        Template.EventFilter
+                            .ToStackModel(session.MessageContext, true) ??
+                        ((MonitoringFilter)Template.AggregateFilter
+                            .ToStackModel(session.MessageContext))
                 };
             }
 
@@ -625,7 +660,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                     changes = true;
                 }
 
-                if ((Template.QueueSize ?? 0 ) != (model.Template.QueueSize ?? 0)) {
+                if ((Template.QueueSize ?? 0) != (model.Template.QueueSize ?? 0)) {
                     _logger.Debug("{item}: Changing queue size from {old} to {new}",
                         this, Template.QueueSize ?? 0, model.Template.QueueSize ?? 0);
                     Template.QueueSize = model.Template.QueueSize;
@@ -690,6 +725,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         private readonly ILogger _logger;
         private readonly ConcurrentDictionary<string, SubscriptionWrapper> _subscriptions =
             new ConcurrentDictionary<string, SubscriptionWrapper>();
-        private readonly ISessionManager _sessionManager;
+        private readonly IEndpointServices _client;
     }
 }

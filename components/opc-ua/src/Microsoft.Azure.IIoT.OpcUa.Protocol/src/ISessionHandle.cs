@@ -3,27 +3,30 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Models {
+namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
     using Microsoft.Azure.IIoT.OpcUa.Core.Models;
+    using Opc.Ua.Client;
+    using System.Threading.Tasks;
+    using System;
 
     /// <summary>
-    /// Server connection model
+    /// Represents session handle
     /// </summary>
-    public class ConnectionModel {
+    public interface ISessionHandle : IDisposable {
 
         /// <summary>
-        /// Endpoint
+        /// Connection
         /// </summary>
-        public EndpointModel Endpoint { get; set; }
+        ConnectionModel Connection { get; }
 
         /// <summary>
-        /// User
+        /// Session
         /// </summary>
-        public CredentialModel User { get; set; }
+        Session Session { get; }
 
         /// <summary>
-        /// Diagnostics
+        /// Get access to the raw session
         /// </summary>
-        public DiagnosticsModel Diagnostics { get; set; }
+        Task<Session> AcquireSessionAsync();
     }
 }
