@@ -252,7 +252,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
 
                 if (modifySubscription) {
                     _subscription.Configuration = configuration.Clone();
-                    rawSubscription.ModifyAsync();
+                    rawSubscription.Modify();
                 }
             }
 
@@ -421,7 +421,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                     };
 
                     session.AddSubscription(subscription);
-                    subscription.CreateAsync();
+                    subscription.Create();
 
                     _logger.Debug("Added subscription '{name}' to session '{session}'.",
                          Id, session.SessionName);
@@ -469,7 +469,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             /// <param name="monitoredItem"></param>
             /// <param name="e"></param>
             private void OnMonitoredItemChanged(MonitoredItem monitoredItem,
-                Protocol.MonitoredItemNotificationEventArgs e) {
+                MonitoredItemNotificationEventArgs e) {
                 try {
                     if (OnMonitoredItemChange == null) {
                         return;
