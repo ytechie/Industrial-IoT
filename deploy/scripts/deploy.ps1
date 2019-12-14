@@ -8,9 +8,6 @@
  .PARAMETER type
     The type of deployment (local, services, app, all)
 
- .PARAMETER applicationName
-    The name of the application if not local deployment. 
-
  .PARAMETER resourceGroupName
     Can be the name of an existing or a new resource group
 
@@ -34,6 +31,9 @@
 
  .PARAMETER aadApplicationName
     The application name to use when registering aad application.  If not set, uses applicationName
+
+ .PARAMETER applicationName
+    The name of the application if not local deployment. 
 
 #>
 
@@ -419,6 +419,7 @@ Function New-Deployment() {
             if (!$containerContext) {
                 # use current context
                 $containerContext = $context
+                Write-Host "Using current authentication context to access container registry."
             }
             if ([string]::IsNullOrEmpty($script:acrRegistryName)) {
                 # use default dev images repository name - see acr-build.ps1
@@ -426,16 +427,26 @@ Function New-Deployment() {
             }
             Write-Host "Looking up credentials for $($script:acrRegistryName) registry."
             
-            $registry = Get-AzContainerRegistry -DefaultProfile $containerContext `
-                | Where-Object { $_.Name -eq $script:acrRegistryName }
+            try {
+                $registry = Get-AzContainerRegistry -DefaultProfile $containerContext `
+                    | Where-Object { $_.Name -eq $script:acrRegistryName }
+            }
+            catch {
+                $registry = $null
+            }
             if (!$registry) {
-                Write-Warning "$($script:acrRegistryName) registry not found - using default."
+                Write-Warning "$($script:acrRegistryName) registry not found - using mcr.microsoft.com."
             }
             else {
-                $creds = Get-AzContainerRegistryCredential -Registry $registry `
-                    -DefaultProfile $containerContext
+                try {
+                    $creds = Get-AzContainerRegistryCredential -Registry $registry `
+                        -DefaultProfile $containerContext
+                }
+                catch {
+                    $creds = $null
+                }
                 if (!$creds) {
-                    Write-Warning "Failed to get credentials for $($script:acrRegistryName)."
+                    Write-Warning "Failed to get credentials for $($script:acrRegistryName) - using mcr.microsoft.com."
                 }
                 else {
                     $templateParameters.Add("dockerServer", $registry.LoginServer)
