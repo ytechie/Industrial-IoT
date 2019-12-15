@@ -326,25 +326,6 @@
             ]
         },
         {
-            "comments": "Set up webhook to redeploy all in one services on docker push",
-            "type": "Microsoft.ContainerRegistry/registries/webhooks",
-            "apiVersion": "2019-05-01",
-            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('serviceSiteName'))))]",
-            "name": "[variables('serviceContainerWebhookResourceName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "status": "enabled",
-                "scope": "[variables('serviceContainerImageName')]",
-                "actions": [
-                    "push"
-                ],
-                "serviceUri": "[if(empty(parameters('serviceSiteName')), '', concat('https://$', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('servicePublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), '/docker/hook'))]"
-            },
-            "dependsOn": [
-                "[variables('serviceSiteResourceId')]"
-            ]
-        },
-        {
             "comments": "Save service url as configuration.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
