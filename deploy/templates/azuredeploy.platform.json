@@ -138,7 +138,7 @@
             }
         },
         "dockerPassword": {
-            "type": "secureString",
+            "type": "string",
             "defaultValue": "",
             "metadata": {
                 "description": "Specifies the password to use for a private Container Registry."
@@ -229,6 +229,342 @@
         "appPublishingConfigResource": "[concat('Microsoft.Web/sites/', variables('appSiteResourceName'), '/config/publishingcredentials')]"
     },
     "resources": [
+        {
+            "comments": "Hosting plan to host platform services and application.",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "kind": "[if(parameters('deployFromSource'), 'app', 'linux')]",
+            "name": "[parameters('hostingPlanName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('hostingPlanSku')]",
+                "capacity": "[parameters('hostingPlanWorkerSize')]"
+            },
+            "properties": {
+                "name": "[parameters('hostingPlanName')]",
+                "reserved": "[not(parameters('deployFromSource'))]",
+                "numberOfWorkers": "[parameters('hostingPlanWorkerSize')]"
+            },
+            "dependsOn": [
+            ]
+        },
+        {
+            "comments": "Deploy all in one services.",
+            "type": "Microsoft.Web/sites",
+            "kind": "[if(parameters('deployFromSource'), 'app', 'app,linux,container')]",
+            "name": "[variables('serviceSiteResourceName')]",
+            "apiVersion": "2018-11-01",
+            "location": "[resourceGroup().location]",
+            "identity": "[if(not(empty(parameters('managedIdentityResourceId'))), variables('identity'), '')]",
+            "condition": "[not(empty(parameters('serviceSiteName')))]",
+            "properties": {
+                "enabled": true,
+                "clientAffinityEnabled": false,
+                "serverFarmId": "[parameters('hostingPlanName')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "[if(not(parameters('deployFromSource')), concat('DOCKER|', parameters('dockerServer'), '/', variables('serviceContainerImageName')), '')]",
+                    "managedPipelineMode": "Integrated",
+                    "requestTracingEnabled": true,
+                    "httpLoggingEnabled": true,
+                    "detailedErrorLoggingEnabled": true,
+                    "alwaysOn": true,
+                    "minTlsVersion": "1.2",
+                    "http20Enabled": true,
+                    "xManagedServiceIdentityId": "[parameters('managedIdentityResourceId')]",
+                    "webSocketsEnabled": true,
+                    "appSettings":[ {
+                        "name": "PROJECT",
+                        "value": "[if(not(parameters('deployFromSource')), '', 'services/src/Microsoft.Azure.IIoT.Services.All/src/Microsoft.Azure.IIoT.Services.All.csproj')]"
+                    }]
+                }
+            },
+            "resources": [
+                {
+                    "comments": "Configuration for all in one services application.",
+                    "condition": "[not(empty(parameters('serviceSiteName')))]",
+                    "type": "config",
+                    "name": "appsettings",
+                    "apiVersion": "2018-11-01",
+                    "properties": {
+                        "PROJECT": "[if(not(parameters('deployFromSource')), '', 'services/src/Microsoft.Azure.IIoT.Services.All/src/Microsoft.Azure.IIoT.Services.All.csproj')]",
+                        "PCS_SERVICE_URL": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]",
+                        "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
+                        "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
+                        "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
+                        "WEBSITES_PORT": "9080"
+                    },
+                    "dependsOn": [
+                        "[variables('serviceSiteResourceId')]"
+                    ]
+                },
+                {
+                    "comments": "CI source control configuration.",
+                    "condition": "[and(not(empty(parameters('serviceSiteName'))), parameters('deployFromSource'))]",
+                    "type": "sourcecontrols",
+                    "name": "web",
+                    "apiVersion": "2018-11-01",
+                    "properties": {
+                        "repoUrl": "[parameters('repoUrl')]",
+                        "branch": "[parameters('branchName')]",
+                        "deploymentRollbackEnabled": false,
+                        "isManualIntegration": "[empty(parameters('gitHubPat'))]"
+                    },
+                    "dependsOn": [
+                        "[variables('serviceSiteResourceId')]"
+                    ]
+                }
+            ],
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+            ]
+        },
+        {
+            "comments": "Save service url as configuration.",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "[variables('serviceConfigurationResourceName')]",
+            "condition": "[and(not(empty(parameters('keyVaultName'))), not(empty(parameters('serviceSiteName'))))]",
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "configuration": {
+                        "value": [
+                            {
+                                "key": "PCS_SERVICE_NAME",
+                                "value": "[concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0])]"
+                            }
+                        ]
+                    }
+                },
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[concat(variables('templateBaseUrl'), 'azuredeploy.configuration.json')]"
+                }
+            },
+            "dependsOn": [
+                "[variables('serviceSiteResourceId')]"
+            ]
+        },
+        {
+            "comments": "Deploy application.",
+            "condition": "[not(empty(parameters('siteName')))]",
+            "type": "Microsoft.Web/sites",
+            "kind": "[if(parameters('deployFromSource'), 'app', 'app,linux,container')]",
+            "name": "[variables('appSiteResourceName')]",
+            "apiVersion": "2018-11-01",
+            "location": "[resourceGroup().location]",
+            "identity": "[if(not(empty(parameters('managedIdentityResourceId'))), variables('identity'), '')]",
+            "properties": {
+                "enabled": true,
+                "clientAffinityEnabled": false,
+                "serverFarmId": "[parameters('hostingPlanName')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "[if(not(parameters('deployFromSource')), concat('DOCKER|', parameters('dockerServer'), '/', variables('appContainerImageName')), '')]",
+                    "managedPipelineMode": "Integrated",
+                    "requestTracingEnabled": true,
+                    "httpLoggingEnabled": true,
+                    "detailedErrorLoggingEnabled": true,
+                    "alwaysOn": true,
+                    "minTlsVersion": "1.2",
+                    "http20Enabled": true,
+                    "xManagedServiceIdentityId": "[parameters('managedIdentityResourceId')]",
+                    "webSocketsEnabled": true,
+                    "appSettings":[ {
+                        "name": "PROJECT",
+                        "value": "[if(not(parameters('deployFromSource')), '', 'samples/src/Microsoft.Azure.IIoT.App/src/Microsoft.Azure.IIoT.App.csproj')]"
+                    }]
+                }
+            },
+            "resources": [
+                {
+                    "comments": "Configuration for application.",
+                    "condition": "[not(empty(parameters('siteName')))]",
+                    "type": "config",
+                    "name": "appsettings",
+                    "apiVersion": "2018-11-01",
+                    "properties": {
+                        "PROJECT": "[if(not(parameters('deployFromSource')), '', 'samples/src/Microsoft.Azure.IIoT.App/src/Microsoft.Azure.IIoT.App.csproj')]",
+                        "PCS_SERVICE_URL": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]",
+                        "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
+                        "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
+                        "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
+                    },
+                    "dependsOn": [
+                        "[variables('serviceSiteResourceId')]",
+                        "[variables('serviceConfigurationResourceId')]",
+                        "[variables('appSiteResourceId')]"
+                    ]
+                },
+                {
+                    "comments": "CI source control configuration.",
+                    "condition": "[and(not(empty(parameters('siteName'))), parameters('deployFromSource'))]",
+                    "type": "sourcecontrols",
+                    "name": "web",
+                    "apiVersion": "2018-11-01",
+                    "properties": {
+                        "repoUrl": "[parameters('repoUrl')]",
+                        "branch": "[parameters('branchName')]",
+                        "deploymentRollbackEnabled": false,
+                        "isManualIntegration": "[empty(parameters('gitHubPat'))]"
+                    },
+                    "dependsOn": [
+                        "[variables('appSiteResourceId')]"
+                    ]
+                }
+            ],
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+            ]
+        },
+        {
+            "comments": "Deploy linux edge gateway and factory network simulation.",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "[concat('LinuxGatewaySimulation', copyIndex())]",
+            "condition": "[not(equals(0, parameters('numberOfLinuxGateways')))]",
+            "copy": {
+                "count": "[if(not(equals(0, parameters('numberOfLinuxGateways'))), parameters('numberOfLinuxGateways'), 1)]",
+                "mode": "Parallel",
+                "name": "simulationcopies"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "edgeName": {
+                        "value": "[concat('linuxGateway', copyIndex())]"
+                    },
+                    "edgeOs": {
+                        "value": "linux"
+                    },
+                    "edgeUserName": {
+                        "value": "[parameters('edgeUserName')]"
+                    },
+                    "edgePassword": {
+                        "value": "[parameters('edgePassword')]"
+                    },
+                    "numberOfServers": {
+                        "value": "[parameters('numberOfServers')]"
+                    },
+                    "dockerServer": {
+                        "value": "[parameters('dockerServer')]"
+                    },
+                    "dockerUser": {
+                        "value": "[parameters('dockerUser')]"
+                    },
+                    "dockerPassword": {
+                        "value": "[parameters('dockerPassword')]"
+                    },
+                    "imageNamespace": {
+                        "value": "[parameters('imageNamespace')]"
+                    },
+                    "imageVersion": {
+                        "value": "[parameters('imageVersion')]"
+                    },
+                    "repoUrl": {
+                        "value": "[parameters('repoUrl')]"
+                    },
+                    "branchName": {
+                        "value": "[parameters('branchName')]"
+                    },
+                    "keyVaultUri": {
+                        "value": "[parameters('keyVaultUri')]"
+                    },
+                    "keyVaultAppId": {
+                        "value": "[parameters('keyVaultAppId')]"
+                    },
+                    "keyVaultAppSecret": {
+                        "value": "[parameters('keyVaultAppSecret')]"
+                    },
+                    "managedIdentityResourceId": {
+                        "value": "[parameters('managedIdentityResourceId')]"
+                    }
+                },
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[concat(variables('templateBaseUrl'), 'azuredeploy.simulation.json')]"
+                }
+            },
+            "dependsOn": [
+            ]
+        },
+        {
+            "comments": "Deploy windows edge gateway and factory network simulation.",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "[concat('WindowsGatewaySimulation', copyIndex())]",
+            "condition": "[not(equals(0, parameters('numberOfWindowsGateways')))]",
+            "copy": {
+                "count": "[if(not(equals(0, parameters('numberOfWindowsGateways'))), parameters('numberOfWindowsGateways'), 1)]",
+                "mode": "Parallel",
+                "name": "simulationcopies"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "edgeName": {
+                        "value": "[concat('winGateway', copyIndex())]"
+                    },
+                    "edgeOs": {
+                        "value": "windows"
+                    },
+                    "edgeUserName": {
+                        "value": "[parameters('edgeUserName')]"
+                    },
+                    "edgePassword": {
+                        "value": "[parameters('edgePassword')]"
+                    },
+                    "numberOfServers": {
+                        "value": "[parameters('numberOfServers')]"
+                    },
+                    "dockerServer": {
+                        "value": "[parameters('dockerServer')]"
+                    },
+                    "dockerUser": {
+                        "value": "[parameters('dockerUser')]"
+                    },
+                    "dockerPassword": {
+                        "value": "[parameters('dockerPassword')]"
+                    },
+                    "imageNamespace": {
+                        "value": "[parameters('imageNamespace')]"
+                    },
+                    "imageVersion": {
+                        "value": "[parameters('imageVersion')]"
+                    },
+                    "repoUrl": {
+                        "value": "[parameters('repoUrl')]"
+                    },
+                    "branchName": {
+                        "value": "[parameters('branchName')]"
+                    },
+                    "keyVaultUri": {
+                        "value": "[parameters('keyVaultUri')]"
+                    },
+                    "keyVaultAppId": {
+                        "value": "[parameters('keyVaultAppId')]"
+                    },
+                    "keyVaultAppSecret": {
+                        "value": "[parameters('keyVaultAppSecret')]"
+                    },
+                    "managedIdentityResourceId": {
+                        "value": "[parameters('managedIdentityResourceId')]"
+                    }
+                },
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[concat(variables('templateBaseUrl'), 'azuredeploy.simulation.json')]"
+                }
+            },
+            "dependsOn": [
+            ]
+        }
     ],
     "outputs": {
         "azureWebsite": {
