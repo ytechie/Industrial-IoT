@@ -433,25 +433,6 @@
             ]
         },
         {
-            "comments": "Set up webhook to redeploy application on docker push",
-            "type": "Microsoft.ContainerRegistry/registries/webhooks",
-            "apiVersion": "2019-05-01",
-            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('siteName'))))]",
-            "name": "[variables('appContainerWebhookResourceName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "status": "enabled",
-                "scope": "[variables('appContainerImageName')]",
-                "actions": [
-                    "push"
-                ],
-                "serviceUri": "[if(empty(parameters('siteName')), '', concat('https://$', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('appPublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), '/docker/hook'))]"
-            },
-            "dependsOn": [
-                "[variables('appSiteResourceId')]"
-            ]
-        },
-        {
             "comments": "Deploy linux edge gateway and factory network simulation.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
