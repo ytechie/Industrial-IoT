@@ -138,7 +138,7 @@
             }
         },
         "dockerPassword": {
-            "type": "secureString",
+            "type": "string",
             "defaultValue": "",
             "metadata": {
                 "description": "Specifies the password to use for a private Container Registry."
