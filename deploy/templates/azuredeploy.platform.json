@@ -329,7 +329,7 @@
             "comments": "Set up webhook to redeploy all in one services on docker push",
             "type": "Microsoft.ContainerRegistry/registries/webhooks",
             "apiVersion": "2019-05-01",
-            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('serviceSiteName'))))]",
+            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('gitHubPat'))), not(empty(parameters('serviceSiteName'))))]",
             "name": "[variables('serviceContainerWebhookResourceName')]",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -455,7 +455,7 @@
             "comments": "Set up webhook to redeploy application on docker push",
             "type": "Microsoft.ContainerRegistry/registries/webhooks",
             "apiVersion": "2019-05-01",
-            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('siteName'))))]",
+            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('gitHubPat'))), not(empty(parameters('siteName'))))]",
             "name": "[variables('appContainerWebhookResourceName')]",
             "location": "[resourceGroup().location]",
             "properties": {

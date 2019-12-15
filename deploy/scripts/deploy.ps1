@@ -412,6 +412,10 @@ Function New-Deployment() {
                 -or ![string]::IsNullOrEmpty($script:acrSubscriptionName)) {
             if (![string]::IsNullOrEmpty($script:acrSubscriptionName) `
                     -and ($context.Subscription.Name -ne $script:acrSubscriptionName)) {
+                $acrSubscription = Get-AzSubscription -SubscriptionName $script:acrSubscriptionName 
+                if (!$acrSubscription) {
+                    Write-Warning "Specified container registry subscription $($script:acrSubscriptionName) not found."
+                }
                 $containerContext = Get-AzContext -ListAvailable | Where-Object { 
                     $_.Subscription.Name -eq $script:acrSubscriptionName 
                 }
@@ -419,7 +423,7 @@ Function New-Deployment() {
             if (!$containerContext) {
                 # use current context
                 $containerContext = $context
-                Write-Host "Using current authentication context to access container registry."
+                Write-Host "Try using current authentication context to access container registry."
             }
             if ([string]::IsNullOrEmpty($script:acrRegistryName)) {
                 # use default dev images repository name - see acr-build.ps1
