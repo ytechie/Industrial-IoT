@@ -73,7 +73,7 @@
         },
         "deployFromSource": {
             "type": "bool",
-            "defaultValue": true,
+            "defaultValue": false,
             "metadata": {
                 "description": "Whether to deploy app services from the repo source."
             }
@@ -138,7 +138,7 @@
             }
         },
         "dockerPassword": {
-            "type": "string",
+            "type": "secureString",
             "defaultValue": "",
             "metadata": {
                 "description": "Specifies the password to use for a private Container Registry."
