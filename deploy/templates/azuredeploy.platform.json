@@ -73,7 +73,7 @@
         },
         "deployFromSource": {
             "type": "bool",
-            "defaultValue": false,
+            "defaultValue": true,
             "metadata": {
                 "description": "Whether to deploy app services from the repo source."
             }
@@ -138,7 +138,7 @@
             }
         },
         "dockerPassword": {
-            "type": "string",
+            "type": "secureString",
             "defaultValue": "",
             "metadata": {
                 "description": "Specifies the password to use for a private Container Registry."
@@ -293,6 +293,10 @@
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
                         "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
+                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', not(empty(parameters('containerRegistryName'))))]",
+                        "DOCKER_REGISTRY_SERVER_URL": "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]",
                         "WEBSITES_PORT": "9080"
                     },
                     "dependsOn": [
@@ -318,6 +322,25 @@
             ],
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+            ]
+        },
+        {
+            "comments": "Set up webhook to redeploy all in one services on docker push",
+            "type": "Microsoft.ContainerRegistry/registries/webhooks",
+            "apiVersion": "2019-05-01",
+            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('serviceSiteName'))))]",
+            "name": "[variables('serviceContainerWebhookResourceName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "status": "enabled",
+                "scope": "[variables('serviceContainerImageName')]",
+                "actions": [
+                    "push"
+                ],
+                "serviceUri": "[if(empty(parameters('serviceSiteName')), '', concat('https://$', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('servicePublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), '/docker/hook'))]"
+            },
+            "dependsOn": [
+                "[variables('serviceSiteResourceId')]"
             ]
         },
         {
@@ -395,6 +418,10 @@
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
                         "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
+                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', not(empty(parameters('containerRegistryName'))))]",
+                        "DOCKER_REGISTRY_SERVER_URL": "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]",
                     },
                     "dependsOn": [
                         "[variables('serviceSiteResourceId')]",
@@ -421,6 +448,25 @@
             ],
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+            ]
+        },
+        {
+            "comments": "Set up webhook to redeploy application on docker push",
+            "type": "Microsoft.ContainerRegistry/registries/webhooks",
+            "apiVersion": "2019-05-01",
+            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('siteName'))))]",
+            "name": "[variables('appContainerWebhookResourceName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "status": "enabled",
+                "scope": "[variables('appContainerImageName')]",
+                "actions": [
+                    "push"
+                ],
+                "serviceUri": "[if(empty(parameters('siteName')), '', concat('https://$', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('appPublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), '/docker/hook'))]"
+            },
+            "dependsOn": [
+                "[variables('appSiteResourceId')]"
             ]
         },
         {
