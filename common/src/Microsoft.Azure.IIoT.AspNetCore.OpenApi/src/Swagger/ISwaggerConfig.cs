@@ -21,6 +21,11 @@ namespace Microsoft.Azure.IIoT.Services.Swagger {
         bool WithAuth { get; }
 
         /// <summary>
+        /// Swagger reply url
+        /// </summary>
+        string SwaggerReplyUrl { get; }
+
+        /// <summary>
         /// The AAD application id for the swagger client.
         /// </summary>
         string SwaggerAppId { get; }

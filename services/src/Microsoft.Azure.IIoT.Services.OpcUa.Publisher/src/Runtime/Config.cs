@@ -69,6 +69,8 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Publisher.Runtime {
         /// <inheritdoc/>
         public bool WithAuth => _swagger.WithAuth;
         /// <inheritdoc/>
+        public string SwaggerReplyUrl => _swagger.SwaggerReplyUrl;
+        /// <inheritdoc/>
         public string SwaggerAppId => _swagger.SwaggerAppId;
         /// <inheritdoc/>
         public string SwaggerAppSecret => _swagger.SwaggerAppSecret;

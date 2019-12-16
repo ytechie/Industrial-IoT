@@ -112,11 +112,14 @@ namespace Swashbuckle.AspNetCore.Swagger {
             }
 
             var config = app.ApplicationServices.GetRequiredService<ISwaggerConfig>();
-
             var server = app.ApplicationServices.GetRequiredService<IServer>();
-            var addresses = app.ServerFeatures.Get<IServerAddressesFeature>();
-            var path = addresses?.Addresses
-                .FirstOrDefault()?.Split('/').LastOrDefault() ?? string.Empty;
+            var addresses = app.ServerFeatures.Get<IServerAddressesFeature>()?.Addresses
+                .Select(a => new Uri(a.Replace("://*", "://localhost")))
+                .ToList() ?? new List<Uri>();
+            var path = addresses.FirstOrDefault()?.PathAndQuery.Trim('/') ??
+                string.Empty;
+            var isLocalHost = addresses == null ||
+                addresses.All(a => a.Host.EqualsIgnoreCase("localhost"));
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {
@@ -125,13 +128,11 @@ namespace Swashbuckle.AspNetCore.Swagger {
                             out var values) && values.Count > 0) {
                         doc.BasePath = path + "/" + values[0];
                     }
-                    doc.Schemes = addresses?.Addresses
-                        .Select(address => address
-                            .Split(new [] { "://" }, StringSplitOptions.RemoveEmptyEntries)
-                            .FirstOrDefault())
-                        .Where(address => address != null)
+                    doc.Schemes = addresses
+                        .Select(a => a.Scheme)
+                        .Append("https")
                         .Distinct()
-                        .ToList() ?? new List<string> { "https" };
+                        .ToList();
                 });
                 options.RouteTemplate = "{documentName}/swagger.json";
             });
@@ -147,6 +148,12 @@ namespace Swashbuckle.AspNetCore.Swagger {
                         if (!string.IsNullOrEmpty(config.SwaggerAppSecret)) {
                             options.OAuthClientSecret(config.SwaggerAppSecret);
                         }
+                        if (!string.IsNullOrEmpty(config.SwaggerReplyUrl)) {
+                            options.OAuth2RedirectUrl(config.SwaggerReplyUrl);
+                        }
+                  //     else {
+                  //         options.OAuth2RedirectUrl("/oauth2-redirect.html");
+                  //     }
                         var resource = config as IAuthConfig;
                         if (!string.IsNullOrEmpty(resource?.Audience)) {
                             options.OAuthAdditionalQueryStringParams(
