@@ -158,13 +158,6 @@
                 "description": "Specifies the image version tag to use for all images."
             }
         },
-        "containerRegistryName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Specifies the name of the Azure Container Registry to setup for continuous integration."
-            }
-        },
         "hostingPlanName": {
             "type": "string",
             "defaultValue": "[concat('appservices-', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
@@ -217,14 +210,12 @@
         },
         "serviceSiteResourceName": "[if(empty(parameters('serviceSiteName')), concat('svc', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 5)), parameters('serviceSiteName'))]",
         "serviceSiteResourceId": "[resourceId('Microsoft.Web/sites', variables('serviceSiteResourceName'))]",
-        "serviceContainerWebhookResourceName": "[concat(if(empty(parameters('containerRegistryName')), 'dummy', parameters('containerRegistryName')), '/', 'serviceContainerWebhook')]",
         "serviceContainerImageName": "[concat(if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/industrial-iot-services-all', ':', parameters('imageVersion'))]",
         "serviceConfigurationResourceName": "serviceConfiguration",
         "serviceConfigurationResourceId": "[resourceId('Microsoft.Resources/deployments', variables('serviceConfigurationResourceName'))]",
         "servicePublishingConfigResource": "[concat('Microsoft.Web/sites/', variables('serviceSiteResourceName'), '/config/publishingcredentials')]",
         "appSiteResourceName": "[if(empty(parameters('siteName')), concat('app', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 5)), parameters('siteName'))]",
         "appSiteResourceId": "[resourceId('Microsoft.Web/sites', variables('appSiteResourceName'))]",
-        "appContainerWebhookResourceName": "[concat(if(empty(parameters('containerRegistryName')), 'dummy', parameters('containerRegistryName')), '/', 'appContainerWebhook')]",
         "appContainerImageName": "[concat(if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/industrial-iot-frontend', ':', parameters('imageVersion'))]",
         "appPublishingConfigResource": "[concat('Microsoft.Web/sites/', variables('appSiteResourceName'), '/config/publishingcredentials')]"
     },
@@ -293,7 +284,7 @@
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
                         "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
-                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', not(empty(parameters('containerRegistryName'))))]",
+                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', 'false')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]",
                         "DOCKER_REGISTRY_SERVER_USERNAME": "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]",
@@ -322,25 +313,6 @@
             ],
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
-            ]
-        },
-        {
-            "comments": "Set up webhook to redeploy all in one services on docker push",
-            "type": "Microsoft.ContainerRegistry/registries/webhooks",
-            "apiVersion": "2019-05-01",
-            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('serviceSiteName'))))]",
-            "name": "[variables('serviceContainerWebhookResourceName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "status": "enabled",
-                "scope": "[variables('serviceContainerImageName')]",
-                "actions": [
-                    "push"
-                ],
-                "serviceUri": "[if(empty(parameters('serviceSiteName')), '', concat('https://$', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('servicePublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), '/docker/hook'))]"
-            },
-            "dependsOn": [
-                "[variables('serviceSiteResourceId')]"
             ]
         },
         {
@@ -418,7 +390,7 @@
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
                         "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
-                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', not(empty(parameters('containerRegistryName'))))]",
+                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', 'false')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]",
                         "DOCKER_REGISTRY_SERVER_USERNAME": "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]"
@@ -448,25 +420,6 @@
             ],
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
-            ]
-        },
-        {
-            "comments": "Set up webhook to redeploy application on docker push",
-            "type": "Microsoft.ContainerRegistry/registries/webhooks",
-            "apiVersion": "2019-05-01",
-            "condition": "[and(not(parameters('deployFromSource')), not(empty(parameters('containerRegistryName'))), not(empty(parameters('siteName'))))]",
-            "name": "[variables('appContainerWebhookResourceName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "status": "enabled",
-                "scope": "[variables('appContainerImageName')]",
-                "actions": [
-                    "push"
-                ],
-                "serviceUri": "[if(empty(parameters('siteName')), '', concat('https://$', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('appPublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), '/docker/hook'))]"
-            },
-            "dependsOn": [
-                "[variables('appSiteResourceId')]"
             ]
         },
         {
@@ -617,9 +570,17 @@
             "type": "string",
             "value": "[if(empty(parameters('siteName')), '', concat('https://', reference(variables('appSiteResourceId'), '2018-11-01').hostNames[0]))]"
         },
+        "azureWebsiteWebhook": {
+            "type": "string",
+            "value": "[if(empty(parameters('siteName')), '', concat('https://$', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('appPublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('appPublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), ''))]"
+        },
         "serviceUrl": {
             "type": "string",
             "value": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]"
+        },
+        "serviceWebhook": {
+            "type": "string",
+            "value": "[if(empty(parameters('serviceSiteName')), '', concat('https://$', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingUserName, ':', list(variables('servicePublishingConfigResource'), '2016-08-01').properties.publishingPassword, '@', replace(list(variables('servicePublishingConfigResource'), '2016-08-01').properties.scmUri, 'https://', ''), ''))]"
         }
     }
 }
