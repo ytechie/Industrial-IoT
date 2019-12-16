@@ -189,7 +189,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Gateway {
 
             // Auto start listeners
             builder.RegisterType<TcpChannelListener>()
-                .AutoActivate()
+               // .AutoActivate()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<WebSocketChannelListener>()
                 .AutoActivate()
