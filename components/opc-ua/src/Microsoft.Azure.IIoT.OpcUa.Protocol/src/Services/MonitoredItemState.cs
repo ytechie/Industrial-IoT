@@ -228,7 +228,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
         /// <param name="update"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public static bool Diff(IEnumerable<MonitoredItemModel> monitoredItems,
+        public static bool GetMonitoredItemChangesPhase1(IEnumerable<MonitoredItemModel> monitoredItems,
             IEnumerable<MonitoredItemState> currentItems,
             out HashSet<MonitoredItemState> deletes,
             out HashSet<MonitoredItemState> add,
@@ -249,7 +249,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
             var currentState = currentItems
                 .ToHashSetSafe();
 
-
             // Remove monitored items not in desired state
             deletes = currentState.Except(desiredState).ToHashSetSafe();
             var applyChanges = deletes.Count != 0;
@@ -264,13 +263,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
             //      rawSubscription.RemoveItem(detached);
             //  }
 
-            var nowMonitored = new List<MonitoredItemState>();
-
             // Add new monitored items not in current state
             foreach (var toAdd in desiredState.Except(currentState)) {
                 logger.Debug("Adding new monitored item '{item}'...", toAdd);
                 add.Add(toAdd);
-                nowMonitored.Add(toAdd);
                 applyChanges = true;
             }
 
@@ -283,29 +279,29 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
                     update.Add(toUpdate);
                     applyChanges = true;
                 }
-                nowMonitored.Add(toUpdate);
             }
+            return applyChanges;
         }
 
         /// <summary>
         /// Get trigger links from all items
         /// </summary>
-        /// <param name="nowMonitored"></param>
+        /// <param name="currentItems"></param>
         /// <param name="added"></param>
         /// <param name="removed"></param>
         /// <param name="modeChanges"></param>
         /// <returns></returns>
-        public static void GetTriggerLinks(IEnumerable<MonitoredItemState> nowMonitored,
+        public static void GetMonitoredItemChangesPhase2(IEnumerable<MonitoredItemState> currentItems,
             out HashSet<uint> added, out HashSet<uint> removed,
-            out Dictionary<uint, MonitoringMode> modeChanges) {
+            out Dictionary<MonitoringMode, List<uint>> modeChanges) {
 
             added = new HashSet<uint>();
             removed = new HashSet<uint>();
-            modeChanges = new Dictionary<uint, MonitoringMode>();
+            modeChanges = new Dictionary<MonitoringMode, List<uint>>();
 
-            var map = nowMonitored.ToDictionary(
+            var map = currentItems.ToDictionary(
                 k => k.Reported.Id ?? k.Reported.StartNodeId, v => v);
-            foreach (var item in nowMonitored.ToList()) {
+            foreach (var item in currentItems.ToList()) {
                 if (item.Desired.TriggerId != null &&
                     map.TryGetValue(item.Desired.TriggerId, out var trigger)) {
                     trigger.AddTriggerLink(item.ServerId);
@@ -313,21 +309,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
             }
 
             // Set up any new trigger configuration if needed
-            foreach (var item in nowMonitored.ToList()) {
+            foreach (var item in currentItems.ToList()) {
                 item.GetTriggeringLinks(ref added, ref removed);
             }
 
             // Change monitoring mode of all items if necessary
-            foreach (var change in nowMonitored.GroupBy(i => i.GetMonitoringModeChange())) {
+            foreach (var change in currentItems.GroupBy(i => i.GetMonitoringModeChange())) {
                 if (change.Key == null) {
                     continue;
                 }
+                modeChanges =
                 await rawSubscription.Session.SetMonitoringModeAsync(null,
                     rawSubscription.Id, change.Key.Value,
                     new UInt32Collection(change.Select(i => i.ServerId ?? 0)));
             }
 
-            _currentlyMonitored = nowMonitored;
+            _currentlyMonitored = currentItems;
 
             // Set timer to check connection periodically
             if (_currentlyMonitored.Count > 0) {
