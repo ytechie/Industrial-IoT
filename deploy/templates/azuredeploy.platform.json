@@ -269,18 +269,6 @@
                         {
                             "name": "PROJECT",
                             "value": "[if(not(parameters('deployFromSource')), '', 'services/src/Microsoft.Azure.IIoT.Services.All/src/Microsoft.Azure.IIoT.Services.All.csproj')]"
-                        },
-                        {
-                            "name": "DOCKER_REGISTRY_SERVER_URL",
-                            "value":  "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]"
-                        },
-                        {
-                            "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-                            "value":  "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]"
-                        },
-                        {
-                            "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-                            "value":  "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]"
                         }
                     ]
                 }
@@ -390,18 +378,6 @@
                         {
                             "name": "PROJECT",
                             "value": "[if(not(parameters('deployFromSource')), '', 'samples/src/Microsoft.Azure.IIoT.App/src/Microsoft.Azure.IIoT.App.csproj')]"
-                        },
-                        {
-                            "name": "DOCKER_REGISTRY_SERVER_URL",
-                            "value":  "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]"
-                        },
-                        {
-                            "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-                            "value":  "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]"
-                        },
-                        {
-                            "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-                            "value":  "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]"
                         }
                     ]
                 }

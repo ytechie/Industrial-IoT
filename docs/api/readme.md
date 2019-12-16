@@ -14,6 +14,10 @@
 
 * [REST API](twin/readme.md)
 
+## OPC Publisher Service
+
+* [REST API](publisher/readme.md)
+
 ## OPC Historic Access Service
 
 * [REST API](history/readme.md)
