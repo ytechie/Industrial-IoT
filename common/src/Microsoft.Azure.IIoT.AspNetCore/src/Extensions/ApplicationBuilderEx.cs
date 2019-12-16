@@ -5,11 +5,14 @@ namespace Microsoft.AspNetCore.Hosting {
     using Microsoft.AspNetCore.Hosting.Builder;
     using Microsoft.AspNetCore.Hosting.Internal;
     using Microsoft.AspNetCore.Hosting.Server;
+    using Microsoft.AspNetCore.Hosting.Server.Features;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Features;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -28,6 +31,7 @@ namespace Microsoft.AspNetCore.Hosting {
 
             // Create a dummy server that acts as a scoped service provider
             StartupMethods methods = null;
+            var addresses = app.ServerFeatures.Get<IServerAddressesFeature>();
             var webHost = new WebHostBuilder()
                 .UseStartup<EmptyStartup>()
                 .ConfigureServices(s => {
@@ -36,7 +40,8 @@ namespace Microsoft.AspNetCore.Hosting {
                     if (config != null) {
                         s.AddSingleton(config);
                     }
-                    s.AddSingleton<IServer, DummyServer>();
+                    s.AddSingleton(typeof(IServer), new DummyServer(path,
+                        addresses?.Addresses ?? Enumerable.Empty<string>()));
                     s.AddSingleton(typeof(IStartup), delegate (IServiceProvider sp) {
                         var requiredService = sp.GetRequiredService<IHostingEnvironment>();
                         methods = StartupLoader.LoadMethods(sp, typeof(T),
@@ -106,10 +111,26 @@ namespace Microsoft.AspNetCore.Hosting {
         }
 
         /// <inheritdoc/>
-        private sealed class DummyServer : IServer {
+        private sealed class DummyServer : IServer, IServerAddressesFeature {
 
             /// <inheritdoc/>
             public IFeatureCollection Features { get; } = new FeatureCollection();
+            /// <inheritdoc/>
+            public ICollection<string> Addresses { get; }
+            /// <inheritdoc/>
+            public bool PreferHostingUrls { get; set; }
+
+            /// <summary>
+            /// Create server
+            /// </summary>
+            /// <param name="path"></param>
+            /// <param name="addresses"></param>
+            public DummyServer(PathString path, IEnumerable<string> addresses) {
+                Addresses = addresses
+                    .Select(a => a + path)
+                    .ToList();
+                Features[typeof(IServerAddressesFeature)] = this;
+            }
 
             /// <inheritdoc/>
             public void Dispose() { }

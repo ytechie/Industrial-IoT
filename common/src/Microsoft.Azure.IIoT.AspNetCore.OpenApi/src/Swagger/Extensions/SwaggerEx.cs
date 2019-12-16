@@ -21,6 +21,8 @@ namespace Swashbuckle.AspNetCore.Swagger {
     using System.Linq;
     using System.Reflection;
     using System.Net;
+    using Microsoft.AspNetCore.Hosting.Server;
+    using Microsoft.AspNetCore.Hosting.Server.Features;
 
     /// <summary>
     /// Configure swagger
@@ -110,6 +112,9 @@ namespace Swashbuckle.AspNetCore.Swagger {
             }
 
             var config = app.ApplicationServices.GetRequiredService<ISwaggerConfig>();
+
+            var server = app.ApplicationServices.GetRequiredService<IServer>();
+            var addresses = app.ServerFeatures.Get<IServerAddressesFeature>();
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {

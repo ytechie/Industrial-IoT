@@ -255,7 +255,6 @@
                 "httpsOnly": true,
                 "siteConfig": {
                     "numberOfWorkers": 1,
-                    "linuxFxVersion": "[if(not(parameters('deployFromSource')), concat('DOCKER|https://', parameters('dockerServer'), '/', variables('serviceContainerImageName')), '')]",
                     "managedPipelineMode": "Integrated",
                     "requestTracingEnabled": true,
                     "httpLoggingEnabled": true,
@@ -282,6 +281,7 @@
                     "apiVersion": "2018-11-01",
                     "properties": {
                         "PROJECT": "[if(not(parameters('deployFromSource')), '', 'services/src/Microsoft.Azure.IIoT.Services.All/src/Microsoft.Azure.IIoT.Services.All.csproj')]",
+                    "linuxFxVersion": "[if(not(parameters('deployFromSource')), concat('DOCKER|https://', parameters('dockerServer'), '/', variables('serviceContainerImageName')), '')]",
                         "PCS_SERVICE_URL": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]",
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
@@ -364,7 +364,6 @@
                 "httpsOnly": true,
                 "siteConfig": {
                     "numberOfWorkers": 1,
-                    "linuxFxVersion": "[if(not(parameters('deployFromSource')), concat('DOCKER|https://', parameters('dockerServer'), '/', variables('appContainerImageName')), '')]",
                     "managedPipelineMode": "Integrated",
                     "requestTracingEnabled": true,
                     "httpLoggingEnabled": true,
@@ -391,7 +390,8 @@
                     "apiVersion": "2018-11-01",
                     "properties": {
                         "PROJECT": "[if(not(parameters('deployFromSource')), '', 'samples/src/Microsoft.Azure.IIoT.App/src/Microsoft.Azure.IIoT.App.csproj')]",
-                        "PCS_SERVICE_URL": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]",
+                         "linuxFxVersion": "[if(not(parameters('deployFromSource')), concat('DOCKER|https://', parameters('dockerServer'), '/', variables('appContainerImageName')), '')]",
+                   "PCS_SERVICE_URL": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]",
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
                         "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
