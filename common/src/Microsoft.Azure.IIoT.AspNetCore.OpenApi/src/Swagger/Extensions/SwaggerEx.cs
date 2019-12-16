@@ -118,8 +118,6 @@ namespace Swashbuckle.AspNetCore.Swagger {
                 .ToList() ?? new List<Uri>();
             var path = addresses.FirstOrDefault()?.PathAndQuery.Trim('/') ??
                 string.Empty;
-            var isLocalHost = addresses == null ||
-                addresses.All(a => a.Host.EqualsIgnoreCase("localhost"));
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {
@@ -148,12 +146,6 @@ namespace Swashbuckle.AspNetCore.Swagger {
                         if (!string.IsNullOrEmpty(config.SwaggerAppSecret)) {
                             options.OAuthClientSecret(config.SwaggerAppSecret);
                         }
-                        if (!string.IsNullOrEmpty(config.SwaggerReplyUrl)) {
-                            options.OAuth2RedirectUrl(config.SwaggerReplyUrl);
-                        }
-                  //     else {
-                  //         options.OAuth2RedirectUrl("/oauth2-redirect.html");
-                  //     }
                         var resource = config as IAuthConfig;
                         if (!string.IsNullOrEmpty(resource?.Audience)) {
                             options.OAuthAdditionalQueryStringParams(

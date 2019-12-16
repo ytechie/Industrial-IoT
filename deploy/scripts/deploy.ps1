@@ -574,22 +574,24 @@ Function New-Deployment() {
             }
 
             if ($aadAddReplyUrls -and ![string]::IsNullOrEmpty($script:aadConfig.ClientPrincipalId)) {
-                $serviceUri = $deployment.Outputs["PCS_SERVICE_URL"].Value
+                $serviceUri = $deployment.Outputs["serviceUrl"].Value
 
                 if (![string]::IsNullOrEmpty($serviceUri)) {
                     $replyUrls.Add($serviceUri + "/twin/oauth2-redirect.html")
                     $replyUrls.Add($serviceUri + "/registry/oauth2-redirect.html")
                     $replyUrls.Add($serviceUri + "/history/oauth2-redirect.html")
                     $replyUrls.Add($serviceUri + "/vault/oauth2-redirect.html")
-                    $replyUrls.Add($serviceUri + "/ua/oauth2-redirect.html")
+                    $replyUrls.Add($serviceUri + "/publisher/oauth2-redirect.html")
                 }
-                else {
-                    $replyUrls.Add("http://localhost/oauth2-redirect.html")
-                    $replyUrls.Add("https://localhost/oauth2-redirect.html")
-                    $replyUrls.Add("http://localhost:44314/signin-oidc")
-                    $replyUrls.Add("https://localhost:44314/signin-oidc")
-                }
-
+                
+                $replyUrls.Add("http://localhost:9080/twin/oauth2-redirect.html")
+                $replyUrls.Add("http://localhost:9080/registry/oauth2-redirect.html")
+                $replyUrls.Add("http://localhost:9080/history/oauth2-redirect.html")
+                $replyUrls.Add("http://localhost:9080/vault/oauth2-redirect.html")
+                $replyUrls.Add("http://localhost:9080/publisher/oauth2-redirect.html")
+            }
+            
+            if ($aadAddReplyUrls) {            
                 # register reply urls in client application registration
                 Write-Host "Registering reply urls for $($aadConfig.ClientPrincipalId)..."
 
