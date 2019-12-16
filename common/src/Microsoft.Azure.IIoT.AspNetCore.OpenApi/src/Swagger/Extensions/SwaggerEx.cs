@@ -115,6 +115,10 @@ namespace Swashbuckle.AspNetCore.Swagger {
 
             var server = app.ApplicationServices.GetRequiredService<IServer>();
             var addresses = app.ServerFeatures.Get<IServerAddressesFeature>();
+            var path = "";
+            if (addresses != null) {
+
+            }
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {
