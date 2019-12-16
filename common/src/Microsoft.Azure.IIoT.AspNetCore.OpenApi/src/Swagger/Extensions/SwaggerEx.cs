@@ -13,6 +13,7 @@ namespace Swashbuckle.AspNetCore.Swagger {
     using Microsoft.Azure.IIoT.Http;
     using Microsoft.Azure.IIoT.Services.Swagger;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Options;
     using System;
     using System.Collections.Generic;
@@ -31,12 +32,12 @@ namespace Swashbuckle.AspNetCore.Swagger {
         /// </summary>
         /// <param name="services"></param>
         /// <param name="config"></param>
-        /// <param name="info"></param>
+        /// <param name="infos"></param>
         public static void AddSwagger(this IServiceCollection services,
-            ISwaggerConfig config, Info info) {
+            ISwaggerConfig config, params Info[] infos) {
 
-            if (info == null) {
-                throw new ArgumentNullException(nameof(info));
+            if (infos == null) {
+                throw new ArgumentNullException(nameof(infos));
             }
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
@@ -44,8 +45,6 @@ namespace Swashbuckle.AspNetCore.Swagger {
 
             // Generate swagger documentation
             services.AddSwaggerGen(options => {
-                // Generate doc for version
-                options.SwaggerDoc(info.Version, info);
 
                 // Add annotations
                 options.EnableAnnotations();
@@ -55,12 +54,18 @@ namespace Swashbuckle.AspNetCore.Swagger {
                 // TODO: Investigate - test and remove
                 options.DescribeAllEnumsAsStrings();
 
-                // Add help
-                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
-                    config.GetType().Assembly.GetName().Name + ".xml"), true);
-
                 // Add autorest extensions
                 options.SchemaFilter<AutoRestSchemaExtensions>();
+
+                foreach (var info in infos) {
+
+                    // Generate doc for version
+                    options.SwaggerDoc(info.Version, info);
+
+                    // Add help
+                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
+                        config.GetType().Assembly.GetName().Name + ".xml"), true);
+                }
 
                 // If auth enabled, need to have bearer token to access any api
                 if (config.WithAuth) {
@@ -97,17 +102,16 @@ namespace Swashbuckle.AspNetCore.Swagger {
         /// Use swagger in application
         /// </summary>
         /// <param name="app"></param>
-        /// <param name="config"></param>
-        /// <param name="info"></param>
-        public static void UseSwagger(this IApplicationBuilder app,
-            ISwaggerConfig config, Info info) {
+        /// <param name="infos"></param>
+        public static void UseSwagger(this IApplicationBuilder app, params Info[] infos) {
 
-            if (info == null) {
-                throw new ArgumentNullException(nameof(info));
+            if (infos == null) {
+                throw new ArgumentNullException(nameof(infos));
             }
-            if (config == null) {
-                throw new ArgumentNullException(nameof(config));
-            }
+
+            var config = app.ApplicationServices.GetRequiredService<ISwaggerConfig>();
+            var host = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
+            var root = host.WebRootPath;
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {
@@ -126,23 +130,27 @@ namespace Swashbuckle.AspNetCore.Swagger {
             if (!config.UIEnabled) {
                 return;
             }
+
             app.UseSwaggerUI(options => {
-                if (config.WithAuth) {
-                    options.OAuthAppName(info.Title);
-                    options.OAuthClientId(config.SwaggerAppId);
-                    if (!string.IsNullOrEmpty(config.SwaggerAppSecret)) {
-                        options.OAuthClientSecret(config.SwaggerAppSecret);
+                foreach (var info in infos) {
+                    if (config.WithAuth) {
+                        options.OAuthAppName(info.Title);
+                        options.OAuthClientId(config.SwaggerAppId);
+                        if (!string.IsNullOrEmpty(config.SwaggerAppSecret)) {
+                            options.OAuthClientSecret(config.SwaggerAppSecret);
+                        }
+                        var resource = config as IAuthConfig;
+                        if (!string.IsNullOrEmpty(resource?.Audience)) {
+                            options.OAuthAdditionalQueryStringParams(
+                                new Dictionary<string, string> {
+                                    ["resource"] = resource.Audience
+                                });
+                        }
                     }
-                    var resource = config as IAuthConfig;
-                    if (!string.IsNullOrEmpty(resource?.Audience)) {
-                        options.OAuthAdditionalQueryStringParams(
-                            new Dictionary<string, string> {
-                                ["resource"] = resource.Audience
-                            });
-                    }
+                    options.RoutePrefix = "";
+                    options.SwaggerEndpoint($"{info.Version}/swagger.json",
+                        info.Version);
                 }
-                options.RoutePrefix = "";
-                options.SwaggerEndpoint($"{info.Version}/swagger.json", info.Version);
             });
         }
 

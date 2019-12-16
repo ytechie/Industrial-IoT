@@ -463,7 +463,7 @@ Function New-Deployment() {
                     elseif ($namespace.StartsWith("release/")) {
                         $namespace = "master"
                     }
-                    $namespace = $namespace.Substring(0, [Math]::Min($namespace.Length, 24))        
+                    $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))        
                     $templateParameters.Add("imageNamespace", $namespace)
                     Write-Host "Using latest $($namespace) images from $($registry.LoginServer)."
                 }

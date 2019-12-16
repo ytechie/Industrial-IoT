@@ -131,7 +131,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
 
             app.EnableCors();
 
-            app.UseSwagger(Config, new Info {
+            app.UseSwagger(new Info {
                 Title = ServiceInfo.Name,
                 Version = VersionInfo.PATH,
                 Description = ServiceInfo.Description,

@@ -164,7 +164,7 @@ else {
     elseif ($namespace.StartsWith("release/")) {
         $namespace = "master"
     }
-    $namespace = $namespace.Substring(0, [Math]::Min($namespace.Length, 24))
+    $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))
 }
 $namespace = "$($namespace)/"
 Write-Host "Pushing '$($sourceTag)' build for $($branchName) to $($namespace)."

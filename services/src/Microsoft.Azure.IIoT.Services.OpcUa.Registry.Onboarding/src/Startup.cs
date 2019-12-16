@@ -151,7 +151,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Onboarding {
 
             app.EnableCors();
 
-            app.UseSwagger(Config, new Info {
+            app.UseSwagger(new Info {
                 Title = ServiceInfo.Name,
                 Version = VersionInfo.PATH,
                 Description = ServiceInfo.Description,
