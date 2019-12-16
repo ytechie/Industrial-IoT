@@ -28,7 +28,7 @@ namespace Microsoft.Azure.IIoT.Hub.Client {
         /// <summary>
         /// The host name the client is talking to
         /// </summary>
-        public string HostName => _hubConnectionString.HostName;
+        public string HostName => HubConnectionString.HostName;
 
         /// <summary>
         /// Create service client
