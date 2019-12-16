@@ -28,9 +28,6 @@ namespace Microsoft.Azure.IIoT.Services.Swagger.Runtime {
         /// <summary>Auth enabled</summary>
         public bool WithAuth => GetBoolOrDefault(kAuth_RequiredKey,
             GetBoolOrDefault("PCS_AUTH_REQUIRED", !string.IsNullOrEmpty(SwaggerAppId)));
-        /// <summary>Https enforced</summary>
-        public bool WithHttpScheme => 0 == GetIntOrDefault(kAuth_HttpsRedirectPortKey,
-            GetIntOrDefault("PCS_AUTH_HTTPSREDIRECTPORT", 0));
         /// <summary>Application id</summary>
         public string SwaggerAppId => GetStringOrDefault(kSwagger_AppIdKey,
             GetStringOrDefault("PCS_AUTH_CLIENT_APPID",

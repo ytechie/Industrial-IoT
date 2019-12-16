@@ -115,22 +115,23 @@ namespace Swashbuckle.AspNetCore.Swagger {
 
             var server = app.ApplicationServices.GetRequiredService<IServer>();
             var addresses = app.ServerFeatures.Get<IServerAddressesFeature>();
-            var path = "";
-            if (addresses != null) {
-
-            }
+            var path = addresses?.Addresses
+                .FirstOrDefault()?.Split('/').LastOrDefault() ?? string.Empty;
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {
                 options.PreSerializeFilters.Add((doc, request) => {
                     if (request.Headers.TryGetValue(HttpHeader.Location,
                             out var values) && values.Count > 0) {
-                        doc.BasePath = "/" + values[0];
+                        doc.BasePath = path + "/" + values[0];
                     }
-                    doc.Schemes = new List<string> { "https" };
-                    if (config.WithHttpScheme) {
-                        doc.Schemes.Add("http");
-                    }
+                    doc.Schemes = addresses?.Addresses
+                        .Select(address => address
+                            .Split(new [] { "://" }, StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault())
+                        .Where(address => address != null)
+                        .Distinct()
+                        .ToList() ?? new List<string> { "https" };
                 });
                 options.RouteTemplate = "{documentName}/swagger.json";
             });
