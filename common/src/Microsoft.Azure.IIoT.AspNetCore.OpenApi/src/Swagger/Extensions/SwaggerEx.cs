@@ -110,8 +110,6 @@ namespace Swashbuckle.AspNetCore.Swagger {
             }
 
             var config = app.ApplicationServices.GetRequiredService<ISwaggerConfig>();
-            var host = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
-            var root = host.WebRootPath;
 
             // Enable swagger and swagger ui
             app.UseSwagger(options => {
