@@ -284,10 +284,6 @@
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
                         "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
-                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', 'false')]",
-                        "DOCKER_REGISTRY_SERVER_URL": "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]",
-                        "DOCKER_REGISTRY_SERVER_USERNAME": "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]",
-                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]",
                         "WEBSITES_PORT": "9080"
                     },
                     "dependsOn": [
@@ -389,11 +385,7 @@
                         "PCS_SERVICE_URL": "[if(empty(parameters('serviceSiteName')), '', concat('https://', reference(variables('serviceSiteResourceId'), '2018-11-01').hostNames[0]))]",
                         "PCS_KEYVAULT_URL": "[parameters('keyVaultUri')]",
                         "PCS_KEYVAULT_APPID": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppId'), '')]",
-                        "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]",
-                        "DOCKER_ENABLE_CI": "[if(parameters('deployFromSource'), '', 'false')]",
-                        "DOCKER_REGISTRY_SERVER_URL": "[if(parameters('deployFromSource'), '', concat('https://', parameters('dockerServer')))]",
-                        "DOCKER_REGISTRY_SERVER_USERNAME": "[if(parameters('deployFromSource'), '', parameters('dockerUser'))]",
-                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[if(parameters('deployFromSource'), '', parameters('dockerPassword'))]"
+                        "PCS_KEYVAULT_SECRET": "[if(empty(parameters('managedIdentityResourceId')), parameters('keyVaultAppSecret'), '')]"
                     },
                     "dependsOn": [
                         "[variables('serviceSiteResourceId')]",

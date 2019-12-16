@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.Hub.Client {
+    using Microsoft.Azure.IIoT.Exceptions;
     using Microsoft.Azure.IIoT.Http;
     using Microsoft.Azure.IIoT.Utils;
     using Serilog;
@@ -27,14 +28,14 @@ namespace Microsoft.Azure.IIoT.Hub.Client {
             IIoTHubConfig config, ILogger logger) {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
             }
-            if (string.IsNullOrEmpty(config.IoTHubConnString)) {
-                throw new ArgumentException(nameof(config.IoTHubConnString));
-            }
             _resourceId = config.IoTHubResourceId;
-            _hubConnectionString = ConnectionString.Parse(config.IoTHubConnString);
+            if (!string.IsNullOrEmpty(config.IoTHubConnString)) {
+                _hubConnectionString = ConnectionString.Parse(config.IoTHubConnString);
+            }
         }
 
         /// <summary>
@@ -43,12 +44,15 @@ namespace Microsoft.Azure.IIoT.Hub.Client {
         /// <param name="path"></param>
         /// <returns></returns>
         protected IHttpRequest NewRequest(string path) {
+            if (_hubConnectionString == null) {
+                throw new InvalidConfigurationException("Missing configuration");
+            }
             var request = _httpClient.NewRequest(new UriBuilder {
                 Scheme = "https",
                 Host = _hubConnectionString.HostName,
                 Path = path,
                 Query = "api-version=" + kApiVersion
-            }.Uri, _resourceId);
+            }.Uri, _config.IoTHubResourceId);
             request.Headers.Add(HttpRequestHeader.Authorization.ToString(),
                 CreateSasToken(_hubConnectionString, 3600));
             request.Headers.Add(HttpRequestHeader.UserAgent.ToString(), kClientId);
@@ -98,7 +102,7 @@ namespace Microsoft.Azure.IIoT.Hub.Client {
         /// <summary>Hub connection string to use</summary>
         protected readonly ConnectionString _hubConnectionString;
         /// <summary>resource id to use in derived class</summary>
-        protected readonly string _resourceId;
+        protected readonly IIoTHubConfig _config;
         /// <summary>Http client to use in derived class</summary>
         protected readonly IHttpClient _httpClient;
         /// <summary>Logger to use in derived class</summary>
