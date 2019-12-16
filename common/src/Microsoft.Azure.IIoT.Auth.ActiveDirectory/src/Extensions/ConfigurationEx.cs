@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.Configuration {
                 builder.Add(provider);
             }
             else {
-                Log.Logger.Information(
+                Log.Logger.Warning(
                     "If you want to read configuration from keyvault, make sure" +
                     "you are signed in to Visual Studio or Azure CLI on this " +
                     "machine and that you have been given access to this KeyVault." +
@@ -233,6 +233,11 @@ namespace Microsoft.Extensions.Configuration {
                         return keyVault;
                     }
                 }
+                else {
+                    Log.Logger.Debug(
+                        "No app id or secret configured to access keyvault {appId}.",
+                        client.AppId);
+                }
 
                 // Try using aims
                 keyVault = TryCredentialsToReadSecretAsync(vaultUri, variableName).Result;
@@ -272,9 +277,11 @@ namespace Microsoft.Extensions.Configuration {
                     return keyVaultClient;
                 }
                 catch (Exception ex) {
-                    Log.Logger.Information(ex, "Failed to authenticate to keyvault {url}. " +
-                        "Cannot retrieve configuration secret '{name}'. ",
-                        vaultUri, secretName);
+                    Log.Logger.Debug("Failed to authenticate to keyvault {url}. Cannot " +
+                        "retrieve configuration secret '{name}' (msi = {managed}). ",
+                        vaultUri, secretName, connectionString == null);
+                    Log.Logger.Verbose(ex, "Keyvault {url} error reading secret '{name}'.",
+                            vaultUri, secretName);
                     return null;
                 }
             }

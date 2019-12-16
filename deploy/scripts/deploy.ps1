@@ -572,6 +572,9 @@ Function New-Deployment() {
                     }
                 }
             }
+            elseif ($aadAddReplyUrls) {
+                $replyUrls.Add("http://localhost:5001/signin-oidc")
+            }
 
             if ($aadAddReplyUrls -and ![string]::IsNullOrEmpty($script:aadConfig.ClientPrincipalId)) {
                 $serviceUri = $deployment.Outputs["serviceUrl"].Value

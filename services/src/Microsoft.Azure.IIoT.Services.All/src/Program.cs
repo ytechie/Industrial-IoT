@@ -6,6 +6,7 @@
 namespace Microsoft.Azure.IIoT.Services.All {
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Azure.IIoT.Diagnostics;
     using Serilog;
 
     /// <summary>
@@ -18,6 +19,8 @@ namespace Microsoft.Azure.IIoT.Services.All {
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args) {
+            Log.Logger = ConsoleLogger.Create();
+            LogControl.Level.MinimumLevel = Serilog.Events.LogEventLevel.Debug;
             CreateWebHostBuilder(args).Build().Run();
         }
 

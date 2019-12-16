@@ -13,13 +13,15 @@ if not "%1" == "" goto :build
 echo Must specify name of deployment.
 
 :build
-powershell ./scripts/acr-matrix.ps1 -Subscription IOT_GERMANY -Registry industrialiotdev -Fast -Build
+pushd %build_root%\tools\scripts
+powershell ./acr-matrix.ps1 -Subscription IOT_GERMANY -Registry industrialiotdev -Fast -Build
+popd
 if !ERRORLEVEL! == 0 goto :deploy
 echo Build failed.
 
 :deploy
-pushd %build_root%/deploy
-powershell ./scripts/deploy.ps1 -type app -acrSubscriptionName IOT_GERMANY -acrRegistryName industrialiotdev -subscriptionName IOT-OPC-WALLS -aadApplicationName iiot -resourceGroupName %1 -applicationName %1 -resourceGroupLocation westeurope
+pushd %build_root%\deploy\scripts
+powershell ./deploy.ps1 -type app -acrSubscriptionName IOT_GERMANY -acrRegistryName industrialiotdev -subscriptionName IOT-OPC-WALLS -aadApplicationName iiot -resourceGroupName %1 -applicationName %1 -resourceGroupLocation westeurope
 popd
 if !ERRORLEVEL! == 0 goto :eof
 echo Deploy failed.
