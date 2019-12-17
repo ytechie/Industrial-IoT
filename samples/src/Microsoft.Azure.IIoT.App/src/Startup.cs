@@ -59,8 +59,9 @@ namespace Microsoft.Azure.IIoT.App {
 
             configuration = new ConfigurationBuilder()
                 .AddConfiguration(configuration)
-                .AddFromDotEnvFile()
                 .AddEnvironmentVariables()
+                .AddEnvironmentVariables(EnvironmentVariableTarget.User)
+                .AddFromDotEnvFile()
                 .AddFromKeyVault()
                 .Build();
 

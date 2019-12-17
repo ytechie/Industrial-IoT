@@ -55,12 +55,14 @@ namespace Microsoft.Extensions.Configuration {
         internal sealed class KeyVaultClientConfig : ConfigBase, IClientConfig {
 
             /// <summary>Application id</summary>
-            public string AppId => GetStringOrDefault("PCS_KEYVAULT_APPID")?.Trim();
+            public string AppId => GetStringOrDefault("PCS_KEYVAULT_APPID",
+                Environment.GetEnvironmentVariable("PCS_KEYVAULT_APPID"))?.Trim();
             /// <summary>App secret</summary>
-            public string AppSecret => GetStringOrDefault("PCS_KEYVAULT_SECRET")?.Trim();
+            public string AppSecret => GetStringOrDefault("PCS_KEYVAULT_SECRET",
+                Environment.GetEnvironmentVariable("PCS_KEYVAULT_SECRET"))?.Trim();
             /// <summary>Optional tenant</summary>
             public string TenantId => GetStringOrDefault("PCS_AUTH_TENANT",
-                "common").Trim();
+                Environment.GetEnvironmentVariable("PCS_AUTH_TENANT") ?? "common").Trim();
 
             /// <summary>Aad instance url</summary>
             public string InstanceUrl => null;
@@ -192,16 +194,15 @@ namespace Microsoft.Extensions.Configuration {
                 bool lazyLoad, bool allowDeveloperAccess) {
                 var vaultUri = configuration.GetValue<string>(keyVaultUrlVarName, null);
                 if (string.IsNullOrEmpty(vaultUri)) {
-
-                    // TODO REMOVE
-                    var secret = Environment.GetEnvironmentVariable(keyVaultUrlVarName);
-                    Console.WriteLine("!!!!!!!!!!!!!! Vault config: " + secret);
-                    // TODO REMOTE
-
                     Log.Logger.Debug("No keyvault uri found in configuration under {key}. " +
                         "Cannot read configuration from keyvault.",
                         keyVaultUrlVarName);
-                    return null;
+                    vaultUri = Environment.GetEnvironmentVariable(keyVaultUrlVarName);
+                    if (string.IsNullOrEmpty(vaultUri)) {
+                        Log.Logger.Debug("No keyvault uri found in environment.",
+                            keyVaultUrlVarName);
+                        return null;
+                    }
                 }
                 var keyVault = await TryKeyVaultClientAsync(vaultUri,
                     configuration, keyVaultUrlVarName, allowDeveloperAccess);
@@ -230,13 +231,6 @@ namespace Microsoft.Extensions.Configuration {
                 KeyVaultClient keyVault;
 
                 var client = new KeyVaultClientConfig(configuration);
-
-                // TODO REMOVE
-                var appid = Environment.GetEnvironmentVariable("PCS_KEYVAULT_APPID");
-                var secret = Environment.GetEnvironmentVariable("PCS_KEYVAULT_SECRET");
-                Console.WriteLine("!!!!!!!!!!!!!! AppId: " + appid);
-                Console.WriteLine("!!!!!!!!!!!!!!! AppKey: " + secret);
-                // TODO REMOTE
 
                 // Try reading with app and secret if available.
                 if (!string.IsNullOrEmpty(client.AppId) &&

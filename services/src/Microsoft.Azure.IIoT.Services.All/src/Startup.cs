@@ -41,16 +41,25 @@ namespace Microsoft.Azure.IIoT.Services.All {
         /// Create startup
         /// </summary>
         /// <param name="env"></param>
-        public Startup(IHostingEnvironment env) {
-            Environment = env;
-            Config = new Config(new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
-                .AddFromDotEnvFile()
+        /// <param name="configuration"></param>
+        public Startup(IHostingEnvironment env, IConfiguration configuration) :
+            this(env, new Config(new ConfigurationBuilder()
+                .AddConfiguration(configuration)
+                .AddEnvironmentVariables()
                 .AddEnvironmentVariables(EnvironmentVariableTarget.User)
+                .AddFromDotEnvFile()
                 .AddFromKeyVault()
-                .Build());
+                .Build())) {
+        }
+
+        /// <summary>
+        /// Create startup
+        /// </summary>
+        /// <param name="env"></param>
+        /// <param name="configuration"></param>
+        public Startup(IHostingEnvironment env, Config configuration) {
+            Environment = env;
+            Config = configuration;
         }
 
         /// <summary>
