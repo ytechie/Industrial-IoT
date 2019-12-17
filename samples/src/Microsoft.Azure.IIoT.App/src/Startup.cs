@@ -86,6 +86,7 @@ namespace Microsoft.Azure.IIoT.App {
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
 
