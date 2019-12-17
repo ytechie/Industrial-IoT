@@ -297,6 +297,32 @@
                 "description": "The Azure SignalR SKU Capacity"
             }
         },
+        "dpsName": {
+            "type": "string",
+            "defaultValue": "[concat('dps', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
+            "metadata": {
+                "description": "The name of the Azure Device Provisioning service created as part of the deployment."
+            }
+        },
+        "dpsSku": {
+            "type": "string",
+            "defaultValue": "S1",
+            "allowedValues": [
+                "S1"
+            ],
+            "metadata": {
+                "description": "The Azure Device Provisioning service SKU to use."
+            }
+        },
+        "dpsCapacity": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 1,
+            "maxValue": 3,
+            "metadata": {
+                "description": "The Azure Device Provisioning service capacity."
+            }
+        },
         "iotHubName": {
             "type": "string",
             "defaultValue": "[concat('iothub-', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
@@ -399,6 +425,8 @@
             "displayName": "[parameters('tsiEventSourceDisplayName')]"
         },
         "tsiEnvironmentResourceId": "[resourceId('Microsoft.TimeSeriesInsights/environments', parameters('tsiEnvironmentName'))]",
+        "dpsResourceId": "[resourceId('Microsoft.Devices/provisioningServices', parameters('dpsName'))]",
+        "dpsKeyName": "provisioningserviceowner",
         "iotHubResourceId": "[resourceId('Microsoft.Devices/Iothubs', parameters('iotHubName'))]",
         "iotHubKeyName": "iothubowner",
         "iotHubContainerName": "[parameters('iotHubName')]",
@@ -597,6 +625,29 @@
             "apiVersion": "2019-03-22",
             "name": "[concat(parameters('iotHubName'), '/events/', variables('iothubConsumerGroup2'))]",
             "type": "Microsoft.Devices/Iothubs/eventhubEndpoints/ConsumerGroups",
+            "dependsOn": [
+                "[variables('iotHubResourceId')]"
+            ]
+        },
+        {
+            "comments": "Azure Device Provisioning service.",
+            "type": "Microsoft.Devices/provisioningServices",
+            "name": "[parameters('dpsName')]",
+            "apiVersion": "2018-01-22",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('dpsSku')]",
+                "capacity": "[parameters('dpsCapacity')]"
+            },
+            "properties": {
+                "iotHubs": [
+                    {
+                        "connectionString": "[concat('HostName=', reference(variables('iotHubResourceId')).hostName, ';SharedAccessKeyName=', variables('iotHubKeyName'), ';SharedAccessKey=', listkeys(variables('iotHubKeyResource'), '2018-04-01').primaryKey)]",
+                        "location": "[resourceGroup().location]",
+                        "name": "[reference(variables('iotHubResourceId')).hostName]"
+                    }
+                ]
+            },
             "dependsOn": [
                 "[variables('iotHubResourceId')]"
             ]
@@ -904,6 +955,10 @@
                                 "value": "[concat('HostName=', reference(variables('iotHubResourceId')).hostName, ';SharedAccessKeyName=', variables('iotHubKeyName'), ';SharedAccessKey=', listkeys(variables('iotHubKeyResource'), '2018-04-01').primaryKey)]"
                             },
                             {
+                                "key": "PCS_DPS_CONNSTRING",
+                                "value": "[concat('HostName=', reference(variables('dpsResourceId')).hostName, ';SharedAccessKeyName=', variables('dpsKeyName'), ';SharedAccessKey=', listkeys(variables('dpsResourceId'), '2018-01-22')[0].primaryKey)]"
+                            },
+                            {
                                 "key": "PCS_IOTHUB_EVENTHUBENDPOINT",
                                 "value": "[reference(variables('iotHubResourceId')).eventHubEndpoints.events.endpoint]"
                             },
@@ -968,6 +1023,7 @@
                 "[variables('eventHubNamespaceResourceId')]",
                 "[variables('serviceBusNamespaceResourceId')]",
                 "[variables('iotHubResourceId')]",
+                "[variables('dpsResourceId')]",
                 "[variables('cosmosDbResourceId')]",
                 "[variables('storageResourceId')]",
                 "[variables('datalakeResourceId')]",

@@ -566,6 +566,7 @@ Function New-Deployment() {
                 Write-Host $website
                 Write-Host
                 if (![string]::IsNullOrEmpty($script:aadConfig.ClientPrincipalId)) {
+                    $website = $website.Replace("https", "http")
                     if (!$aadAddReplyUrls) {
                         Write-Host "To be able to use the application you need to register the following"
                         Write-Host "reply url for AAD application $($script:aadConfig.ClientPrincipalId):"
