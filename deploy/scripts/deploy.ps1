@@ -267,6 +267,10 @@ Function Get-EnvironmentVariables() {
     if (![string]::IsNullOrEmpty($var)) {
         Write-Output "PCS_SERVICE_URL=$($var)"
     }
+    $var = $deployment.Outputs["appUrl"].Value
+    if (![string]::IsNullOrEmpty($var)) {
+        Write-Output "PCS_APP_URL=$($var)"
+    }
 }
 
 #******************************************************************************
@@ -473,7 +477,7 @@ Function New-Deployment() {
         if ($script:type -eq "all") {
             $templateParameters.Add("siteName", $script:applicationName)
             $templateParameters.Add("numberOfLinuxGateways", 1)
-            $templateParameters.Add("numberOfWindowsGateways", 1)
+            # $templateParameters.Add("numberOfWindowsGateways", 1)
             $templateParameters.Add("numberOfServers", 1)
 
             $adminUser = "sandboxUser"
@@ -555,7 +559,7 @@ Function New-Deployment() {
             # Add reply urls
             #
             $replyUrls = New-Object System.Collections.Generic.List[System.String]
-            $website = $deployment.Outputs["azureWebsite"].Value
+            $website = $deployment.Outputs["appUrl"].Value
             if (![string]::IsNullOrEmpty($website)) {
                 Write-Host
                 Write-Host "The deployed application can be found at:"
@@ -568,7 +572,7 @@ Function New-Deployment() {
                         Write-Host "$($website)/signin-oidc"
                     }
                     else {
-                        $replyUrls.Add($website + "/signin-oidc")
+                        $replyUrls.Add("$($website)/signin-oidc")
                     }
                 }
             }

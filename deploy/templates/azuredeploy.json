@@ -372,7 +372,7 @@
         },
         "appUrl": {
             "type": "string",
-            "value": "[if (variables('platformDeployment'), reference(variables('platformResourceId'), '2017-05-10').outputs.azureWebsite.value, '')]"
+            "value": "[if (variables('platformDeployment'), reference(variables('platformResourceId'), '2017-05-10').outputs.appUrl.value, '')]"
         }
     }
 }

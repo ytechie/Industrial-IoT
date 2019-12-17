@@ -193,6 +193,7 @@
                 }
             }
         },
+        "simulationConfigurationResourceName": "simulationConfiguration",
         "serviceSiteResourceName": "[if(empty(parameters('serviceSiteName')), concat('svc', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 5)), parameters('serviceSiteName'))]",
         "serviceSiteResourceId": "[resourceId('Microsoft.Web/sites', variables('serviceSiteResourceName'))]",
         "serviceContainerImageName": "[concat(if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/industrial-iot-services-all', ':', parameters('imageVersion'))]",
@@ -633,10 +634,43 @@
             },
             "dependsOn": [
             ]
+        },
+        {
+            "comments": "Save edge simulation user and password.",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "[variables('simulationConfigurationResourceName')]",
+            "condition": "[and(not(empty(parameters('keyVaultName'))), or(not(equals(0, parameters('numberOfLinuxGateways'))), not(equals(0, parameters('numberOfWindowsGateways')))))]",
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "configuration": {
+                        "value": [
+                            {
+                                "key": "PCS_SIMULATION_USER",
+                                "value": "[parameters('edgeUserName')]"
+                            },
+                            {
+                                "key": "PCS_SIMULATION_PASSWORD",
+                                "value": "[parameters('edgePassword')]"
+                            }
+                        ]
+                    }
+                },
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[concat(variables('templateBaseUrl'), 'azuredeploy.configuration.json')]"
+                }
+            },
+            "dependsOn": [
+            ]
         }
     ],
     "outputs": {
-        "azureWebsite": {
+        "appUrl": {
             "type": "string",
             "value": "[if(empty(parameters('siteName')), '', concat('https://', reference(variables('appSiteResourceId'), '2018-11-01').hostNames[0]))]"
         },
