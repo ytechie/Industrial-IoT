@@ -101,8 +101,8 @@ namespace Microsoft.Azure.IIoT.Api.Cli {
             // Load hosting configuration
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddFromDotEnvFile()
                 .AddJsonFile("appsettings.json", true)
+                .AddFromDotEnvFile()
                 .AddFromKeyVault()
                 .Build();
 
