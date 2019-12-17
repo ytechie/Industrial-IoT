@@ -40,6 +40,12 @@ namespace Microsoft.Extensions.Configuration {
             if (provider != null) {
                 builder.Add(provider);
             }
+            else {
+                var env = Environment.GetEnvironmentVariables();
+                foreach (var key in env.Keys) {
+                    Console.WriteLine(key + "=" + env[key]);
+                }
+            }
             return builder;
         }
 
@@ -186,6 +192,15 @@ namespace Microsoft.Extensions.Configuration {
                 bool lazyLoad, bool allowDeveloperAccess) {
                 var vaultUri = configuration.GetValue<string>(keyVaultUrlVarName, null);
                 if (string.IsNullOrEmpty(vaultUri)) {
+
+                    // TODO REMOVE
+                    var secret = Environment.GetEnvironmentVariable(keyVaultUrlVarName);
+                    Console.WriteLine("!!!!!!!!!!!!!! Vault config: " + secret);
+                    // TODO REMOTE
+
+                    Log.Logger.Debug("No keyvault uri found in configuration under {key}. " +
+                        "Cannot read configuration from keyvault.",
+                        keyVaultUrlVarName);
                     return null;
                 }
                 var keyVault = await TryKeyVaultClientAsync(vaultUri,
@@ -216,12 +231,12 @@ namespace Microsoft.Extensions.Configuration {
 
                 var client = new KeyVaultClientConfig(configuration);
 
-                {
-                    var appid = Environment.GetEnvironmentVariable("PCS_KEYVAULT_APPID");
-                    var secret = Environment.GetEnvironmentVariable("PCS_KEYVAULT_SECRET");
-                    Console.WriteLine("!!!!!!!!!!!!!! AppId: " + appid);
-                    Console.WriteLine("!!!!!!!!!!!!!!! AppKey: " + secret);
-                }
+                // TODO REMOVE
+                var appid = Environment.GetEnvironmentVariable("PCS_KEYVAULT_APPID");
+                var secret = Environment.GetEnvironmentVariable("PCS_KEYVAULT_SECRET");
+                Console.WriteLine("!!!!!!!!!!!!!! AppId: " + appid);
+                Console.WriteLine("!!!!!!!!!!!!!!! AppKey: " + secret);
+                // TODO REMOTE
 
                 // Try reading with app and secret if available.
                 if (!string.IsNullOrEmpty(client.AppId) &&
@@ -233,7 +248,6 @@ namespace Microsoft.Extensions.Configuration {
                     if (keyVault != null) {
                         return keyVault;
                     }
-                    Console.WriteLine("!!!!!!!!!!!!!! FAILED WITH AppId and secret");
                 }
 
                 // Try using aims
@@ -249,7 +263,7 @@ namespace Microsoft.Extensions.Configuration {
                     if (keyVault != null) {
                         return keyVault;
                     }
-                    Log.Logger.Warning(
+                    Log.Logger.Information(
                         "If you want to read configuration from keyvault, make sure " +
                         "you are signed in to Visual Studio or Azure CLI on this " +
                         "machine and that you have been given access to this KeyVault. " +
@@ -281,12 +295,12 @@ namespace Microsoft.Extensions.Configuration {
                     return keyVaultClient;
                 }
                 catch (Exception ex) {
-                    Log.Logger.Warning("Failed to authenticate to keyvault {url} using " +
-                        "{method}. Cannot retrieve configuration secret '{name}'.",
-                        vaultUri, method, secretName);
+                    Log.Logger.Debug("Failed to authenticate to keyvault {url} using " +
+                        "{method}: {message}",
+                        vaultUri, method, ex.Message);
                     Log.Logger.Verbose(ex,
-                        "Keyvault {url} error using {method} and secret '{name}'.",
-                        vaultUri, method, secretName);
+                        "Keyvault {url} error reding secret '{name}' using {method}.",
+                        vaultUri, secretName, method);
                     return null;
                 }
             }
