@@ -82,6 +82,8 @@ namespace Microsoft.Azure.IIoT.Services.All {
                 app.UseHttpsRedirection();
             }
 
+            app.UseWelcomePage();
+
             // Configure branches for business
             app.AddStartupBranch<OpcUa.Registry.Startup>("/registry");
             app.AddStartupBranch<OpcUa.Registry.Onboarding.Startup>("/onboarding");

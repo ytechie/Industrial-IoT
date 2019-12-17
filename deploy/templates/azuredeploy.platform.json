@@ -167,35 +167,20 @@
         },
         "hostingPlanSku": {
             "type": "string",
-            "defaultValue": "S1",
+            "defaultValue": "B3",
             "allowedValues": [
-                "F1",
-                "D1",
                 "B1",
                 "B2",
                 "B3",
                 "S1",
                 "S2",
                 "S3",
-                "P1",
-                "P2",
-                "P3",
-                "P4"
+                "P1v2",
+                "P2v2",
+                "P3v2"
             ],
             "metadata": {
                 "description": "The pricing sku for the hosting plan."
-            }
-        },
-        "hostingPlanWorkerSize": {
-            "type": "string",
-            "allowedValues": [
-                "0",
-                "1",
-                "2"
-            ],
-            "defaultValue": "0",
-            "metadata": {
-                "description": "The instance size of the hosting plan (small, medium, or large)."
             }
         }
     },
@@ -230,12 +215,11 @@
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "[parameters('hostingPlanSku')]",
-                "capacity": "[parameters('hostingPlanWorkerSize')]"
+                "capacity": "[if(empty(parameters('siteName')), if(empty(parameters('serviceSiteName')), '0', '1'), '2')]"
             },
             "properties": {
                 "name": "[parameters('hostingPlanName')]",
-                "reserved": "[not(parameters('deployFromSource'))]",
-                "numberOfWorkers": "[parameters('hostingPlanWorkerSize')]"
+                "reserved": "[not(parameters('deployFromSource'))]"
             },
             "dependsOn": [
             ]
@@ -474,7 +458,8 @@
                 }
             ],
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]",
+                "[variables('serviceConfigurationResourceId')]"
             ]
         },
         {

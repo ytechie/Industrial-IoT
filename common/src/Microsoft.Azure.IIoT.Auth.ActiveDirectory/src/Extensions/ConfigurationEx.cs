@@ -40,13 +40,6 @@ namespace Microsoft.Extensions.Configuration {
             if (provider != null) {
                 builder.Add(provider);
             }
-            else {
-                Log.Logger.Warning(
-                    "If you want to read configuration from keyvault, make sure" +
-                    "you are signed in to Visual Studio or Azure CLI on this " +
-                    "machine and that you have been given access to this KeyVault." +
-                    "Continuing to use existing environment settings.");
-            }
             return builder;
         }
 
@@ -222,35 +215,45 @@ namespace Microsoft.Extensions.Configuration {
                 KeyVaultClient keyVault;
 
                 var client = new KeyVaultClientConfig(configuration);
+
+                {
+                    var appid = Environment.GetEnvironmentVariable("PCS_KEYVAULT_APPID");
+                    var secret = Environment.GetEnvironmentVariable("PCS_KEYVAULT_SECRET");
+                    Console.WriteLine("!!!!!!!!!!!!!! AppId: " + appid);
+                    Console.WriteLine("!!!!!!!!!!!!!!! AppKey: " + secret);
+                }
+
                 // Try reading with app and secret if available.
                 if (!string.IsNullOrEmpty(client.AppId) &&
                     !string.IsNullOrEmpty(client.AppSecret) &&
                     !string.IsNullOrEmpty(client.TenantId)) {
-                    keyVault = await TryCredentialsToReadSecretAsync(vaultUri,
-                        variableName, $"RunAs=App; AppId={client.AppId}; " +
+                    keyVault = await TryCredentialsToReadSecretAsync("Application",
+                        vaultUri, variableName, $"RunAs=App; AppId={client.AppId}; " +
                             $"AppKey={client.AppSecret}; TenantId={client.TenantId}");
                     if (keyVault != null) {
                         return keyVault;
                     }
-                }
-                else {
-                    Log.Logger.Debug(
-                        "No app id or secret configured to access keyvault {appId}.",
-                        client.AppId);
+                    Console.WriteLine("!!!!!!!!!!!!!! FAILED WITH AppId and secret");
                 }
 
                 // Try using aims
-                keyVault = TryCredentialsToReadSecretAsync(vaultUri, variableName).Result;
+                keyVault = TryCredentialsToReadSecretAsync("Managed Service Identity",
+                    vaultUri, variableName).Result;
                 if (keyVault != null) {
                     return keyVault;
                 }
                 if (allowDeveloperAccess) {
                     // Try logged on user if we cannot get anywhere
-                    keyVault = TryCredentialsToReadSecretAsync(vaultUri,
+                    keyVault = TryCredentialsToReadSecretAsync("VisualStudio", vaultUri,
                         variableName, "RunAs=Developer; DeveloperTool=VisualStudio").Result;
                     if (keyVault != null) {
                         return keyVault;
                     }
+                    Log.Logger.Warning(
+                        "If you want to read configuration from keyvault, make sure " +
+                        "you are signed in to Visual Studio or Azure CLI on this " +
+                        "machine and that you have been given access to this KeyVault. " +
+                        "Continuing to use existing environment settings.");
                 }
                 return null;
             }
@@ -258,12 +261,13 @@ namespace Microsoft.Extensions.Configuration {
             /// <summary>
             /// Read configuration secret
             /// </summary>
+            /// <param name="method"></param>
             /// <param name="vaultUri"></param>
             /// <param name="secretName"></param>
             /// <param name="connectionString"></param>
             /// <returns></returns>
             private static async Task<KeyVaultClient> TryCredentialsToReadSecretAsync(
-                string vaultUri, string secretName, string connectionString = null) {
+                string method, string vaultUri, string secretName, string connectionString = null) {
                 var tokenProvider = new AzureServiceTokenProvider(connectionString);
                 try {
                     var keyVaultClient = new KeyVaultClient(
@@ -277,11 +281,12 @@ namespace Microsoft.Extensions.Configuration {
                     return keyVaultClient;
                 }
                 catch (Exception ex) {
-                    Log.Logger.Debug("Failed to authenticate to keyvault {url}. Cannot " +
-                        "retrieve configuration secret '{name}' (msi = {managed}). ",
-                        vaultUri, secretName, connectionString == null);
-                    Log.Logger.Verbose(ex, "Keyvault {url} error reading secret '{name}'.",
-                            vaultUri, secretName);
+                    Log.Logger.Warning("Failed to authenticate to keyvault {url} using " +
+                        "{method}. Cannot retrieve configuration secret '{name}'.",
+                        vaultUri, method, secretName);
+                    Log.Logger.Verbose(ex,
+                        "Keyvault {url} error using {method} and secret '{name}'.",
+                        vaultUri, method, secretName);
                     return null;
                 }
             }
