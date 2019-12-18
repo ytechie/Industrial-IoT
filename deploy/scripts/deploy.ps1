@@ -38,7 +38,7 @@
 #>
 
 param(
-    [ValidateSet("local", "services", "app", "all")] [string] $type = "app",
+    [ValidateSet("local", "services", "app", "all")] [string] $type = "all",
     [string] $applicationName,
     [string] $resourceGroupName,
     [string] $resourceGroupLocation,
@@ -477,7 +477,7 @@ Function New-Deployment() {
         if ($script:type -eq "all") {
             $templateParameters.Add("siteName", $script:applicationName)
             $templateParameters.Add("numberOfLinuxGateways", 1)
-            # $templateParameters.Add("numberOfWindowsGateways", 1)
+            $templateParameters.Add("numberOfWindowsGateways", 1)
             $templateParameters.Add("numberOfServers", 1)
 
             $adminUser = "sandboxUser"
