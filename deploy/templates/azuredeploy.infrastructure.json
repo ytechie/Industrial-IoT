@@ -955,7 +955,7 @@
                             },
                             {
                                 "key": "PCS_DPS_CONNSTRING",
-                                "value": "[listkeys(variables('dpsResourceId'), '2018-01-22').keys[0].primaryConnectionString]"
+                                "value": "[listkeys(variables('dpsResourceId'), '2018-01-22').value.primaryConnectionString]"
                             },
                             {
                                 "key": "PCS_DPS_ENDPOINT",
