@@ -10,7 +10,7 @@
 #>
 param(
     [string] $dpsConnString,
-    [string] $idScope
+    [string] $idScope,
     [Switch] $Install
 )
 
