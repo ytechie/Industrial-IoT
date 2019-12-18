@@ -38,7 +38,7 @@ else {
     }
     else {
         # Create enrollment
-        $enrollment = & (join-path $path enroll.ps1) -dpsConnString $dpsConnString
+        $enrollment = & (join-path $path vm-enroll.ps1) -dpsConnString $dpsConnString
 
         Write-Host "Configure and initialize IoT Edge."
         . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
