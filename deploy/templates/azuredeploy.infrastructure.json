@@ -426,7 +426,6 @@
         },
         "tsiEnvironmentResourceId": "[resourceId('Microsoft.TimeSeriesInsights/environments', parameters('tsiEnvironmentName'))]",
         "dpsResourceId": "[resourceId('Microsoft.Devices/provisioningServices', parameters('dpsName'))]",
-        "dpsKeyName": "provisioningserviceowner",
         "iotHubResourceId": "[resourceId('Microsoft.Devices/Iothubs', parameters('iotHubName'))]",
         "iotHubKeyName": "iothubowner",
         "iotHubContainerName": "[parameters('iotHubName')]",
@@ -956,7 +955,7 @@
                             },
                             {
                                 "key": "PCS_DPS_CONNSTRING",
-                                "value": "[listkeys(variables('dpsResourceId'), '2018-01-22').keys[0].primaryConnectionString)]"
+                                "value": "[listkeys(variables('dpsResourceId'), '2018-01-22').keys[0].primaryConnectionString]"
                             },
                             {
                                 "key": "PCS_DPS_ENDPOINT",
