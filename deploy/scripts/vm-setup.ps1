@@ -11,17 +11,33 @@
 param(
     [string] $dpsConnString,
     [string] $idScope,
-    [Switch] $Install
+    [switch] $Install,
+    [switch] $Linux
 )
 
 $path = $script:MyInvocation.MyCommand.Path
 
-if ([string]::IsNullOrEmpty($edgeKey)) {
+if ([string]::IsNullOrEmpty($dpsConnString)) {
     Write-Host "Nothing to do."
     return
 }
 else {
-    if (!$Install.IsPresent) {
+    if ($Install.IsPresent) {
+        Write-Host "Create new IoT Edge enrollment."
+        $enrollment = & (join-path $path vm-enroll.ps1) -dpsConnString $dpsConnString
+        Write-Host "Configure and initialize IoT Edge."
+        if ($Linux.IsPresent) {
+            # configure config.yml
+
+
+        }
+        else {
+            . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
+                Initialize-IoTEdge -Dps -ScopeId $idScope -RegistrationId `
+                    $enrollment.registrationId -SymmetricKey $enrollment.primaryKey
+        }
+    }
+    else {
         Write-Host "Deploying IoT Edge to machine."
 
         . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
@@ -35,14 +51,5 @@ else {
 
         Write-Host "Restart to finish installation."
         Restart-Computer
-    }
-    else {
-        # Create enrollment
-        $enrollment = & (join-path $path vm-enroll.ps1) -dpsConnString $dpsConnString
-
-        Write-Host "Configure and initialize IoT Edge."
-        . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
-            Initialize-IoTEdge -Dps -ScopeId $idScope -RegistrationId `
-                $enrollment.registrationId -SymmetricKey $enrollment.primaryKey
     }
 }

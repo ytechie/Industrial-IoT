@@ -2,14 +2,13 @@
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        --keyVaultUri)                  keyVaultUri="$2" ;;
-        --appId)                        appId="$2" ;;
-        --appSecret)                    appSecret="$2" ;;
-        --imageTag)                     imageTag="$2" ;;
-        --dockerUrl)                    dockerUrl="$2" ;;
-        --dockerUser)                   dockerUser="$2" ;;
-        --dockerPassword)               dockerPassword="$2" ;;
+        --dpsConnString)                  dpsConnString="$2" ;;
+        --idScope)                        idScope="$2" ;;
     esac
     shift
 done
 
+# install powershell and call the setup command
+sudo apt-get install -y powershell
+sudo powershell ./vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope -Install -Linux
+sudo systemctl restart iotedge
