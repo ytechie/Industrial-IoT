@@ -19,7 +19,6 @@ $path = $script:MyInvocation.MyCommand.Path
 
 if ([string]::IsNullOrEmpty($dpsConnString)) {
     Write-Host "Nothing to do."
-    return
 }
 else {
     if ($Install.IsPresent) {
@@ -28,8 +27,17 @@ else {
         Write-Host "Configure and initialize IoT Edge."
         if ($Linux.IsPresent) {
             # configure config.yml
-
-
+$configyml = @"
+provisioning:
+   source: "dps"
+   global_endpoint: "https://global.azure-devices-provisioning.net"
+   scope_id: "$($idScope)"
+   attestation:
+      method: "symmetric_key"
+      registration_id: "$($enrollment.registrationId)"
+      symmetric_key: "$($enrollment.primaryKey)"
+"@
+            $configyml | Out-File /etc/iotedge/config.yml
         }
         else {
             . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
@@ -43,7 +51,7 @@ else {
         . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
             Deploy-IoTEdge -RestartIfNeeded
 
-        # Register ourselves to initilaize edge        
+        # Register ourselves to initialize edge        
         $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
         $out = Register-ScheduledJob -Trigger $trigger –Name "IotEdge" -FilePath $path -ArgumentList `
             @("-dpsConnString", $script:dpsConnString, "-idScope", $script:idScope, "-Install")
