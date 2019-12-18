@@ -956,7 +956,7 @@
                             },
                             {
                                 "key": "PCS_DPS_CONNSTRING",
-                                "value": "[concat('HostName=', reference(variables('dpsResourceId')).serviceOperationsHostName, ';SharedAccessKeyName=', variables('dpsKeyName'), ';SharedAccessKey=', listkeys(variables('dpsResourceId'), '2018-01-22')[0].primaryKey)]"
+                                "value": "[listkeys(variables('dpsResourceId'), '2018-01-22').keys[0].primaryConnectionString)]"
                             },
                             {
                                 "key": "PCS_DPS_ENDPOINT",
