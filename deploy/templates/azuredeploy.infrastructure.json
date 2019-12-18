@@ -457,7 +457,7 @@
             "location": "[resourceGroup().location]",
             "properties": {
                 "enabledForDeployment": false,
-                "enabledForTemplateDeployment": false,
+                "enabledForTemplateDeployment": true,
                 "enabledForVolumeEncryption": false,
                 "tenantId": "[subscription().tenantId]",
                 "sku": {
@@ -956,6 +956,10 @@
                             {
                                 "key": "PCS_DPS_CONNSTRING",
                                 "value": "[concat('HostName=', reference(variables('dpsResourceId')). serviceOperationsHostName, ';SharedAccessKeyName=', listkeys(variables('dpsResourceId'), '2018-01-22').value[0].keyName, ';SharedAccessKey=', listkeys(variables('dpsResourceId'), '2018-01-22').value[0].primaryKey)]"
+                            },
+                            {
+                                "key": "PCS_DPS_IDSCOPE",
+                                "value": "[reference(variables('dpsResourceId')).idScope]"
                             },
                             {
                                 "key": "PCS_DPS_ENDPOINT",

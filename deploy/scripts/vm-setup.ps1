@@ -5,11 +5,12 @@
  .DESCRIPTION
     Installs Industrial IoT edge on windows and finishes installation.
 
- .PARAMETER edgeKey
-    The IoT edge connection string
+ .PARAMETER dpsConnString
+    The Dps connection string
 #>
 param(
-    [string] $edgeKey,
+    [string] $dpsConnString,
+    [string] $idScope
     [Switch] $Install
 )
 
@@ -28,15 +29,20 @@ else {
 
         # Register ourselves to initilaize edge        
         $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
-        $out = Register-ScheduledJob -Trigger $trigger –Name "IotEdge" -FilePath $path -ArgumentList @($script:edgeKey, "-Install")
+        $out = Register-ScheduledJob -Trigger $trigger –Name "IotEdge" -FilePath $path -ArgumentList `
+            @("-dpsConnString", $script:dpsConnString, "-idScope", $script:idScope, "-Install")
         Write-Host $out.Command
 
         Write-Host "Restart to finish installation."
         Restart-Computer
     }
     else {
+        # Create enrollment
+        $enrollment = & (join-path $path enroll.ps1) -dpsConnString $dpsConnString
+
         Write-Host "Configure and initialize IoT Edge."
         . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
-            Initialize-IoTEdge -Manual -DeviceConnectionString "$script:edgeKey"
+            Initialize-IoTEdge -Dps -ScopeId $idScope -RegistrationId `
+                $enrollment.registrationId -SymmetricKey $enrollment.primaryKey
     }
 }

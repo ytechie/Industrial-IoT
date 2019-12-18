@@ -543,14 +543,21 @@
                     "branchName": {
                         "value": "[parameters('branchName')]"
                     },
-                    "keyVaultUri": {
-                        "value": "[parameters('keyVaultUri')]"
+                    "dpsIdScope": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                            },
+                            "secretName": "pcs-dps-idscope"
+                        }
                     },
-                    "keyVaultAppId": {
-                        "value": "[parameters('keyVaultAppId')]"
-                    },
-                    "keyVaultAppSecret": {
-                        "value": "[parameters('keyVaultAppSecret')]"
+                    "dpsConnString": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                            },
+                            "secretName": "pcs-dps-connstring"
+                        }
                     },
                     "managedIdentityResourceId": {
                         "value": "[parameters('managedIdentityResourceId')]"
@@ -614,14 +621,21 @@
                     "branchName": {
                         "value": "[parameters('branchName')]"
                     },
-                    "keyVaultUri": {
-                        "value": "[parameters('keyVaultUri')]"
+                    "dpsIdScope": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                            },
+                            "secretName": "pcs-dps-idscope"
+                        }
                     },
-                    "keyVaultAppId": {
-                        "value": "[parameters('keyVaultAppId')]"
-                    },
-                    "keyVaultAppSecret": {
-                        "value": "[parameters('keyVaultAppSecret')]"
+                    "dpsConnString": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                            },
+                            "secretName": "pcs-dps-connstring"
+                        }
                     },
                     "managedIdentityResourceId": {
                         "value": "[parameters('managedIdentityResourceId')]"
