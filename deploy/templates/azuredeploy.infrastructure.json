@@ -1050,8 +1050,8 @@
             "value": "[parameters('keyVaultName')]"
         },
         "dpskeys": {
-            "type": "object",
-            "value": "[listkeys(variables('dpsResourceId'), '2018-01-22')]"
+            "type": "string",
+            "value": "[string(listkeys(variables('dpsResourceId'), '2018-01-22'))]"
         }
     }
 }
