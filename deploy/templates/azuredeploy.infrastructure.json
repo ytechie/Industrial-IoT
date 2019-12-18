@@ -956,7 +956,11 @@
                             },
                             {
                                 "key": "PCS_DPS_CONNSTRING",
-                                "value": "[concat('HostName=', reference(variables('dpsResourceId')).hostName, ';SharedAccessKeyName=', variables('dpsKeyName'), ';SharedAccessKey=', listkeys(variables('dpsResourceId'), '2018-01-22')[0].primaryKey)]"
+                                "value": "[concat('HostName=', reference(variables('dpsResourceId')).serviceOperationsHostName, ';SharedAccessKeyName=', variables('dpsKeyName'), ';SharedAccessKey=', listkeys(variables('dpsResourceId'), '2018-01-22')[0].primaryKey)]"
+                            },
+                            {
+                                "key": "PCS_DPS_ENDPOINT",
+                                "value": "[reference(variables('dpsResourceId')).deviceProvisioningHostName]"
                             },
                             {
                                 "key": "PCS_IOTHUB_EVENTHUBENDPOINT",
@@ -1049,6 +1053,10 @@
         "keyVaultName": {
             "type": "string",
             "value": "[parameters('keyVaultName')]"
+        },
+        "dpskeys": {
+            "type": "object",
+            "value": "[listkeys(variables('dpsResourceId'), '2018-01-22')]"
         }
     }
 }
