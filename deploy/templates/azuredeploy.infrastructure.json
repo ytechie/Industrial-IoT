@@ -954,10 +954,6 @@
                                 "value": "[concat('HostName=', reference(variables('iotHubResourceId')).hostName, ';SharedAccessKeyName=', variables('iotHubKeyName'), ';SharedAccessKey=', listkeys(variables('iotHubKeyResource'), '2018-04-01').primaryKey)]"
                             },
                             {
-                                "key": "PCS_DPS_CONNSTRING",
-                                "value": "[listkeys(variables('dpsResourceId'), '2018-01-22').value.primaryConnectionString]"
-                            },
-                            {
                                 "key": "PCS_DPS_ENDPOINT",
                                 "value": "[reference(variables('dpsResourceId')).deviceProvisioningHostName]"
                             },
