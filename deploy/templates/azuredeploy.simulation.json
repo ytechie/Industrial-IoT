@@ -273,7 +273,7 @@
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": ""
+                    "commandToExecute": "bash"
                 }
             },
             "dependsOn": [
