@@ -132,7 +132,9 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Gateway {
 
             app.EnableCors();
             app.UseCorrelation();
+
             app.UseMvc();
+            app.UseHealthChecks("/health");
             app.UseOpcUaTransport();
 
             // If you want to dispose of resources that have been resolved in the

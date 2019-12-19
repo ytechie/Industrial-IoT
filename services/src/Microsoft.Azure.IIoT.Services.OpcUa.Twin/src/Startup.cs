@@ -156,6 +156,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin {
             });
 
             app.UseMvc();
+            app.UseHealthChecks("/health");
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.

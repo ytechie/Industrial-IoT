@@ -91,6 +91,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
 
             // Setup (not enabling yet) CORS
             services.AddCors();
+            services.AddHealthChecks();
 
             services.AddMvc()
                 .AddApplicationPart(GetType().Assembly)
@@ -146,6 +147,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
             });
 
             app.UseMvc();
+            app.UseHealthChecks("/health");
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.

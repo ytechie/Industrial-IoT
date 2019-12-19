@@ -130,9 +130,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
-            var log = ApplicationContainer.Resolve<ILogger>();
 
-            app.EnableCors();
+            var log = ApplicationContainer.Resolve<ILogger>();
 
             if (Config.AuthRequired) {
                 app.UseAuthentication();
@@ -142,6 +141,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs {
                 app.UseHttpsRedirection();
             }
 
+            app.EnableCors();
+            app.UseCorrelation();
             app.UseSwagger(new Info {
                 Title = ServiceInfo.Name,
                 Version = VersionInfo.PATH,
@@ -149,6 +150,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs {
             });
 
             app.UseMvc();
+            app.UseHealthChecks("/health");
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.

@@ -158,7 +158,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Publisher {
             }
 
             app.EnableCors();
-
+            app.UseCorrelation();
             app.UseSwagger(new Info {
                 Title = ServiceInfo.Name,
                 Version = VersionInfo.PATH,
@@ -166,6 +166,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Publisher {
             });
 
             app.UseMvc();
+            app.UseHealthChecks("/health");
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.

@@ -149,7 +149,7 @@
                 ]
             },
             "protectedSettings": {
-                "commandToExecute": "[concat('powershell ./vm-setup.ps1 -idScope \"', parameters('dpsIdScope'), '\" -dpsConnString \"', parameters('dpsConnString'), '\"')]"
+                "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ./vm-setup.ps1 -idScope \"', parameters('dpsIdScope'), '\" -dpsConnString \"', parameters('dpsConnString'), '\"')]"
             }
         },
         "windowsImage": {
