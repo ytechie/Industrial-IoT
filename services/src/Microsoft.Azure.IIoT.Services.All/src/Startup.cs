@@ -16,6 +16,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
     using System.Threading.Tasks;
     using System.Threading;
     using System.Linq;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
 
     /// <summary>
     /// Mono app startup
@@ -94,6 +95,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
 
             // Configure branches for business
             app.UseWelcomePage("/");
+
             app.AddStartupBranch<OpcUa.Registry.Startup>("/registry");
             app.AddStartupBranch<OpcUa.Registry.Onboarding.Startup>("/onboarding");
             app.AddStartupBranch<OpcUa.Vault.Startup>("/vault");
@@ -104,6 +106,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
             app.AddStartupBranch<Common.Jobs.Startup>("/jobs");
             app.AddStartupBranch<Common.Jobs.Edge.Startup>("/edge/jobs");
             app.AddStartupBranch<Common.Configuration.Startup>("/configuration");
+
             app.UseHealthChecks("/healthz");
 
             // Start processors
@@ -131,7 +134,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
         /// <summary>
         /// Injected processor host
         /// </summary>
-        private sealed class ProcessorHost : IHost, IStartable, IDisposable {
+        private sealed class ProcessorHost : IHost, IStartable, IDisposable, IHealthCheck {
 
             /// <inheritdoc/>
             public void Start() {
@@ -174,6 +177,14 @@ namespace Microsoft.Azure.IIoT.Services.All {
             public void Dispose() {
                 Try.Async(StopAsync).Wait();
                 _cts?.Dispose();
+            }
+
+            /// <inheritdoc/>
+            public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+                CancellationToken cancellationToken) {
+                return Task.FromResult(_runner == null || !_runner.IsFaulted ?
+                    HealthCheckResult.Healthy() :
+                    new HealthCheckResult(HealthStatus.Unhealthy, null, _runner.Exception));
             }
 
             private Task _runner;

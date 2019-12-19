@@ -24,8 +24,9 @@ namespace Microsoft.Azure.IIoT.Diagnostics {
         public HealthCheckRegistrar(IEnumerable<Meta<IHealthCheck>> checks) {
             Value = new HealthCheckServiceOptions();
             foreach (var check in checks) {
+                var name = check.Value.GetType().FullName;
                 Value.Registrations.Add(new HealthCheckRegistration(
-                    check.GetType().Name, check.Value, null, check.Metadata.Keys));
+                    name, check.Value, null, check.Metadata.Keys));
             }
         }
     }

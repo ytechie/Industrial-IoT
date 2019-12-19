@@ -10,11 +10,11 @@ done
 
 echo "Installing powershell"
 # install powershell and call the setup command
-apt-get update
-apt-get install -y --no-install-recommends powershell
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends powershell
 
 echo "Installing iotedge"
-pwsh -File ./vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope
+sudo pwsh -File ./vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope
 
 echo "Restarting"
-systemctl restart iotedge
+sudo systemctl restart iotedge
