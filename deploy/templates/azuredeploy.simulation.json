@@ -137,14 +137,12 @@
                 }
             }
         },
-        "windowsSetupCommand": "[concat('powershell ./vm-setup.ps1 -idScope \"', parameters('dpsIdScope'), '\" -dpsConnString \"', parameters('dpsConnString'), '\"')]",
         "windowsImage": {
             "publisher": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
             "sku": "2019-datacenter",
             "version": "latest"
         },
-        "linuxSetupCommand": "[concat('sh vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]",
         "linuxImage": {
             "publisher": "microsoft_iot_edge",
             "offer": "iot_edge_vm_ubuntu",
@@ -255,9 +253,10 @@
             ]
         },
         {
-            "comments": "One time script execution to install and onboard IoT Edge and deploy workloads",
+            "comments": "One time script execution to install and onboard IoT Edge and deploy workloads on Linux VM",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('vmName'), '/', 'scriptextensions')]",
+            "condition": "[equals(parameters('edgeOs'), 'linux')]",
             "apiVersion": "2019-03-01",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -273,7 +272,33 @@
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[if (equals(parameters('edgeOs'), 'linux'), variables('linuxSetupCommand'), variables('windowsSetupCommand'))]"
+                    "commandToExecute": "[concat('sh vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]"
+                }
+            },
+            "dependsOn": [
+                "[variables('vmResourceId')]"
+            ]
+        },
+        {
+            "comments": "One time script execution to install and onboard IoT Edge and deploy workloads on windows VM",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('vmName'), '/', 'scriptextensions')]",
+            "condition": "[not(equals(parameters('edgeOs'), 'linux'))]",
+            "apiVersion": "2019-03-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.9",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-enroll.ps1')]",
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.ps1')]"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[concat('powershell ./vm-setup.ps1 -idScope \"', parameters('dpsIdScope'), '\" -dpsConnString \"', parameters('dpsConnString'), '\"')]"
                 }
             },
             "dependsOn": [

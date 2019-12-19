@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.Diagnostics {
+    using Autofac.Features.Metadata;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Options;
     using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Microsoft.Azure.IIoT.Diagnostics {
     /// <summary>
     /// Health checks
     /// </summary>
-    public sealed class HealthChecks : IOptions<HealthCheckServiceOptions> {
+    public sealed class HealthCheckRegistrar : IOptions<HealthCheckServiceOptions> {
 
         /// <inheritdoc/>
         public HealthCheckServiceOptions Value { get; }
@@ -20,11 +21,11 @@ namespace Microsoft.Azure.IIoT.Diagnostics {
         /// Register checks
         /// </summary>
         /// <param name="checks"></param>
-        public HealthChecks(IEnumerable<IHealthCheck> checks) {
+        public HealthCheckRegistrar(IEnumerable<Meta<IHealthCheck>> checks) {
             Value = new HealthCheckServiceOptions();
             foreach (var check in checks) {
-                Value.Registrations.Add(new HealthCheckRegistration())
+                Value.Registrations.Add(new HealthCheckRegistration(
+                    check.GetType().Name, check.Value, null, check.Metadata.Keys));
             }
         }
     }
-}
