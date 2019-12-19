@@ -89,11 +89,11 @@
                 "description": "Specifies the image version tag to use for all images."
             }
         },
-        "repoUrl": {
+        "templateUrl": {
             "type": "string",
-            "defaultValue": "https://github.com/Azure/Industrial-IoT",
+            "defaultValue": "https://raw.githubusercontent.com/Azure/Industrial-IoT",
             "metadata": {
-                "description": "The repository url from which to deploy services and application.  Default is official repository."
+                "description": "The artifacts url from which to pull all linked templates.  Default is official repository."
             }
         },
         "branchName": {
@@ -267,9 +267,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[concat(parameters('repoUrl'), parameters('branchName'), '/tools/scripts/vm-enroll.ps1')]",
-                        "[concat(parameters('repoUrl'), parameters('branchName'), '/tools/scripts/vm-setup.ps1')]",
-                        "[concat(parameters('repoUrl'), parameters('branchName'), '/tools/scripts/vm-setup.sh')]"
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/tools/scripts/vm-enroll.ps1')]",
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/tools/scripts/vm-setup.ps1')]",
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/tools/scripts/vm-setup.sh')]"
                     ]
                 },
                 "protectedSettings": {

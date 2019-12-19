@@ -7,6 +7,15 @@
 
  .PARAMETER dpsConnString
     The Dps connection string
+
+ .PARAMETER idScope
+    The Dps id scope
+
+ .PARAMETER Install
+    Whether to install
+
+ .PARAMETER Linux
+    Running on linux
 #>
 param(
     [string] $dpsConnString,
@@ -14,6 +23,9 @@ param(
     [switch] $Install,
     [switch] $Linux
 )
+
+#requires -Version 5
+#requires -RunAsAdministrator
 
 $path = $script:MyInvocation.MyCommand.Path
 
@@ -26,7 +38,7 @@ else {
         $enrollment = & (join-path $path vm-enroll.ps1) -dpsConnString $dpsConnString
         Write-Host "Configure and initialize IoT Edge."
         if ($Linux.IsPresent) {
-            # configure config.yml
+            # configure config.yaml
 $configyml = @"
 provisioning:
    source: "dps"
@@ -37,12 +49,18 @@ provisioning:
       registration_id: "$($enrollment.registrationId)"
       symmetric_key: "$($enrollment.primaryKey)"
 "@
-            $configyml | Out-File /etc/iotedge/config.yml
+            $configyml | Out-File /etc/iotedge/config.yaml
+            Write-Host "Restart edge with new configuration."
+            & systemctl @("restart", "iotedge")
+
+            # todo: Test edge
         }
         else {
             . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
                 Initialize-IoTEdge -Dps -ScopeId $idScope -RegistrationId `
                     $enrollment.registrationId -SymmetricKey $enrollment.primaryKey
+        
+            # todo: Test edge
         }
     }
     else {

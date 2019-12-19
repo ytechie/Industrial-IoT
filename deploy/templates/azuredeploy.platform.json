@@ -537,8 +537,8 @@
                     "imageVersion": {
                         "value": "[parameters('imageVersion')]"
                     },
-                    "repoUrl": {
-                        "value": "[parameters('repoUrl')]"
+                    "templateUrl": {
+                        "value": "[parameters('templateUrl')]"
                     },
                     "branchName": {
                         "value": "[parameters('branchName')]"
@@ -615,8 +615,8 @@
                     "imageVersion": {
                         "value": "[parameters('imageVersion')]"
                     },
-                    "repoUrl": {
-                        "value": "[parameters('repoUrl')]"
+                    "templateUrl": {
+                        "value": "[parameters('templateUrl')]"
                     },
                     "branchName": {
                         "value": "[parameters('branchName')]"
