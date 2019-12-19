@@ -138,7 +138,7 @@ namespace Microsoft.Azure.IIoT.App {
             // the OnAuthorizationCodeReceived event is not called but instead
             // OnTokenValidated event is called. Here we request both so that
             // OnTokenValidated is called first which ensures that context.Principal
-            // has a non-null value when OnAuthorizeationCodeReceived is called
+            // has a non-null value when OnAuthorizationCodeReceived is called
             //
             services
                 .Configure<OpenIdConnectOptions>(AzureADDefaults.OpenIdScheme, options => {

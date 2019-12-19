@@ -40,12 +40,6 @@ namespace Microsoft.Extensions.Configuration {
             if (provider != null) {
                 builder.Add(provider);
             }
-            else {
-                var env = Environment.GetEnvironmentVariables();
-                foreach (var key in env.Keys) {
-                    Console.WriteLine(key + "=" + env[key]);
-                }
-            }
             return builder;
         }
 
