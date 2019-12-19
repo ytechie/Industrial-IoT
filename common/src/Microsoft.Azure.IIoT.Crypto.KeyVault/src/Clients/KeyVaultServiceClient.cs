@@ -13,6 +13,7 @@ namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.KeyVault.Models;
     using Microsoft.Azure.KeyVault.WebKey;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
     /// A KeyVault service client.
     /// </summary>
     public class KeyVaultServiceClient : IKeyValueStore, ICertificateIssuer, IKeyStore,
-        IDisposable {
+        IHealthCheck, IDisposable {
 
         /// <summary>
         /// Create key vault service client
@@ -70,6 +71,23 @@ namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
         /// <inheritdoc/>
         public void Dispose() {
             _keyVaultClient.Dispose();
+        }
+
+        /// <inheritdoc/>
+        public async Task<HealthCheckResult> CheckHealthAsync(
+            HealthCheckContext context, CancellationToken ct) {
+            try {
+                var secret = await _keyVaultClient.GetSecretsAsync(_vaultBaseUrl,
+                    1, ct);
+
+                // TODO: Check certificates in sync with keyvault
+
+                return HealthCheckResult.Healthy();
+            }
+            catch (Exception ex) {
+                return new HealthCheckResult(context.Registration.FailureStatus,
+                    exception: ex);
+            }
         }
 
         /// <inheritdoc/>

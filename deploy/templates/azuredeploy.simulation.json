@@ -273,7 +273,7 @@
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[if (equals(parameters('edgeOs'), 'linux'), 'bash', 'cmd')]"
+                    "commandToExecute": "[if (equals(parameters('edgeOs'), 'linux'), variables('linuxSetupCommand'), variables('windowsSetupCommand'))]"
                 }
             },
             "dependsOn": [

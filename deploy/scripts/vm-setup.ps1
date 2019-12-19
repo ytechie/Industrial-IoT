@@ -27,6 +27,8 @@ param(
 #requires -Version 5
 #requires -RunAsAdministrator
 
+return $null
+
 $path = $script:MyInvocation.MyCommand.Path
 
 if ([string]::IsNullOrEmpty($dpsConnString)) {
