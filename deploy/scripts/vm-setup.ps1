@@ -39,17 +39,29 @@ else {
         Write-Host "Configure and initialize IoT Edge."
         if ($Linux.IsPresent) {
             # configure config.yaml
-$configyml = @"
-provisioning:
-   source: "dps"
-   global_endpoint: "https://global.azure-devices-provisioning.net"
-   scope_id: "$($idScope)"
-   attestation:
-      method: "symmetric_key"
-      registration_id: "$($enrollment.registrationId)"
-      symmetric_key: "$($enrollment.primaryKey)"
-"@
-            $configyml | Out-File /etc/iotedge/config.yaml
+            $file = "/etc/iotedge/config.yaml"
+            $configyml = Get-Content $file -Raw
+
+            # comment out existing 
+            $configyml.Replace('`nprovisioning:', '`n#provisioning:')
+            $configyml.Replace('`n  source:', '`n#  source:')
+            $configyml.Replace('`n  device_connection_string:', '`n#  device_connection_string:')
+            $configyml.Replace('`n  dynamic_reprovisioning:', '`n#  dynamic_reprovisioning:')
+
+            # add dps setting
+            $configyml += '`n'
+            $configyml += '`n # DPS symmetric key provisioning configuration - added'
+            $configyml += '`nprovisioning:'
+            $configyml += '`n   source: "dps"'
+            $configyml += '`n   global_endpoint: "https://global.azure-devices-provisioning.net"'
+            $configyml += '`n   scope_id: "$($idScope)"'
+            $configyml += '`n   attestation:'
+            $configyml += '`n      method: "symmetric_key"'
+            $configyml += '`n      registration_id: "$($enrollment.registrationId)"'
+            $configyml += '`n      symmetric_key: "$($enrollment.primaryKey)"'
+            $configyml += '`n'
+
+            $configyml | Out-File $file -Force
             Write-Host "Restart edge with new configuration."
             & systemctl @("restart", "iotedge")
 

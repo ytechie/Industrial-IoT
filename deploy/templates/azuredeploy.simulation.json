@@ -267,9 +267,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/tools/scripts/vm-enroll.ps1')]",
-                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/tools/scripts/vm-setup.ps1')]",
-                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/tools/scripts/vm-setup.sh')]"
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-enroll.ps1')]",
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.ps1')]",
+                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.sh')]"
                     ]
                 },
                 "protectedSettings": {
