@@ -87,6 +87,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs {
 
             // Setup (not enabling yet) CORS
             services.AddCors();
+            services.AddHealthChecks();
 
             // Add authentication
             services.AddJwtBearerAuthentication(Config,

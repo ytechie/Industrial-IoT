@@ -104,6 +104,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Vault {
 
             // Setup (not enabling yet) CORS
             services.AddCors();
+            services.AddHealthChecks();
 
             // Add authentication
             services.AddJwtBearerAuthentication(Config,

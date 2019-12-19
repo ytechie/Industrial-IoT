@@ -89,6 +89,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin {
 
             // Setup (not enabling yet) CORS
             services.AddCors();
+            services.AddHealthChecks();
 
             // Add authentication
             services.AddJwtBearerAuthentication(Config,

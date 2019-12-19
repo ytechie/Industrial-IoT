@@ -70,7 +70,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
         public IServiceProvider ConfigureServices(IServiceCollection services) {
 
             services.AddHttpContextAccessor();
-            services.AddHealthChecks().AddCheck<Test>;
+            services.AddHealthChecks();
 
             // Prepare DI container
             var builder = new ContainerBuilder();
@@ -104,6 +104,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
             app.AddStartupBranch<Common.Jobs.Startup>("/jobs");
             app.AddStartupBranch<Common.Jobs.Edge.Startup>("/edge/jobs");
             app.AddStartupBranch<Common.Configuration.Startup>("/configuration");
+            app.UseHealthChecks("/health");
 
             // Start processors
             ApplicationContainer.Resolve<IHost>().StartAsync().Wait();

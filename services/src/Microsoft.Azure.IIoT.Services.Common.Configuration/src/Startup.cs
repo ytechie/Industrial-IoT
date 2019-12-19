@@ -84,6 +84,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
 
             // Setup (not enabling yet) CORS
             services.AddCors();
+            services.AddHealthChecks();
 
        //     // Add authentication
        //     services.AddJwtBearerAuthentication(Config,
