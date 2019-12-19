@@ -273,7 +273,7 @@
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "bash"
+                    "commandToExecute": "[if (equals(parameters('edgeOs'), 'linux'), 'bash', 'cmd')]"
                 }
             },
             "dependsOn": [
