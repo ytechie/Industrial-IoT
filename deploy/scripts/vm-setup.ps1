@@ -12,28 +12,26 @@
     The Dps id scope
 
  .PARAMETER Install
-    Whether to install
+    Whether to install - Must be false during first invoke
 
- .PARAMETER Linux
-    Running on linux
 #>
 param(
     [Parameter(Mandatory)]
     [string] $dpsConnString,
     [Parameter(Mandatory)]
     [string] $idScope,
-    [switch] $Install,
-    [switch] $Linux
+    [switch] $Install
 )
 
 $path = $script:MyInvocation.MyCommand.Path
+$Linux = $PsVersionTable.Platform -eq "Unix"
 
-if ($Install.IsPresent) {
+if ($Install.IsPresent -or $Linux) {
     Write-Host "Create new IoT Edge enrollment."
     $enrollPath = join-path (Split-Path $path) vm-enroll.ps1
     $enrollment = & $enrollPath -dpsConnString $dpsConnString
 
-    if ($Linux.IsPresent) {
+    if ($Linux) {
 
         Write-Host "Configure and initialize IoT Edge on Linux."
         # configure config.yaml
@@ -44,23 +42,28 @@ if ($Install.IsPresent) {
         $configyml = Get-Content $file -Raw
 
         # comment out existing 
-        $configyml.Replace('`nprovisioning:', '`n#provisioning:')
-        $configyml.Replace('`n  source:', '`n#  source:')
-        $configyml.Replace('`n  device_connection_string:', '`n#  device_connection_string:')
-        $configyml.Replace('`n  dynamic_reprovisioning:', '`n#  dynamic_reprovisioning:')
+        $configyml.Replace("`nprovisioning:", "`n#provisioning:")
+        $configyml.Replace("`n  source:", "`n#  source:")
+        $configyml.Replace("`n  device_connection_string:", "`n#  device_connection_string:")
+        $configyml.Replace("`n  dynamic_reprovisioning:", "`n#  dynamic_reprovisioning:")
 
         # add dps setting
-        $configyml += '`n'
-        $configyml += '`n # DPS symmetric key provisioning configuration - added'
-        $configyml += '`nprovisioning:'
-        $configyml += '`n   source: "dps"'
-        $configyml += '`n   global_endpoint: "https://global.azure-devices-provisioning.net"'
-        $configyml += '`n   scope_id: "$($idScope)"'
-        $configyml += '`n   attestation:'
-        $configyml += '`n      method: "symmetric_key"'
-        $configyml += '`n      registration_id: "$($enrollment.registrationId)"'
-        $configyml += '`n      symmetric_key: "$($enrollment.primaryKey)"'
-        $configyml += '`n'
+        $configyml += "`n"
+        $configyml += "`n ########################################################################"
+        $configyml += "`n # DPS symmetric key provisioning configuration - added by vm-setup.ps1 #"
+        $configyml += "`n ########################################################################"
+        $configyml += "`n"
+        $configyml += "`nprovisioning:"
+        $configyml += "`n   source: `"dps`""
+        $configyml += "`n   global_endpoint: `"https://global.azure-devices-provisioning.net`""
+        $configyml += "`n   scope_id: `"$($idScope)`""
+        $configyml += "`n   attestation:"
+        $configyml += "`n      method: `"symmetric_key`""
+        $configyml += "`n      registration_id: `"$($enrollment.registrationId)`""
+        $configyml += "`n      symmetric_key: `"$($enrollment.primaryKey)`""
+        $configyml += "`n"
+        $configyml += "`n ########################################################################"
+        $configyml += "`n"
 
         $configyml | Out-File $file -Force
         Write-Host "Restart edge with new configuration."

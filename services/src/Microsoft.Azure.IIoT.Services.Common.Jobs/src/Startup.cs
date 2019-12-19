@@ -151,7 +151,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs {
             });
 
             app.UseMvc();
-            app.UseHealthChecks("/health");
+            app.UseHealthChecks("/healthz");
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.

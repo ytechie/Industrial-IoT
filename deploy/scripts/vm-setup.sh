@@ -8,9 +8,13 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
-return
-
+echo "Installing powershell"
 # install powershell and call the setup command
-sudo apt-get install -y powershell
-sudo powershell ./vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope -Install -Linux
-sudo systemctl restart iotedge
+apt-get update
+apt-get install -y --no-install-recommends powershell
+
+echo "Installing iotedge"
+pwsh -File ./vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope
+
+echo "Restarting"
+systemctl restart iotedge
