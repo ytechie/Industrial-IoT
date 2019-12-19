@@ -439,7 +439,7 @@
         "appinsightsResourceId": "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]",
         "signalRResourceId": "[resourceId('Microsoft.SignalRService/SignalR', parameters('signalRName'))]",
         "keyVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-        "configurationResourceName": "InfrastructureConfiguration"
+        "configurationResourceName": "infrastructure.configuration"
     },
     "resources": [
         {

@@ -193,17 +193,17 @@
                 }
             }
         },
-        "simulationConfigurationResourceName": "simulationConfiguration",
+        "simulationConfigurationResourceName": "simulation.configuration",
         "serviceSiteResourceName": "[if(empty(parameters('serviceSiteName')), concat('svc', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 5)), parameters('serviceSiteName'))]",
         "serviceSiteResourceId": "[resourceId('Microsoft.Web/sites', variables('serviceSiteResourceName'))]",
         "serviceContainerImageName": "[concat(if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/industrial-iot-services-all', ':', parameters('imageVersion'))]",
-        "serviceConfigurationResourceName": "serviceConfiguration",
+        "serviceConfigurationResourceName": "platform.service.configuration",
         "serviceConfigurationResourceId": "[resourceId('Microsoft.Resources/deployments', variables('serviceConfigurationResourceName'))]",
         "servicePublishingConfigResource": "[concat('Microsoft.Web/sites/', variables('serviceSiteResourceName'), '/config/publishingcredentials')]",
         "appSiteResourceName": "[if(empty(parameters('siteName')), concat('app', take(uniqueString(subscription().subscriptionId, resourceGroup().id), 5)), parameters('siteName'))]",
         "appSiteResourceId": "[resourceId('Microsoft.Web/sites', variables('appSiteResourceName'))]",
         "appContainerImageName": "[concat(if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/industrial-iot-frontend', ':', parameters('imageVersion'))]",
-        "appConfigurationResourceName": "appConfiguration",
+        "appConfigurationResourceName": "platform.app.configuration",
         "appPublishingConfigResource": "[concat('Microsoft.Web/sites/', variables('appSiteResourceName'), '/config/publishingcredentials')]"
     },
     "resources": [
@@ -497,7 +497,7 @@
             "comments": "Deploy linux edge gateway and factory network simulation.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
-            "name": "[concat('LinuxGatewaySimulation', copyIndex())]",
+            "name": "[concat('simulation.linux.', copyIndex())]",
             "condition": "[not(equals(0, parameters('numberOfLinuxGateways')))]",
             "copy": {
                 "count": "[if(not(equals(0, parameters('numberOfLinuxGateways'))), parameters('numberOfLinuxGateways'), 1)]",
@@ -575,7 +575,7 @@
             "comments": "Deploy windows edge gateway and factory network simulation.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
-            "name": "[concat('WindowsGatewaySimulation', copyIndex())]",
+            "name": "[concat('simulation.windows.', copyIndex())]",
             "condition": "[not(equals(0, parameters('numberOfWindowsGateways')))]",
             "copy": {
                 "count": "[if(not(equals(0, parameters('numberOfWindowsGateways'))), parameters('numberOfWindowsGateways'), 1)]",

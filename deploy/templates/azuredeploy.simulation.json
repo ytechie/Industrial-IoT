@@ -137,14 +137,27 @@
                 }
             }
         },
-        "windowsSetupCommand": "[concat('powershell ./vm-setup.ps1 -idScope \"', parameters('dpsIdScope'), '\" -dpsConnString \"', parameters('dpsConnString'), '\"')]",
+        "windowsVmExtension": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.9",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+                "fileUris": [
+                    "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-enroll.ps1')]",
+                    "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.ps1')]"
+                ]
+            },
+            "protectedSettings": {
+                "commandToExecute": "[concat('powershell ./vm-setup.ps1 -idScope \"', parameters('dpsIdScope'), '\" -dpsConnString \"', parameters('dpsConnString'), '\"')]"
+            }
+        },
         "windowsImage": {
             "publisher": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
             "sku": "2019-datacenter",
             "version": "latest"
         },
-        "linuxSetupCommand": "[concat('sh vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]",
         "linuxImage": {
             "publisher": "microsoft_iot_edge",
             "offer": "iot_edge_vm_ubuntu",
@@ -155,6 +168,22 @@
             "name": "ubuntu_1604_edgeruntimeonly",
             "publisher": "microsoft_iot_edge",
             "product": "iot_edge_vm_ubuntu"
+        },
+        "linuxVmExtension": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+                "fileUris": [
+                    "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-enroll.ps1')]",
+                    "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.ps1')]",
+                    "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.sh')]"
+                ]
+            },
+            "protectedSettings": {
+                "commandToExecute":  "[concat('sh vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]"
+            }
         }
     },
     "resources": [
@@ -260,22 +289,7 @@
             "name": "[concat(variables('vmName'), '/', 'scriptextensions')]",
             "apiVersion": "2019-03-01",
             "location": "[resourceGroup().location]",
-            "properties": {
-                "publisher": "[if (equals(parameters('edgeOs'), 'linux'), 'Microsoft.Azure.Extensions', 'Microsoft.Compute')]",
-                "type": "[if (equals(parameters('edgeOs'), 'linux'), 'CustomScript', 'CustomScriptExtension')]",
-                "typeHandlerVersion": "[if (equals(parameters('edgeOs'), 'linux'), '2.0', '1.9')]",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": [
-                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-enroll.ps1')]",
-                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.ps1')]",
-                        "[concat(parameters('templateUrl'), '/', parameters('branchName'), '/deploy/scripts/vm-setup.sh')]"
-                    ]
-                },
-                "protectedSettings": {
-                    "commandToExecute": "[if (equals(parameters('edgeOs'), 'linux'), variables('linuxSetupCommand'), variables('windowsSetupCommand'))]"
-                }
-            },
+            "properties": "[if (equals(parameters('edgeOs'), 'linux'), variables('linuxVmExtension'), variables('windowsVmExtension'))]",
             "dependsOn": [
                 "[variables('vmResourceId')]"
             ]
