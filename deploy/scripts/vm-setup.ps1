@@ -24,9 +24,6 @@ param(
     [switch] $Linux
 )
 
-#requires -Version 5
-#requires -RunAsAdministrator
-
 return $null
 
 $path = $script:MyInvocation.MyCommand.Path

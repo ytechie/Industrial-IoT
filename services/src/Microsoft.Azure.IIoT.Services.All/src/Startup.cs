@@ -70,6 +70,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
         public IServiceProvider ConfigureServices(IServiceCollection services) {
 
             services.AddHttpContextAccessor();
+            services.AddHealthChecks();
 
             // Prepare DI container
             var builder = new ContainerBuilder();
