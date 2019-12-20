@@ -137,6 +137,15 @@
                 }
             }
         },
+        "windowsOsProfile": {
+            "computerName": "[variables('vmName')]",
+            "adminUsername": "[parameters('edgeUsername')]",
+            "adminPassword": "[if(not(empty(parameters('edgePassword'))), parameters('edgePassword'), json('null'))]",
+            "windowsConfiguration": {
+                "enableAutomaticUpdates": true,
+                "provisionVmAgent": true
+            }
+        },
         "windowsVmExtension": {
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
@@ -155,7 +164,7 @@
         "windowsImage": {
             "publisher": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
-            "sku": "2019-datacenter",
+            "sku": "2019-Datacenter-Core-with-Containers",
             "version": "latest"
         },
         "linuxImage": {
@@ -168,6 +177,11 @@
             "name": "ubuntu_1604_edgeruntimeonly",
             "publisher": "microsoft_iot_edge",
             "product": "iot_edge_vm_ubuntu"
+        },
+        "linuxOsProfile": {
+            "computerName": "[variables('vmName')]",
+            "adminUsername": "[parameters('edgeUsername')]",
+            "adminPassword": "[if(not(empty(parameters('edgePassword'))), parameters('edgePassword'), json('null'))]"
         },
         "linuxVmExtension": {
             "publisher": "Microsoft.Azure.Extensions",
@@ -182,7 +196,7 @@
                 ]
             },
             "protectedSettings": {
-                "commandToExecute":  "[concat('sudo sh vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]"
+                "commandToExecute": "[concat('sudo sh vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]"
             }
         }
     },
@@ -260,11 +274,7 @@
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
                 },
-                "osProfile": {
-                    "computerName": "[variables('vmName')]",
-                    "adminUsername": "[parameters('edgeUsername')]",
-                    "adminPassword": "[if(not(empty(parameters('edgePassword'))), parameters('edgePassword'), json('null'))]"
-                },
+                "osProfile": "[if(equals(parameters('edgeOs'), 'linux'), variables('linuxOsProfile'), variables('windowsOsProfile'))]",
                 "storageProfile": {
                     "imageReference": "[if(equals(parameters('edgeOs'), 'linux'), variables('linuxImage'), variables('windowsImage'))]",
                     "osDisk": {
