@@ -11,8 +11,8 @@
  .PARAMETER idScope
     The Dps id scope
 
- .PARAMETER Install
-    Whether to install - Must be false during first invoke
+ .PARAMETER Setup
+    Whether to perform the setup step (DO NOT SET)
 
 #>
 param(
@@ -20,13 +20,21 @@ param(
     [string] $dpsConnString,
     [Parameter(Mandatory)]
     [string] $idScope,
-    [switch] $Install
+    [switch] $Setup
 )
 
 $path = $script:MyInvocation.MyCommand.Path
+
+# log file
+$log = "vm-install.log"
+if ($Setup.IsPresent) {
+    $log = "vm-setup.log"
+}
+Start-Transcript -path (join-path (Split-Path $path), $log)
+
 $Linux = $PsVersionTable.Platform -eq "Unix"
 
-if ($Install.IsPresent -or $Linux) {
+if ($Setup.IsPresent -or $Linux) {
     $enrollPath = join-path (Split-Path $path) vm-enroll.ps1
 
     if ($Linux) {
@@ -98,7 +106,7 @@ else {
 
     # Register ourselves to initialize edge        
     $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
-    $args = @("-dpsConnString", $script:dpsConnString, "-idScope", $script:idScope, "-Install")
+    $args = @("-dpsConnString", $script:dpsConnString, "-idScope", $script:idScope, "-Setup")
     $name = "iotedge"
     $out = Register-ScheduledJob -Name $name -Trigger $trigger -FilePath $path -ArgumentList $args
     Write-Host $out.Command
