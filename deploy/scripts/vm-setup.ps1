@@ -42,31 +42,31 @@ if ($PsVersionTable.Platform -eq "Unix") {
     }
 
     Write-Host "Create new IoT Edge enrollment."
-    $enrollment = & $enrollPath -dpsConnString $dpsConnString
+    $enrollment = & $enrollPath -dpsConnString $dpsConnString -os Linux
     Write-Host "Configure and initialize IoT Edge on Linux using enrollment information."
 
     # comment out existing 
-    $configyml.Replace("`nprovisioning:", "`n#provisioning:")
-    $configyml.Replace("`n  source:", "`n#  source:")
-    $configyml.Replace("`n  device_connection_string:", "`n#  device_connection_string:")
-    $configyml.Replace("`n  dynamic_reprovisioning:", "`n#  dynamic_reprovisioning:")
+    $configyml = $configyml.Replace("`nprovisioning:", "`n#provisioning:")
+    $configyml = $configyml.Replace("`n  source:", "`n#  source:")
+    $configyml = $configyml.Replace("`n  device_connection_string:", "`n#  device_connection_string:")
+    $configyml = $configyml.Replace("`n  dynamic_reprovisioning:", "`n#  dynamic_reprovisioning:")
 
     # add dps setting
     $configyml += "`n"
-    $configyml += "`n ########################################################################"
-    $configyml += "`n # DPS symmetric key provisioning configuration - added by vm-setup.ps1 #"
-    $configyml += "`n ########################################################################"
+    $configyml += "`n########################################################################"
+    $configyml += "`n# DPS symmetric key provisioning configuration - added by vm-setup.ps1 #"
+    $configyml += "`n########################################################################"
     $configyml += "`n"
     $configyml += "`nprovisioning:"
-    $configyml += "`n   source: `"dps`""
-    $configyml += "`n   global_endpoint: `"https://global.azure-devices-provisioning.net`""
-    $configyml += "`n   scope_id: `"$($idScope)`""
-    $configyml += "`n   attestation:"
-    $configyml += "`n      method: `"symmetric_key`""
-    $configyml += "`n      registration_id: `"$($enrollment.registrationId)`""
-    $configyml += "`n      symmetric_key: `"$($enrollment.primaryKey)`""
+    $configyml += "`n  source: `"dps`""
+    $configyml += "`n  global_endpoint: `"https://global.azure-devices-provisioning.net`""
+    $configyml += "`n  scope_id: `"$($idScope)`""
+    $configyml += "`n  attestation:"
+    $configyml += "`n    method: `"symmetric_key`""
+    $configyml += "`n    registration_id: `"$($enrollment.registrationId)`""
+    $configyml += "`n    symmetric_key: `"$($enrollment.primaryKey)`""
     $configyml += "`n"
-    $configyml += "`n ########################################################################"
+    $configyml += "`n########################################################################"
     $configyml += "`n"
 
     $configyml | Out-File $file -Force
@@ -74,7 +74,7 @@ if ($PsVersionTable.Platform -eq "Unix") {
 else {
 
     Write-Host "Create new IoT Edge enrollment."
-    $enrollment = & $enrollPath -dpsConnString $dpsConnString
+    $enrollment = & $enrollPath -dpsConnString $dpsConnString -os Windows
 
     Write-Host "Configure and initialize IoT Edge on Windows using enrollment information."
     . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `

@@ -114,7 +114,7 @@
     "variables": {
         "instanceId": "[take(uniqueString(subscription().subscriptionId, resourceGroup().id, parameters('edgeName'), parameters('edgeOs')), 7)]",
         "vmPrefix": "[if(equals(parameters('edgeOs'), 'windows'), take(parameters('edgeName'), 6), parameters('edgeName'))]",
-        "vmName": "[concat(variables('vmPrefix'), '-', variables('instanceId'))]",
+        "vmName": "[tolower(concat(variables('vmPrefix'), '-', variables('instanceId')))]",
         "vmResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]",
         "nicResourceName": "[concat(variables('vmName'), '-nic')]",
         "nicResourceId": "[resourceId(resourceGroup().name,'Microsoft.Network/networkInterfaces', variables('nicResourceName'))]",

@@ -7,10 +7,15 @@
 
  .PARAMETER dpsConnString
     The Azure Device Provisioning Service connection string
+
+ .PARAMETER os
+    The operating system to enroll
 #>
 param(
     [Parameter(Mandatory)]
-    [string] $dpsConnString
+    [string] $dpsConnString,
+    [Parameter(Mandatory)] 
+    [string] $os
 )
 
 #******************************************************************************
@@ -73,9 +78,18 @@ $sasToken = "SharedAccessSignature " `
 # Create enrollment
 
 $headers = @{"Authorization" = $sasToken; "Content-Type" = "application/json"}
+Add-Type -AssemblyName System.Net
+$deviceId = [System.Net.Dns]::GetHostName()
 $body = @{
     attestation = @{
         type = "symmetricKey"
+    }
+    deviceId = $deviceId
+    initialTwin = @{
+        tags = @{
+            iiotEdge = $true
+            os = $os
+        }
     }
     registrationId = $registrationId
     capabilities = @{
