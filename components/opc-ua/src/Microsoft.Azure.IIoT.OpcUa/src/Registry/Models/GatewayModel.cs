@@ -6,17 +6,22 @@
 namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
     /// <summary>
-    /// Edge Gateway registration query request
+    /// Edge Gateway registration
     /// </summary>
-    public class EdgeGatewayQueryModel {
+    public class GatewayModel {
 
         /// <summary>
-        /// Site for the gateways
+        /// Identifier of the gateway
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Site of the gateway
         /// </summary>
         public string SiteId { get; set; }
 
         /// <summary>
-        /// Included connected or disconnected
+        /// Whether gateway is connected
         /// </summary>
         public bool? Connected { get; set; }
     }

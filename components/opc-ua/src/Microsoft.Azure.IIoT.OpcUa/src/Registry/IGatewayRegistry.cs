@@ -11,42 +11,37 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
     /// <summary>
     /// Edge Gateway registry
     /// </summary>
-    public interface IEdgeGatewayRegistry {
+    public interface IGatewayRegistry {
 
         /// <summary>
         /// Get all gateways in paged form
         /// </summary>
         /// <param name="continuation"></param>
-        /// <param name="onlyServerState"></param>
         /// <param name="pageSize"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<EdgeGatewayListModel> ListEdgeGatewaysAsync(
-            string continuation, bool onlyServerState = false,
-            int? pageSize = null, CancellationToken ct = default);
+        Task<GatewayListModel> ListGatewaysAsync(
+            string continuation, int? pageSize = null,
+            CancellationToken ct = default);
 
         /// <summary>
         /// Find gateways using specific criterias.
         /// </summary>
         /// <param name="query"></param>
-        /// <param name="onlyServerState"></param>
         /// <param name="pageSize"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<EdgeGatewayListModel> QueryEdgeGatewaysAsync(
-            EdgeGatewayQueryModel query, bool onlyServerState = false,
-            int? pageSize = null,
+        Task<GatewayListModel> QueryGatewaysAsync(
+            GatewayQueryModel query, int? pageSize = null,
             CancellationToken ct = default);
 
         /// <summary>
         /// Get gateway registration by identifer.
         /// </summary>
-        /// <param name="onlyServerState"></param>
         /// <param name="ct"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<EdgeGatewayModel> GetEdgeGatewayAsync(
-            string id, bool onlyServerState = false,
+        Task<GatewayModel> GetGatewayAsync(string id,
             CancellationToken ct = default);
 
         /// <summary>
@@ -56,8 +51,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
         /// <param name="ct"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task UpdateEdgeGatewayAsync(string id,
-            EdgeGatewayUpdateModel request,
+        Task UpdateGatewayAsync(string id, GatewayUpdateModel request,
             CancellationToken ct = default);
     }
 }

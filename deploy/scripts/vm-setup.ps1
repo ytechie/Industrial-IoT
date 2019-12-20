@@ -19,8 +19,6 @@ param(
 )
 
 $path = Split-Path $script:MyInvocation.MyCommand.Path
-Start-Transcript -path (join-path $path "vm-setup.log")
-
 $enrollPath = join-path $path vm-enroll.ps1
 if ($PsVersionTable.Platform -eq "Unix") {
 
@@ -72,6 +70,7 @@ if ($PsVersionTable.Platform -eq "Unix") {
     $configyml | Out-File $file -Force
 }
 else {
+    Start-Transcript -path (join-path $path "vm-setup.log")
 
     Write-Host "Create new IoT Edge enrollment."
     $enrollment = & $enrollPath -dpsConnString $dpsConnString -os Windows

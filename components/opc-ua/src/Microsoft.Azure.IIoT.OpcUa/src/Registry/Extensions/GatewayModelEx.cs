@@ -11,7 +11,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
     /// <summary>
     /// Service model extensionsedge gateway
     /// </summary>
-    public static class EdgeGatewayModelEx {
+    public static class GatewayModelEx {
 
         /// <summary>
         /// Equality comparison
@@ -19,8 +19,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <param name="model"></param>
         /// <param name="that"></param>
         /// <returns></returns>
-        public static bool IsSameAs(this IEnumerable<EdgeGatewayModel> model,
-            IEnumerable<EdgeGatewayModel> that) {
+        public static bool IsSameAs(this IEnumerable<GatewayModel> model,
+            IEnumerable<GatewayModel> that) {
             if (model == that) {
                 return true;
             }
@@ -39,8 +39,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <param name="model"></param>
         /// <param name="that"></param>
         /// <returns></returns>
-        public static bool IsSameAs(this EdgeGatewayModel model,
-            EdgeGatewayModel that) {
+        public static bool IsSameAs(this GatewayModel model,
+            GatewayModel that) {
             if (model == that) {
                 return true;
             }
@@ -55,14 +55,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static EdgeGatewayModel Clone(this EdgeGatewayModel model) {
+        public static GatewayModel Clone(this GatewayModel model) {
             if (model == null) {
                 return null;
             }
-            return new EdgeGatewayModel {
+            return new GatewayModel {
                 Connected = model.Connected,
                 Id = model.Id,
-                OutOfSync = model.OutOfSync,
                 SiteId = model.SiteId
             };
         }

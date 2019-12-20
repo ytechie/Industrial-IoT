@@ -14,7 +14,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
     /// <summary>
     /// Edge Gateway registry extensions
     /// </summary>
-    public static class EdgeGatewayRegistryEx {
+    public static class GatewayRegistryEx {
 
         /// <summary>
         /// Find edge gateway.
@@ -23,11 +23,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
         /// <param name="publisherId"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public static async Task<EdgeGatewayModel> FindEdgeGatewayAsync(
-            this IEdgeGatewayRegistry service, string publisherId,
+        public static async Task<GatewayModel> FindGatewayAsync(
+            this IGatewayRegistry service, string publisherId,
             CancellationToken ct = default) {
             try {
-                return await service.GetEdgeGatewayAsync(publisherId, false, ct);
+                return await service.GetGatewayAsync(publisherId, ct);
             }
             catch (ResourceNotFoundException) {
                 return null;
@@ -38,18 +38,17 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
         /// List all edge gateways
         /// </summary>
         /// <param name="service"></param>
-        /// <param name="onlyServerState"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public static async Task<List<EdgeGatewayModel>> ListAllEdgeGatewaysAsync(
-            this IEdgeGatewayRegistry service, bool onlyServerState = false,
+        public static async Task<List<GatewayModel>> ListAllGatewaysAsync(
+            this IGatewayRegistry service,
             CancellationToken ct = default) {
-            var publishers = new List<EdgeGatewayModel>();
-            var result = await service.ListEdgeGatewaysAsync(null, onlyServerState, null, ct);
+            var publishers = new List<GatewayModel>();
+            var result = await service.ListGatewaysAsync(null, null, ct);
             publishers.AddRange(result.Items);
             while (result.ContinuationToken != null) {
-                result = await service.ListEdgeGatewaysAsync(result.ContinuationToken,
-                    onlyServerState, null, ct);
+                result = await service.ListGatewaysAsync(result.ContinuationToken,
+                    null, ct);
                 publishers.AddRange(result.Items);
             }
             return publishers;
@@ -59,18 +58,17 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
         /// Returns all edge gateway ids from the registry
         /// </summary>
         /// <param name="service"></param>
-        /// <param name="onlyServerState"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public static async Task<List<string>> ListAllEdgeGatewayIdsAsync(
-            this IEdgeGatewayRegistry service, bool onlyServerState = false,
+        public static async Task<List<string>> ListAllGatewayIdsAsync(
+            this IGatewayRegistry service,
             CancellationToken ct = default) {
             var publishers = new List<string>();
-            var result = await service.ListEdgeGatewaysAsync(null, onlyServerState, null, ct);
+            var result = await service.ListGatewaysAsync(null, null, ct);
             publishers.AddRange(result.Items.Select(s => s.Id));
             while (result.ContinuationToken != null) {
-                result = await service.ListEdgeGatewaysAsync(result.ContinuationToken,
-                    onlyServerState, null, ct);
+                result = await service.ListGatewaysAsync(result.ContinuationToken,
+                    null, ct);
                 publishers.AddRange(result.Items.Select(s => s.Id));
             }
             return publishers;

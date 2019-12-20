@@ -14,41 +14,41 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
     using System.Threading;
 
     /// <summary>
-    /// Edge registry which uses the IoT Hub twin services for supervisor
+    /// Edge registry which uses the IoT Hub twin services for gateway
     /// identity management.
     /// </summary>
-    public sealed class EdgeGatewayRegistry : IEdgeGatewayRegistry {
+    public sealed class GatewayRegistry : IGatewayRegistry {
 
         /// <summary>
         /// Create registry services
         /// </summary>
         /// <param name="iothub"></param>
         /// <param name="logger"></param>
-        public EdgeGatewayRegistry(IIoTHubTwinServices iothub, ILogger logger) {
+        public GatewayRegistry(IIoTHubTwinServices iothub, ILogger logger) {
             _iothub = iothub ?? throw new ArgumentNullException(nameof(iothub));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
-        public async Task<EdgeGatewayModel> GetEdgeAsync(string gatewayId,
-            bool onlyServerState, CancellationToken ct) {
+        public async Task<GatewayModel> GetGatewayAsync(string gatewayId,
+            CancellationToken ct) {
             if (string.IsNullOrEmpty(gatewayId)) {
                 throw new ArgumentException(nameof(gatewayId));
             }
             var deviceId = gatewayId;
             var device = await _iothub.GetAsync(deviceId, null, ct);
-            var registration = device.ToRegistration(onlyServerState)
-                as EdgeRegistration;
+            var registration = device.ToRegistration()
+                as GatewayRegistration;
             if (registration == null) {
                 throw new ResourceNotFoundException(
-                    $"{gatewayId} is not a supervisor registration.");
+                    $"{gatewayId} is not a gateway registration.");
             }
             return registration.ToServiceModel();
         }
 
         /// <inheritdoc/>
-        public async Task UpdateEdgeAsync(string gatewayId,
-            EdgeGatewayUpdateModel request, CancellationToken ct) {
+        public async Task UpdateGatewayAsync(string gatewayId,
+            GatewayUpdateModel request, CancellationToken ct) {
             if (request == null) {
                 throw new ArgumentNullException(nameof(request));
             }
@@ -67,10 +67,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                             nameof(gatewayId));
                     }
 
-                    var registration = twin.ToRegistration(true) as EdgeRegistration;
+                    var registration = twin.ToRegistration(true) as GatewayRegistration;
                     if (registration == null) {
                         throw new ResourceNotFoundException(
-                            $"{gatewayId} is not a supervisor registration.");
+                            $"{gatewayId} is not a gateway registration.");
                     }
 
                     // Update registration from update request
@@ -82,44 +82,42 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                     }
                     // Patch
                     await _iothub.PatchAsync(registration.Patch(
-                        patched.ToEdgeRegistration()), false, ct);
+                        patched.ToGatewayRegistration()), false, ct);
                     return;
                 }
                 catch (ResourceOutOfDateException ex) {
-                    _logger.Debug(ex, "Retrying updating supervisor...");
+                    _logger.Debug(ex, "Retrying updating gateway...");
                     continue;
                 }
             }
         }
 
         /// <inheritdoc/>
-        public async Task<EdgeGatewayListModel> ListEdgesAsync(
-            string continuation, bool onlyServerState, int? pageSize, CancellationToken ct) {
+        public async Task<GatewayListModel> ListGatewaysAsync(
+            string continuation, int? pageSize, CancellationToken ct) {
             var query = "SELECT * FROM devices WHERE " +
-                $"properties.reported.{TwinProperty.Type} = 'supervisor' " +
+                $"(tags.{TwinProperty.Type} = 'gateway' OR tags.iiotedge = true) " +
                 $"AND NOT IS_DEFINED(tags.{nameof(BaseRegistration.NotSeenSince)})";
             var devices = await _iothub.QueryDeviceTwinsAsync(query, continuation, pageSize, ct);
-            return new EdgeGatewayListModel {
+            return new GatewayListModel {
                 ContinuationToken = devices.ContinuationToken,
                 Items = devices.Items
-                    .Select(t => t.ToEdgeRegistration(onlyServerState))
+                    .Select(t => t.ToGatewayRegistration())
                     .Select(s => s.ToServiceModel())
                     .ToList()
             };
         }
 
         /// <inheritdoc/>
-        public async Task<EdgeGatewayListModel> QueryEdgesAsync(
-            EdgeGatewayQueryModel model, bool onlyServerState, int? pageSize, CancellationToken ct) {
+        public async Task<GatewayListModel> QueryGatewaysAsync(
+            GatewayQueryModel model, int? pageSize, CancellationToken ct) {
 
-            var query = "SELECT * FROM devices.modules WHERE " +
-                $"properties.reported.{TwinProperty.Type} = 'supervisor'";
+            var query = "SELECT * FROM devices WHERE " +
+                $"(tags.{TwinProperty.Type} = 'gateway' OR tags.iiotedge = true) ";
 
             if (model?.SiteId != null) {
                 // If site id provided, include it in search
-                query += $"AND (properties.reported.{TwinProperty.SiteId} = " +
-                    $"'{model.SiteId}' OR properties.desired.{TwinProperty.SiteId} = " +
-                    $"'{model.SiteId}')";
+                query += $"AND tags.{TwinProperty.SiteId} = '{model.SiteId}' ";
             }
             if (model?.Connected != null) {
                 // If flag provided, include it in search
@@ -134,10 +132,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
             }
 
             var queryResult = await _iothub.QueryDeviceTwinsAsync(query, null, pageSize, ct);
-            return new EdgeGatewayListModel {
+            return new GatewayListModel {
                 ContinuationToken = queryResult.ContinuationToken,
                 Items = queryResult.Items
-                    .Select(t => t.ToEdgeRegistration(onlyServerState))
+                    .Select(t => t.ToGatewayRegistration())
                     .Select(s => s.ToServiceModel())
                     .ToList()
             };

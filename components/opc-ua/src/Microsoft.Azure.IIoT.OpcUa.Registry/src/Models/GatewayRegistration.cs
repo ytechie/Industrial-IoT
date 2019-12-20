@@ -11,32 +11,38 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
     /// Edge gateway registration
     /// </summary>
     [Serializable]
-    public sealed class EdgeGatewayRegistration : BaseRegistration {
+    public sealed class GatewayRegistration : DeviceRegistration {
 
         /// <inheritdoc/>
         public override string DeviceType => "Gateway";
+
+        /// <inheritdoc/>
+        public override string Thumbprint => null;
+
+        /// <inheritdoc/>
+        public override Dictionary<string, string> Certificate => null;
 
         /// <summary>
         /// Create registration - for testing purposes
         /// </summary>
         /// <param name="deviceId"></param>
-        public EdgeGatewayRegistration(string deviceId = null) {
+        public GatewayRegistration(string deviceId = null) {
             DeviceId = deviceId;
         }
 
         /// <inheritdoc/>
         public override bool Equals(object obj) {
-            var registration = obj as EdgeGatewayRegistration;
+            var registration = obj as GatewayRegistration;
             return base.Equals(registration);
         }
 
         /// <inheritdoc/>
-        public static bool operator ==(EdgeGatewayRegistration r1,
-            EdgeGatewayRegistration r2) => EqualityComparer<EdgeGatewayRegistration>.Default.Equals(r1, r2);
+        public static bool operator ==(GatewayRegistration r1,
+            GatewayRegistration r2) => EqualityComparer<GatewayRegistration>.Default.Equals(r1, r2);
 
         /// <inheritdoc/>
-        public static bool operator !=(EdgeGatewayRegistration r1,
-            EdgeGatewayRegistration r2) => !(r1 == r2);
+        public static bool operator !=(GatewayRegistration r1,
+            GatewayRegistration r2) => !(r1 == r2);
 
         /// <inheritdoc/>
         public override int GetHashCode() {

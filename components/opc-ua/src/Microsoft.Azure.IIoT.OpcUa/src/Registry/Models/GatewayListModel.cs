@@ -4,15 +4,21 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Edge ateway registration update request
+    /// Edge Gateway list
     /// </summary>
-    public class EdgeGatewayUpdateModel {
+    public class GatewayListModel {
 
         /// <summary>
-        /// Site of the Edge Gateway
+        /// Continuation or null if final
         /// </summary>
-        public string SiteId { get; set; }
+        public string ContinuationToken { get; set; }
+
+        /// <summary>
+        /// Edge Gateways
+        /// </summary>
+        public List<GatewayModel> Items { get; set; }
     }
 }

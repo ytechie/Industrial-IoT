@@ -14,8 +14,8 @@ function install() {
     echo "In $curdir..."
     echo "Prepare machine..."
     # install powershell and call the setup command
-    sudo apt-get update
-    sudo apt-get install -y --no-install-recommends powershell
+    apt-get update
+    apt-get install -y --no-install-recommends powershell
 
     # wait until config.yaml is available
     configFile=/etc/iotedge/config.yaml
@@ -27,11 +27,12 @@ function install() {
     echo "Iotedge installed."
     
     echo "Provisioning iotedge..."
-    sudo pwsh -File $curdir/vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope
+    sleep 5
+    pwsh -File $curdir/vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope
     echo "Iotedge provisioned."
 
     echo "Restarting iotedge runtime..."
-    sudo systemctl restart iotedge
+    systemctl restart iotedge
     echo "Iotedge running."
 }
 

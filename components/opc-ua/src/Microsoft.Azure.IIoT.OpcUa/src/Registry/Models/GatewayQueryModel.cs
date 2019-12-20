@@ -6,28 +6,17 @@
 namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
     /// <summary>
-    /// Edge Gateway registration
+    /// Edge Gateway registration query request
     /// </summary>
-    public class EdgeGatewayModel {
+    public class GatewayQueryModel {
 
         /// <summary>
-        /// Identifier of the gateway
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Site of the gateway
+        /// Site for the gateways
         /// </summary>
         public string SiteId { get; set; }
 
         /// <summary>
-        /// Whether the registration is out of sync between
-        /// client (module) and server (service) (default: false).
-        /// </summary>
-        public bool? OutOfSync { get; set; }
-
-        /// <summary>
-        /// Whether gateway is connected
+        /// Included connected or disconnected
         /// </summary>
         public bool? Connected { get; set; }
     }
