@@ -10,7 +10,7 @@ done
 
 curdir="$( cd "$(dirname "$0")" ; pwd -P )"
 
-function install() {
+install() {
     echo "In $curdir..."
     echo "Prepare machine..."
     # install powershell and call the setup command
