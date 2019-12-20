@@ -27,12 +27,16 @@ function install() {
     echo "Iotedge installed."
     
     echo "Provisioning iotedge..."
-    sleep 5
+    sleep 3
     pwsh -File $curdir/vm-setup.ps1 -dpsConnString $dpsConnString -idScope $idScope
     echo "Iotedge provisioned."
 
     echo "Restarting iotedge runtime..."
-    systemctl restart iotedge
+    sleep 3
+    sudo systemctl daemon-reload
+    sudo systemctl restart iotedge
+    sleep 3
+    sudo systemctl status iotedge
     echo "Iotedge running."
 }
 
