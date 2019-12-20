@@ -149,6 +149,71 @@ Function Select-Context() {
 }
 
 #*******************************************************************************************************
+# Get private registry credentials
+#*******************************************************************************************************
+Function Select-RegistryCredentials() {
+    # set private container registry source if provided at command line
+    if ([string]::IsNullOrEmpty($script:acrRegistryName) `
+            -and [string]::IsNullOrEmpty($script:acrSubscriptionName)) {
+        return $null
+    }
+
+    if (![string]::IsNullOrEmpty($script:acrSubscriptionName) `
+            -and ($context.Subscription.Name -ne $script:acrSubscriptionName)) {
+        $acrSubscription = Get-AzSubscription -SubscriptionName $script:acrSubscriptionName 
+        if (!$acrSubscription) {
+            Write-Warning "Specified container registry subscription $($script:acrSubscriptionName) not found."
+        }
+        $containerContext = Get-AzContext -ListAvailable | Where-Object { 
+            $_.Subscription.Name -eq $script:acrSubscriptionName 
+        }
+    }
+
+    if (!$containerContext) {
+        # use current context
+        $containerContext = $context
+        Write-Host "Try using current authentication context to access container registry."
+    }
+    if ($containerContext.Length -gt 1) {
+        $containerContext = $containerContext[0]
+    }
+    if ([string]::IsNullOrEmpty($script:acrRegistryName)) {
+        # use default dev images repository name - see acr-build.ps1
+        $script:acrRegistryName = "industrialiotdev"
+    }
+
+    Write-Host "Looking up credentials for $($script:acrRegistryName) registry."
+    
+    try {
+        $registry = Get-AzContainerRegistry -DefaultProfile $containerContext `
+            | Where-Object { $_.Name -eq $script:acrRegistryName }
+    }
+    catch {
+        $registry = $null
+    }
+    if (!$registry) {
+        Write-Warning "$($script:acrRegistryName) registry not found."
+        return $null
+    }
+    try {
+        $creds = Get-AzContainerRegistryCredential -Registry $registry `
+            -DefaultProfile $containerContext
+    }
+    catch {
+        $creds = $null
+    }
+    if (!$creds) {
+        Write-Warning "Failed to get credentials for $($script:acrRegistryName)."
+        return $null
+    }
+    return @{
+        dockerServer = $registry.LoginServer
+        dockerUser =  $creds.Username
+        dockerPassword = $creds.Password
+    }
+}
+
+#*******************************************************************************************************
 # Select location
 #*******************************************************************************************************
 Function Select-ResourceGroupLocation() {
@@ -411,67 +476,21 @@ Function New-Deployment() {
             }
         }
 
-        # set private container registry source if provided at command line
-        if (![string]::IsNullOrEmpty($script:acrRegistryName) `
-                -or ![string]::IsNullOrEmpty($script:acrSubscriptionName)) {
-            if (![string]::IsNullOrEmpty($script:acrSubscriptionName) `
-                    -and ($context.Subscription.Name -ne $script:acrSubscriptionName)) {
-                $acrSubscription = Get-AzSubscription -SubscriptionName $script:acrSubscriptionName 
-                if (!$acrSubscription) {
-                    Write-Warning "Specified container registry subscription $($script:acrSubscriptionName) not found."
-                }
-                $containerContext = Get-AzContext -ListAvailable | Where-Object { 
-                    $_.Subscription.Name -eq $script:acrSubscriptionName 
-                }
+        $creds = Select-RegistryCredentials
+        if ($creds) {
+            $templateParameters.Add("dockerServer", $creds.dockerServer)
+            $templateParameters.Add("dockerUser", $creds.dockerUser)
+            $templateParameters.Add("dockerPassword", $creds.dockerPassword)
+            $namespace = $branchName
+            if ($namespace.StartsWith("feature/")) {
+                $namespace = $namespace.Replace("feature/", "")
             }
-            if (!$containerContext) {
-                # use current context
-                $containerContext = $context
-                Write-Host "Try using current authentication context to access container registry."
+            elseif ($namespace.StartsWith("release/")) {
+                $namespace = "master"
             }
-            if ([string]::IsNullOrEmpty($script:acrRegistryName)) {
-                # use default dev images repository name - see acr-build.ps1
-                $script:acrRegistryName = "industrialiotdev"
-            }
-            Write-Host "Looking up credentials for $($script:acrRegistryName) registry."
-            
-            try {
-                $registry = Get-AzContainerRegistry -DefaultProfile $containerContext `
-                    | Where-Object { $_.Name -eq $script:acrRegistryName }
-            }
-            catch {
-                $registry = $null
-            }
-            if (!$registry) {
-                Write-Warning "$($script:acrRegistryName) registry not found - using mcr.microsoft.com."
-            }
-            else {
-                try {
-                    $creds = Get-AzContainerRegistryCredential -Registry $registry `
-                        -DefaultProfile $containerContext
-                }
-                catch {
-                    $creds = $null
-                }
-                if (!$creds) {
-                    Write-Warning "Failed to get credentials for $($script:acrRegistryName) - using mcr.microsoft.com."
-                }
-                else {
-                    $templateParameters.Add("dockerServer", $registry.LoginServer)
-                    $templateParameters.Add("dockerUser", $creds.Username)
-                    $templateParameters.Add("dockerPassword", $creds.Password)
-                    $namespace = $branchName
-                    if ($namespace.StartsWith("feature/")) {
-                        $namespace = $namespace.Replace("feature/", "")
-                    }
-                    elseif ($namespace.StartsWith("release/")) {
-                        $namespace = "master"
-                    }
-                    $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))        
-                    $templateParameters.Add("imageNamespace", $namespace)
-                    Write-Host "Using latest $($namespace) images from $($registry.LoginServer)."
-                }
-            }
+            $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))        
+            $templateParameters.Add("imageNamespace", $namespace)
+            Write-Host "Using latest $($namespace) images from $($creds.dockerServer)."
         }
 
         if ($script:type -eq "all") {
@@ -480,7 +499,7 @@ Function New-Deployment() {
             $templateParameters.Add("numberOfWindowsGateways", 1)
             $templateParameters.Add("numberOfServers", 1)
 
-            $adminUser = "sandboxUser"
+            $adminUser = "sandboxuser"
             $adminPassword = New-Password
             $templateParameters.Add("edgePassword", $adminPassword)
             $templateParameters.Add("edgeUserName", $adminUser)
