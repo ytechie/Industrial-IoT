@@ -196,7 +196,7 @@
                 ]
             },
             "protectedSettings": {
-                "commandToExecute": "[concat('sudo vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]"
+                "commandToExecute": "[concat('sudo bash vm-setup.sh --idScope \"', parameters('dpsIdScope'), '\" --dpsConnString \"', parameters('dpsConnString'), '\"')]"
             }
         }
     },
