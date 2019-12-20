@@ -15,12 +15,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\Microsoft.Azure.IIoT.Hub.Edgemanager.csproj" />
+    <ProjectReference Include="..\src\Microsoft.Azure.IIoT.Hub.Module.Deployment.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 </Project>
