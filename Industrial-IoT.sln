@@ -93,7 +93,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.IIoT.Hub.Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.IIoT.Hub.Module.Framework", "common\src\Microsoft.Azure.IIoT.Hub.Module.Framework\src\Microsoft.Azure.IIoT.Hub.Module.Framework.csproj", "{C558680C-39FC-4E21-A28C-9EF2E8102ED4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.IIoT.Hub.Edgemanager", "common\src\Microsoft.Azure.IIoT.Hub.Module.Deployment\src\Microsoft.Azure.IIoT.Hub.Edgemanager.csproj", "{625FB76E-88EE-4541-90B8-DCC94026B8F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.IIoT.Hub.Edgemanager", "common\src\Microsoft.Azure.IIoT.Hub.Edgemanager\src\Microsoft.Azure.IIoT.Hub.Edgemanager.csproj", "{625FB76E-88EE-4541-90B8-DCC94026B8F7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.IIoT.AspNetCore", "common\src\Microsoft.Azure.IIoT.AspNetCore\src\Microsoft.Azure.IIoT.AspNetCore.csproj", "{7C3C842E-A979-4118-B322-7F7403835E23}"
 EndProject
