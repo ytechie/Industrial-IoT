@@ -1,9 +1,9 @@
 <#
  .SYNOPSIS
-    Installs Industrial IoT edge on windows
+    Installs Industrial IoT edge 
 
  .DESCRIPTION
-    Installs Industrial IoT edge on windows and finishes installation.
+    Installs Industrial IoT edge and finishes installation.
 
  .PARAMETER dpsConnString
     The Dps connection string
@@ -27,19 +27,29 @@ $path = $script:MyInvocation.MyCommand.Path
 $Linux = $PsVersionTable.Platform -eq "Unix"
 
 if ($Install.IsPresent -or $Linux) {
-    Write-Host "Create new IoT Edge enrollment."
     $enrollPath = join-path (Split-Path $path) vm-enroll.ps1
-    $enrollment = & $enrollPath -dpsConnString $dpsConnString
 
     if ($Linux) {
-
-        Write-Host "Configure and initialize IoT Edge on Linux."
-        # configure config.yaml
         $file = "/etc/iotedge/config.yaml"
-        if (!Test-Path $file) {
-            throw new "config.yaml not found in $($file)"
+        if (Test-Path $file) {
+            $backup = "$($file)-backup"
+            if (Test-Path $backup) {
+                Write-Host "Already configured."
+                return
+            }
+            $configyml = Get-Content $file -Raw
+            if ([string]::IsNullOrWhiteSpace($configyml)) {
+                throw new "$($file) empty."
+            }
+            $configyml | Out-File $backup -Force
         }
-        $configyml = Get-Content $file -Raw
+        else {
+            throw new "$($file) does not exist."
+        }
+
+        Write-Host "Create new IoT Edge enrollment."
+        $enrollment = & $enrollPath -dpsConnString $dpsConnString
+        Write-Host "Configure and initialize IoT Edge on Linux using enrollment information."
 
         # comment out existing 
         $configyml.Replace("`nprovisioning:", "`n#provisioning:")
@@ -66,14 +76,13 @@ if ($Install.IsPresent -or $Linux) {
         $configyml += "`n"
 
         $configyml | Out-File $file -Force
-        Write-Host "Restart edge with new configuration."
-        & systemctl @("restart", "iotedge")
-
-        # todo: Test edge
     }
     else {
 
-        Write-Host "Configure and initialize IoT Edge on Windows."
+        Write-Host "Create new IoT Edge enrollment."
+        $enrollment = & $enrollPath -dpsConnString $dpsConnString
+    
+        Write-Host "Configure and initialize IoT Edge on Windows using enrollment information."
         . { Invoke-WebRequest -useb https://aka.ms/iotedge-win } | Invoke-Expression; `
             Initialize-IoTEdge -Dps -ScopeId $idScope -RegistrationId `
                 $enrollment.registrationId -SymmetricKey $enrollment.primaryKey
