@@ -198,5 +198,46 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
             }
             return registrations;
         }
+
+
+        /// <summary>
+        /// List all gateways
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<GatewayApiModel>> ListAllGatewaysAsync(
+            this IRegistryServiceApi service, CancellationToken ct = default) {
+            var registrations = new List<GatewayApiModel>();
+            var result = await service.ListGatewaysAsync(null, null, ct);
+            registrations.AddRange(result.Items);
+            while (result.ContinuationToken != null) {
+                result = await service.ListGatewaysAsync(result.ContinuationToken,
+                    null, ct);
+                registrations.AddRange(result.Items);
+            }
+            return registrations;
+        }
+
+        /// <summary>
+        /// Find publishers
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="ct"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<GatewayApiModel>> QueryAllGatewaysAsync(
+            this IRegistryServiceApi service, GatewayQueryApiModel query,
+            CancellationToken ct = default) {
+            var registrations = new List<GatewayApiModel>();
+            var result = await service.QueryGatewaysAsync(query, null, ct);
+            registrations.AddRange(result.Items);
+            while (result.ContinuationToken != null) {
+                result = await service.ListGatewaysAsync(result.ContinuationToken,
+                    null, ct);
+                registrations.AddRange(result.Items);
+            }
+            return registrations;
+        }
     }
 }
