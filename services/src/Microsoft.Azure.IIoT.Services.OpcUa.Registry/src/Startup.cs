@@ -35,7 +35,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry {
     using Newtonsoft.Json;
     using Swashbuckle.AspNetCore.Swagger;
     using System;
-    using Serilog;
     using ILogger = Serilog.ILogger;
 
     /// <summary>
@@ -140,7 +139,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry {
             ApplicationContainer = builder.Build();
             return new AutofacServiceProvider(ApplicationContainer);
         }
-
 
         /// <summary>
         /// This method is called by the runtime, after the ConfigureServices

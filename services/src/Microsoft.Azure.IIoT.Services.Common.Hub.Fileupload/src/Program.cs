@@ -99,7 +99,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Fileupload {
 
             builder.RegisterModule<HttpClientModule>();
             builder.RegisterType<IoTHubMessagingHttpClient>()
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces().SingleInstance();
 
             // Handlers and forwarders ...
             builder.RegisterType<IoTHubFileNotificationHost>()

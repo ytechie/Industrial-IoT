@@ -36,7 +36,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Vault {
     using Newtonsoft.Json;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
-    using Serilog;
     using Swashbuckle.AspNetCore.Swagger;
     using System;
     using ILogger = Serilog.ILogger;

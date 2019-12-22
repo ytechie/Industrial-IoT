@@ -106,6 +106,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
             app.AddStartupBranch<Common.Jobs.Startup>("/jobs");
             app.AddStartupBranch<Common.Jobs.Edge.Startup>("/edge/jobs");
             app.AddStartupBranch<Common.Configuration.Startup>("/configuration");
+            app.AddStartupBranch<Common.Hub.Edgemanager.Startup>("/edge/manage");
 
             app.UseHealthChecks("/healthz");
 

@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
-    using Microsoft.Azure.IIoT.Hub;
     using AutoFixture;
     using System;
     using System.Linq;

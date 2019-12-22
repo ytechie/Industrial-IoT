@@ -18,7 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\common\src\Microsoft.Azure.IIoT.AspNetCore.OpenApi\src\Microsoft.Azure.IIoT.AspNetCore.OpenApi.csproj" />
     <ProjectReference Include="..\..\..\..\common\src\Microsoft.Azure.IIoT.AspNetCore\src\Microsoft.Azure.IIoT.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\..\..\common\src\Microsoft.Azure.IIoT.Messaging.SignalR\src\Microsoft.Azure.IIoT.Messaging.SignalR.csproj" />
+    <ProjectReference Include="..\..\..\..\common\src\Microsoft.Azure.IIoT.Hub.Service.Client\src\Microsoft.Azure.IIoT.Hub.Service.Client.csproj" />
     <ProjectReference Include="..\..\..\..\common\src\Microsoft.Azure.IIoT.Diagnostics.AppInsights\src\Microsoft.Azure.IIoT.Diagnostics.AppInsights.csproj" />
   </ItemGroup>
   <ItemGroup>

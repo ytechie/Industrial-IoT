@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.App.Services {
-    using Microsoft.AspNetCore.Mvc.ModelBinding;
     using Microsoft.Azure.IIoT.App.Data;
     using Microsoft.Azure.IIoT.OpcUa.Api.Twin;
     using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;

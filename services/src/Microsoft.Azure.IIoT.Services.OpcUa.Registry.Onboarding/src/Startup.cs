@@ -30,7 +30,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Onboarding {
     using Newtonsoft.Json;
     using Swashbuckle.AspNetCore.Swagger;
     using System;
-    using Serilog;
     using ILogger = Serilog.ILogger;
 
     /// <summary>

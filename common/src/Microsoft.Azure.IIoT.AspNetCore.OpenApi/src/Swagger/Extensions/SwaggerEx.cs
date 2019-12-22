@@ -13,7 +13,6 @@ namespace Swashbuckle.AspNetCore.Swagger {
     using Microsoft.Azure.IIoT.Http;
     using Microsoft.Azure.IIoT.Services.Swagger;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Options;
     using System;
     using System.Collections.Generic;

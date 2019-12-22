@@ -8,18 +8,22 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
     using Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.v2;
     using Microsoft.Azure.IIoT.Services;
     using Microsoft.Azure.IIoT.Services.Cors;
+    using Microsoft.Azure.IIoT.Services.Auth;
+    using Microsoft.Azure.IIoT.Hub.Client;
+    using Microsoft.Azure.IIoT.Hub.Services;
     using Microsoft.Azure.IIoT.Diagnostics;
-    using Microsoft.Azure.IIoT.Messaging.SignalR.Services;
+    using Microsoft.Azure.IIoT.Utils;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Mvc;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Swashbuckle.AspNetCore.Swagger;
     using System;
+    using ILogger = Serilog.ILogger;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// Webservice startup
@@ -86,21 +90,26 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
             services.AddCors();
             services.AddHealthChecks();
 
-       //     // Add authentication
-       //     services.AddJwtBearerAuthentication(Config,
-       //         Environment.IsDevelopment());
-       //
-       //     // Add authorization
-       //     services.AddAuthorization(options => {
-       //         options.AddPolicies(Config.AuthRequired,
-       //             Config.UseRoles && !Environment.IsDevelopment());
-       //     });
+            // Add authentication
+            services.AddJwtBearerAuthentication(Config,
+                Environment.IsDevelopment());
+
+            // Add authorization
+            services.AddAuthorization(options => {
+                options.AddPolicies(Config.AuthRequired,
+                    Config.UseRoles && !Environment.IsDevelopment());
+            });
 
             // Add controllers as services so they'll be resolved.
             services.AddMvc()
                 .AddApplicationPart(GetType().Assembly)
                 .AddControllersAsServices()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .AddJsonOptions(options => {
+                    options.SerializerSettings.Formatting = Formatting.Indented;
+                    options.SerializerSettings.Converters.Add(new ExceptionConverter(
+                        Environment.IsDevelopment()));
+                    options.SerializerSettings.MaxDepth = 10;
+                });
 
             services.AddSwagger(Config, new Info {
                 Title = ServiceInfo.Name,
@@ -124,16 +133,18 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
 
-       //     if (Config.AuthRequired) {
-       //         app.UseAuthentication();
-       //     }
+            var log = ApplicationContainer.Resolve<ILogger>();
+
+            if (Config.AuthRequired) {
+                app.UseAuthentication();
+            }
             if (Config.HttpsRedirectPort > 0) {
                 // app.UseHsts();
                 app.UseHttpsRedirection();
             }
 
             app.EnableCors();
-
+            app.UseCorrelation();
             app.UseSwagger(new Info {
                 Title = ServiceInfo.Name,
                 Version = VersionInfo.PATH,
@@ -146,6 +157,10 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.
             appLifetime.ApplicationStopped.Register(ApplicationContainer.Dispose);
+
+            // Print some useful information at bootstrap time
+            log.Information("{service} web service started with id {id}", ServiceInfo.Name,
+                Uptime.ProcessId);
         }
 
         /// <summary>
@@ -170,8 +185,14 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
             builder.RegisterType<CorsSetup>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // Add signalr services
-            builder.RegisterType<SignalRServiceHost>()
+            builder.RegisterType<IoTHubServiceClient>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<IoTHubEdgeBaseDeployer>()
+                .AsImplementedInterfaces().SingleInstance();
+
+            // ... and auto start
+            builder.RegisterType<HostAutoStart>()
+                .AutoActivate()
                 .AsImplementedInterfaces().SingleInstance();
         }
     }
