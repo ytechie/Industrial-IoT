@@ -18,6 +18,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
     using Microsoft.Extensions.Logging;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy;
+    using Microsoft.Azure.IIoT.OpcUa.Twin.Deploy;
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using Swashbuckle.AspNetCore.Swagger;
@@ -187,8 +189,17 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager {
 
             builder.RegisterType<IoTHubServiceClient>()
                 .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<IoTHubEdgeBaseDeployer>()
+            builder.RegisterType<IoTHubEdgeBaseDeployment>()
                 .AsImplementedInterfaces().SingleInstance();
+
+            // TODO - use service client everywhere and move to publisher and twin service
+            // TODO - then remove references
+            builder.RegisterType<IoTHubPublisherDeployment>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<IoTHubSupervisorDeployment>()
+                .AsImplementedInterfaces().SingleInstance();
+            // builder.RegisterType<IoTHubDiscoveryDeployment>()
+            //     .AsImplementedInterfaces().SingleInstance();
 
             // ... and auto start
             builder.RegisterType<HostAutoStart>()

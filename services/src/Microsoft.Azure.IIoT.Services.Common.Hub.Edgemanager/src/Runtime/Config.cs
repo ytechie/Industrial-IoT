@@ -8,10 +8,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
     using Microsoft.Azure.IIoT.Services.Swagger.Runtime;
     using Microsoft.Azure.IIoT.Services.Cors;
     using Microsoft.Azure.IIoT.Services.Cors.Runtime;
-    using Microsoft.Azure.IIoT.Messaging.SignalR;
-    using Microsoft.Azure.IIoT.Messaging.SignalR.Runtime;
-    using Microsoft.Azure.IIoT.Messaging.ServiceBus;
-    using Microsoft.Azure.IIoT.Messaging.ServiceBus.Runtime;
+    using Microsoft.Azure.IIoT.Hub.Client;
+    using Microsoft.Azure.IIoT.Hub.Client.Runtime;
     using Microsoft.Azure.IIoT.Auth.Server;
     using Microsoft.Azure.IIoT.Auth.Runtime;
     using Microsoft.Azure.IIoT.Auth.Clients;
@@ -22,8 +20,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
     /// <summary>
     /// Common web service configuration aggregation
     /// </summary>
-    public class Config : DiagnosticsConfig, IAuthConfig, IServiceBusConfig, ICorsConfig,
-        IClientConfig, ISwaggerConfig, ISignalRServiceConfig {
+    public class Config : DiagnosticsConfig, IAuthConfig, ICorsConfig,
+        IClientConfig, ISwaggerConfig, IIoTHubConfig {
 
         /// <inheritdoc/>
         public string CorsWhitelist => _cors.CorsWhitelist;
@@ -62,12 +60,9 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
         public string SwaggerAppSecret => _swagger.SwaggerAppSecret;
 
         /// <inheritdoc/>
-        public string ServiceBusConnString => _sb.ServiceBusConnString;
-
+        public string IoTHubConnString => _hub.IoTHubConnString;
         /// <inheritdoc/>
-        public string SignalRConnString => _sr.SignalRConnString;
-        /// <inheritdoc/>
-        public string SignalRHubName => _sr.SignalRHubName;
+        public string IoTHubResourceId => _hub.IoTHubResourceId;
 
         /// <summary>
         /// Whether to use role based access
@@ -85,15 +80,13 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
             _host = new HostConfig(configuration);
             _auth = new AuthConfig(configuration);
             _cors = new CorsConfig(configuration);
-            _sb = new ServiceBusConfig(configuration);
-            _sr = new SignalRServiceConfig(configuration);
+            _hub = new IoTHubConfig(configuration);
         }
 
         private readonly SwaggerConfig _swagger;
         private readonly AuthConfig _auth;
         private readonly HostConfig _host;
         private readonly CorsConfig _cors;
-        private readonly ServiceBusConfig _sb;
-        private readonly SignalRServiceConfig _sr;
+        private readonly IIoTHubConfig _hub;
     }
 }

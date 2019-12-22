@@ -14,13 +14,13 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
     /// <summary>
     /// Default iot hub device event handler implementation
     /// </summary>
-    public sealed class IoTHubEdgeBaseDeployer : IHost {
+    public sealed class IoTHubEdgeBaseDeployment : IHost {
 
         /// <summary>
         /// Create edge base deployer
         /// </summary>
         /// <param name="service"></param>
-        public IoTHubEdgeBaseDeployer(IIoTHubConfigurationServices service) {
+        public IoTHubEdgeBaseDeployment(IIoTHubConfigurationServices service) {
             _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
                     ModulesContent = GetEdgeBase()
                 },
                 SchemaVersion = kDefaultSchemaVersion,
-                TargetCondition = "tags.iiotedge = true",
+                TargetCondition = "tags.__type__ = 'gateway'",
                 Priority = 0
             }, true);
         }
@@ -42,12 +42,17 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Get base edge configuration
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
         private IDictionary<string, IDictionary<string, object>> GetEdgeBase(string version = "1.0") {
             return JsonConvertEx.DeserializeObject<IDictionary<string, IDictionary<string, object>>>(@"
 {
     ""$edgeAgent"": {
         ""properties.desired"": {
-            ""schemaVersion"": ""1.0"",
+            ""schemaVersion"": """ + kDefaultSchemaVersion + @""",
             ""runtime"": {
                 ""type"": ""docker"",
                 ""settings"": {
@@ -61,7 +66,7 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
                 ""edgeAgent"": {
                     ""type"": ""docker"",
                     ""settings"": {
-                        ""image"": ""mcr.microsoft.com/azureiotedge-agent:1.0"",
+                        ""image"": ""mcr.microsoft.com/azureiotedge-agent:" + version+ @""",
                         ""createOptions"": ""{}""
                     }
                 },
@@ -70,16 +75,18 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
                     ""status"": ""running"",
                     ""restartPolicy"": ""always"",
                     ""settings"": {
-                        ""image"": ""mcr.microsoft.com/azureiotedge-hub:1.0"",
+                        ""image"": ""mcr.microsoft.com/azureiotedge-hub:" + version + @""",
                         ""createOptions"": ""{\""HostConfig\"":{\""PortBindings\"":{\""5671/tcp\"":[{\""HostPort\"":\""5671\""}],\""8883/tcp\"":[{\""HostPort\"":\""8883\""}],\""443/tcp\"":[{\""HostPort\"":\""443\""}]}}}""
                     }
                 }
+            },
+            ""modules"": {
             }
         }
     },
     ""$edgeHub"": {
         ""properties.desired"": {
-            ""schemaVersion"": ""1.0"",
+            ""schemaVersion"": """ + kDefaultSchemaVersion + @""",
             ""routes"": {
                 ""upstream"": ""FROM /messages/* INTO $upstream""
             },

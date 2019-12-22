@@ -252,7 +252,7 @@ namespace Microsoft.Azure.IIoT.Hub.Client {
             try {
                 // Try update configuration
                 var result = await _registry.UpdateConfigurationAsync(
-                    configuration.ToConfiguration(), ct);
+                    configuration.ToConfiguration(), forceUpdate, ct);
                 return result.ToModel();
             }
             catch (Exception e) {
