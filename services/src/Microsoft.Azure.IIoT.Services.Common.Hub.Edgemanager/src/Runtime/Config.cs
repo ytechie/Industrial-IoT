@@ -14,6 +14,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
     using Microsoft.Azure.IIoT.Auth.Runtime;
     using Microsoft.Azure.IIoT.Auth.Clients;
     using Microsoft.Azure.IIoT.Diagnostics;
+    using Microsoft.Azure.IIoT.Deploy;
+    using Microsoft.Azure.IIoT.Deploy.Runtime;
     using Microsoft.Extensions.Configuration;
     using System;
 
@@ -21,7 +23,12 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
     /// Common web service configuration aggregation
     /// </summary>
     public class Config : DiagnosticsConfig, IAuthConfig, ICorsConfig,
-        IClientConfig, ISwaggerConfig, IIoTHubConfig {
+        IClientConfig, ISwaggerConfig, IIoTHubConfig, IContainerRegistryConfig {
+
+        /// <summary>
+        /// Whether to use role based access
+        /// </summary>
+        public bool UseRoles => GetBoolOrDefault("PCS_AUTH_ROLES");
 
         /// <inheritdoc/>
         public string CorsWhitelist => _cors.CorsWhitelist;
@@ -64,10 +71,14 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
         /// <inheritdoc/>
         public string IoTHubResourceId => _hub.IoTHubResourceId;
 
-        /// <summary>
-        /// Whether to use role based access
-        /// </summary>
-        public bool UseRoles => GetBoolOrDefault("PCS_AUTH_ROLES");
+        /// <inheritdoc/>
+        public string DockerServer => _cr.DockerServer;
+        /// <inheritdoc/>
+        public string DockerUser => _cr.DockerUser;
+        /// <inheritdoc/>
+        public string DockerPassword => _cr.DockerPassword;
+        /// <inheritdoc/>
+        public string ImageNamespace => _cr.ImageNamespace;
 
         /// <summary>
         /// Configuration constructor
@@ -81,6 +92,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
             _auth = new AuthConfig(configuration);
             _cors = new CorsConfig(configuration);
             _hub = new IoTHubConfig(configuration);
+            _cr = new ContainerRegistryConfig(configuration);
         }
 
         private readonly SwaggerConfig _swagger;
@@ -88,5 +100,6 @@ namespace Microsoft.Azure.IIoT.Services.Common.Hub.Edgemanager.Runtime {
         private readonly HostConfig _host;
         private readonly CorsConfig _cors;
         private readonly IIoTHubConfig _hub;
+        private readonly ContainerRegistryConfig _cr;
     }
 }

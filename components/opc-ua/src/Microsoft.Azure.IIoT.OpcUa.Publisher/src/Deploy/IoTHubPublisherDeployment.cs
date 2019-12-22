@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
+    using Microsoft.Azure.IIoT.Deploy;
     using Microsoft.Azure.IIoT.Hub;
     using Microsoft.Azure.IIoT.Hub.Models;
     using Newtonsoft.Json;
@@ -21,8 +22,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
         /// Create edge base deployer
         /// </summary>
         /// <param name="service"></param>
-        public IoTHubPublisherDeployment(IIoTHubConfigurationServices service) {
+        /// <param name="config"></param>
+        public IoTHubPublisherDeployment(IIoTHubConfigurationServices service,
+            IContainerRegistryConfig config) {
             _service = service ?? throw new ArgumentNullException(nameof(service));
+            _config = config ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <inheritdoc/>
@@ -31,7 +35,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
             await _service.CreateOrUpdateConfigurationAsync(new ConfigurationModel {
                 Id = "__default-opcpublisher-linux",
                 Content = new ConfigurationContentModel {
-                    ModulesContent = GetLayeredDeployment(true)
+                    ModulesContent = CreateLayeredDeployment(true)
                 },
                 SchemaVersion = kDefaultSchemaVersion,
                 TargetCondition = "tags.__type__ = 'gateway' AND tags.os = 'Linux'",
@@ -41,7 +45,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
             await _service.CreateOrUpdateConfigurationAsync(new ConfigurationModel {
                 Id = "__default-opcpublisher-windows",
                 Content = new ConfigurationContentModel {
-                    ModulesContent = GetLayeredDeployment(false)
+                    ModulesContent = CreateLayeredDeployment(false)
                 },
                 SchemaVersion = kDefaultSchemaVersion,
                 TargetCondition = "tags.__type__ = 'gateway' AND tags.os = 'Windows'",
@@ -60,17 +64,21 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
         /// <param name="version"></param>
         /// <param name="isLinux"></param>
         /// <returns></returns>
-        private IDictionary<string, IDictionary<string, object>> GetLayeredDeployment(
+        private IDictionary<string, IDictionary<string, object>> CreateLayeredDeployment(
             bool isLinux, string version = "latest") {
 
-            var registryCredentials = @"
-                ""properties.desired.runtime.settings.registryCredentials.test"": {
-                    ""address"": ""test"",
-                    ""password"": ""test"",
-                    ""username"": ""test""
-                },
-            ";
-            registryCredentials = ""; // TODO
+            var registryCredentials = "";
+            if (!string.IsNullOrEmpty(_config.DockerServer) &&
+                _config.DockerServer != "mcr.microsoft.com") {
+                var registryId = _config.DockerServer.Split('.')[0];
+                registryCredentials = @"
+                    ""properties.desired.runtime.settings.registryCredentials." + registryId + @": {
+                        ""address"": """ + _config.DockerServer + @""",
+                        ""password"": """ + _config.DockerPassword + @""",
+                        ""username"": """ + _config.DockerUser + @"""
+                    },
+                ";
+            }
 
             // Configure create options per os specified
             string createOptions;
@@ -118,6 +126,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
             }
             createOptions = JObject.Parse(createOptions).ToString(Formatting.None).Replace("\"", "\\\"");
 
+            var server = string.IsNullOrEmpty(_config.DockerServer) ?
+                "mcr.microsoft.com" : _config.DockerServer;
+            var ns = string.IsNullOrEmpty(_config.ImageNamespace) ? "" :
+                _config.ImageNamespace.TrimEnd('/') + "/";
+            var image = $"{server}/{ns}iotedge/opc-publisher:{version}";
+
             // Return deployment modules object
             var content = @"
             {
@@ -125,7 +139,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
                     " + registryCredentials + @"
                     ""properties.desired.modules.publisher"": {
                         ""settings"": {
-                            ""image"": ""mcr.microsoft.com/iotedge/opc-publisher:" + version + @""",
+                            ""image"": """ + image + @""",
                             ""createOptions"": """ + createOptions + @"""
                         },
                         ""type"": ""docker"",
@@ -143,5 +157,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
 
         private const string kDefaultSchemaVersion = "1.0";
         private readonly IIoTHubConfigurationServices _service;
+        private readonly IContainerRegistryConfig _config;
     }
 }

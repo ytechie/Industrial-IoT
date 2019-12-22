@@ -260,6 +260,22 @@
                             {
                                 "key": "PCS_AUTH_ISSUER",
                                 "value": "[parameters('trustedTokenIssuer')]"
+                            },
+                            {
+                                "key": "PCS_DOCKER_SERVER",
+                                "value": "[parameters('dockerServer')]"
+                            },
+                            {
+                                "key": "PCS_DOCKER_USER",
+                                "value": "[parameters('dockerUser')]"
+                            },
+                            {
+                                "key": "PCS_DOCKER_PASSWORD",
+                                "value": "[parameters('dockerPassword')]"
+                            },
+                            {
+                                "key": "PCS_IMAGE_NAMESPACE",
+                                "value": "[parameters('imageNamespace')]"
                             }
                         ]
                     }
