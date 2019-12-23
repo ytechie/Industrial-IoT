@@ -72,7 +72,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Twin.Deploy {
                 _config.DockerServer != "mcr.microsoft.com") {
                 var registryId = _config.DockerServer.Split('.')[0];
                 registryCredentials = @"
-                    ""properties.desired.runtime.settings.registryCredentials." + registryId + @": {
+                    ""properties.desired.runtime.settings.registryCredentials." + registryId + @""": {
                         ""address"": """ + _config.DockerServer + @""",
                         ""password"": """ + _config.DockerPassword + @""",
                         ""username"": """ + _config.DockerUser + @"""
