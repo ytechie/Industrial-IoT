@@ -13,9 +13,20 @@ curdir="$( cd "$(dirname "$0")" ; pwd -P )"
 function install() {
     echo "In $curdir..."
     echo "Prepare machine..."
-    # install powershell and call the setup command
+
+    # install powershell and iotedge
     apt-get update
     apt-get install -y --no-install-recommends powershell
+
+    curl https://packages.microsoft.com/config/ubuntu/16.04/multiarch/prod.list > ./microsoft-prod.list
+    cp ./microsoft-prod.list /etc/apt/sources.list.d/
+    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    cp ./microsoft.gpg /etc/apt/trusted.gpg.d/
+
+    apt-get update
+    apt-get install -y --no-install-recommends moby-engine moby-cli
+    apt-get update
+    apt-get install -y --no-install-recommends iotedge
 
     # wait until config.yaml is available
     configFile=/etc/iotedge/config.yaml
@@ -33,10 +44,10 @@ function install() {
 
     echo "Restarting iotedge runtime..."
     sleep 3
-    sudo systemctl daemon-reload
-    sudo systemctl restart iotedge
+    systemctl daemon-reload
+    systemctl restart iotedge
     sleep 3
-    sudo systemctl status iotedge
+    systemctl status iotedge
     echo "Iotedge running."
 }
 
