@@ -259,14 +259,23 @@ namespace Microsoft.Azure.IIoT.OpcUa.Cli {
                     }
                 }
                 if (op == Op.None) {
-                    throw new ArgumentException("Missing operation.");
+                    if (ports.Count == 0) {
+                        var envPort = Environment.GetEnvironmentVariable("SERVER_PORT");
+                        if (!string.IsNullOrEmpty(envPort) && int.TryParse(envPort, out var port)) {
+                            ports.Add(port);
+                        }
+                        else {
+                            throw new ArgumentException("Missing operation.");
+                        }
+                    }
+                    op = Op.RunSampleServer;
                 }
             }
             catch (Exception e) {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(
                     @"
-Test Client
+Test host
 usage:       [options] operation [args]
 
 Options:
@@ -277,8 +286,8 @@ Options:
 
 Operations (Mutually exclusive):
 
-     -s
     --sample / -s           Run sample server and wait for cancellation.
+                            Default if port is specified.
 
     --events                Listen for events
     --scan-net              Tests network scanning.

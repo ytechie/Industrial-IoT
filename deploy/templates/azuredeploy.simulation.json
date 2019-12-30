@@ -343,10 +343,11 @@
                             "name": "[concat('opc-ua-test-server-container', copyIndex('containers'))]",
                             "properties": {
                                 "image": "[concat(parameters('dockerServer'), '/', if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/opc-ua-test-server', ':', parameters('imageVersion'))]",
-                                "command": [
-                                    "--sample",
-                                    "--port",
-                                    "[add(50000, copyIndex('containers'))]"
+                                "environmentVariables": [
+                                    {
+                                        "name": "SERVER_PORT",
+                                        "value": "[add(50000, copyIndex('containers'))]"
+                                    }
                                 ],
                                 "ports": [
                                     {
