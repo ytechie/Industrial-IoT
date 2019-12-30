@@ -107,8 +107,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
             var builder = new ContainerBuilder();
             builder.Populate(services);
             ConfigureContainer(builder);
-            var ApplicationContainer = builder.Build();
-            return new AutofacServiceProvider(ApplicationContainer);
+            var applicationContainer = builder.Build();
+            return new AutofacServiceProvider(applicationContainer);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
-            var ApplicationContainer = app.ApplicationServices.GetAutofacRoot();
+            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
             //     if (Config.AuthRequired) {
             //         app.UseAuthentication();
             //     }
@@ -140,7 +140,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.
-            appLifetime.ApplicationStopped.Register(ApplicationContainer.Dispose);
+            appLifetime.ApplicationStopped.Register(applicationContainer.Dispose);
         }
 
         /// <summary>

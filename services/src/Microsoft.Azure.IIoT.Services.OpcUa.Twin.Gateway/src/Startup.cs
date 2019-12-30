@@ -104,8 +104,8 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Gateway {
             var builder = new ContainerBuilder();
             builder.Populate(services);
             ConfigureContainer(builder);
-            ApplicationContainer = builder.Build();
-            return new AutofacServiceProvider(ApplicationContainer);
+            var applicationContainer = builder.Build();
+            return new AutofacServiceProvider(applicationContainer);
         }
 
         /// <summary>
@@ -115,8 +115,8 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Gateway {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
-
-            var log = ApplicationContainer.Resolve<ILogger>();
+            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
+            var log = applicationContainer.Resolve<ILogger>();
 
             if (Config.AuthRequired) {
                 app.UseAuthentication();
@@ -135,7 +135,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Gateway {
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.
-            appLifetime.ApplicationStopped.Register(ApplicationContainer.Dispose);
+            appLifetime.ApplicationStopped.Register(applicationContainer.Dispose);
 
             // Print some useful information at bootstrap time
             log.Information("{service} web service started with id {id}", ServiceInfo.Name,

@@ -72,8 +72,8 @@ namespace Microsoft.Azure.IIoT.Services.All {
             var builder = new ContainerBuilder();
             builder.Populate(services);
             ConfigureContainer(builder);
-            ApplicationContainer = builder.Build();
-            return new AutofacServiceProvider(ApplicationContainer);
+            var applicationContainer = builder.Build();
+            return new AutofacServiceProvider(applicationContainer);
         }
 
         /// <summary>
@@ -82,6 +82,7 @@ namespace Microsoft.Azure.IIoT.Services.All {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
+            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
 
             if (Config.HttpsRedirectPort > 0) {
                 app.UseHsts();
@@ -106,11 +107,11 @@ namespace Microsoft.Azure.IIoT.Services.All {
             app.UseHealthChecks("/healthz");
 
             // Start processors
-            ApplicationContainer.Resolve<IHost>().StartAsync().Wait();
+            applicationContainer.Resolve<IHost>().StartAsync().Wait();
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.
-            appLifetime.ApplicationStopped.Register(ApplicationContainer.Dispose);
+            appLifetime.ApplicationStopped.Register(applicationContainer.Dispose);
         }
 
         /// <summary>

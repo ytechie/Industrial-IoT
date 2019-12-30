@@ -81,7 +81,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
         /// <param name="services"></param>
         /// <returns></returns>
         public IServiceProvider ConfigureServices(IServiceCollection services) {
-
+            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
             services.AddLogging(o => o.AddConsole().AddDebug());
 
             // Setup (not enabling yet) CORS
@@ -112,8 +112,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
             var builder = new ContainerBuilder();
             builder.Populate(services);
             ConfigureContainer(builder);
-            ApplicationContainer = builder.Build();
-            return new AutofacServiceProvider(ApplicationContainer);
+            var applicationContainer = builder.Build();
+            return new AutofacServiceProvider(applicationContainer);
         }
 
         /// <summary>
@@ -123,7 +123,8 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
-            var log = ApplicationContainer.Resolve<ILogger>();
+            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
+            var log = applicationContainer.Resolve<ILogger>();
 
             app.EnableCors();
 
@@ -146,7 +147,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.
-            appLifetime.ApplicationStopped.Register(ApplicationContainer.Dispose);
+            appLifetime.ApplicationStopped.Register(applicationContainer.Dispose);
 
             // Print some useful information at bootstrap time
             log.Information("{service} web service started with id {id}", ServiceInfo.Name,

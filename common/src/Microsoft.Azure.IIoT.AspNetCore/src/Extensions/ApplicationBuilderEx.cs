@@ -15,6 +15,8 @@ namespace Microsoft.AspNetCore.Hosting {
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Autofac;
+    using Autofac.Extensions.DependencyInjection;
 
     /// <summary>
     /// Application builder extensions
@@ -34,12 +36,14 @@ namespace Microsoft.AspNetCore.Hosting {
             var addresses = app.ServerFeatures.Get<IServerAddressesFeature>();
             var webHost = new WebHostBuilder()
                 .UseStartup<EmptyStartup>()
+               // .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureServices(s => {
                     // Get root configuration
                     var config = app.ApplicationServices.GetService<IConfiguration>();
                     if (config != null) {
                         s.AddSingleton(config);
                     }
+                    s.AddAutofac();
                     s.AddSingleton(typeof(IServer), new DummyServer(path,
                         addresses?.Addresses ?? Enumerable.Empty<string>()));
                     s.AddSingleton(typeof(IStartup), delegate (IServiceProvider sp) {
