@@ -81,4 +81,8 @@ else {
             $enrollment.registrationId -SymmetricKey $enrollment.primaryKey
 
     # todo: Test edge
+    # Get-WinEvent -ea SilentlyContinue -FilterHashtable @{ProviderName='iotedged';LogName='application';StartTime=$StartTime} |
+    #    Select-Object TimeCreated, Message |
+    #    Sort-Object @{Expression='TimeCreated';Descending=$false} |
+    #    Format-Table -AutoSize -Wrap
 }

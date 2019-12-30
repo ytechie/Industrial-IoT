@@ -15,16 +15,18 @@ function install() {
     echo "Prepare machine..."
 
     # install powershell and iotedge
+    curl -O https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+    dpkg -i packages-microsoft-prod.deb
     apt-get update
-    apt-get install -y --no-install-recommends curl wget nano
-    curl https://packages.microsoft.com/config/ubuntu/16.04/multiarch/prod.list > ./microsoft-prod.list
+    apt-get install -y --no-install-recommends powershell
+    echo "Powershell installed."
+
+    curl -o microsoft-prod.list https://packages.microsoft.com/config/ubuntu/16.04/multiarch/prod.list
     cp ./microsoft-prod.list /etc/apt/sources.list.d/
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     cp ./microsoft.gpg /etc/apt/trusted.gpg.d/
-    # wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
-    # dpkg -i packages-microsoft-prod.deb
     apt-get update
-    apt-get install -y --no-install-recommends powershell moby-engine moby-cli iotedge
+    apt-get install -y --no-install-recommends moby-engine moby-cli iotedge
     echo "Iotedge installed."
     
     echo "Provisioning iotedge..."
