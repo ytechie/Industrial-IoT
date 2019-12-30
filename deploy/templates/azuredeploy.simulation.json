@@ -345,7 +345,6 @@
                                 "image": "[concat(parameters('dockerServer'), '/', if(empty(parameters('imageNamespace')), '', concat(parameters('imageNamespace'), '/')), 'iot/opc-ua-test-server', ':', parameters('imageVersion'))]",
                                 "command": [
                                     "--sample",
-                                    "--autoaccept",
                                     "--port",
                                     "[add(50000, copyIndex('containers'))]"
                                 ],
