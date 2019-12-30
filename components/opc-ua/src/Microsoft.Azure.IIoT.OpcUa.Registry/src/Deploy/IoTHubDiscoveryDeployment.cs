@@ -104,14 +104,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Deploy {
                 createOptions = @"
                 {
                     ""Hostname"":""discovery"",
-                    ""NetworkingConfig"":{
-                        ""EndpointsConfig"":{
-                            ""host"":{
-                            }
-                        }
-                    },
                     ""HostConfig"": {
-                        ""NetworkMode"": ""host"",
                         ""CapAdd"": [ ""NET_ADMIN"" ]
                     }
                 }";

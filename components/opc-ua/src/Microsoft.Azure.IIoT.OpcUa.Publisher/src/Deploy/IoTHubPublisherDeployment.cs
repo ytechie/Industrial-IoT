@@ -105,13 +105,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
                     ""Hostname"":""opcpublisher"",
                     ""Cmd"": [
                         ""--aa""
-                    ],
-                    ""NetworkingConfig"":{
-                        ""EndpointsConfig"":{
-                            ""host"":{
-                            }
-                        }
-                    }
+                    ]
                 }";
             }
             createOptions = JObject.Parse(createOptions).ToString(Formatting.None).Replace("\"", "\\\"");

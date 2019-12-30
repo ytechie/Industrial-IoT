@@ -104,14 +104,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Twin.Deploy {
                 createOptions = @"
                 {
                     ""Hostname"":""opctwin"",
-                    ""NetworkingConfig"":{
-                        ""EndpointsConfig"":{
-                            ""host"":{
-                            }
-                        }
-                    },
                     ""HostConfig"": {
-                        ""NetworkMode"": ""host"",
                         ""CapAdd"": [ ""NET_ADMIN"" ]
                     }
                 }";
