@@ -265,7 +265,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Cli {
                             ports.Add(port);
                         }
                         else {
-                            throw new ArgumentException("Missing operation.");
+                            throw new ArgumentException("Missing port to run sample server.");
                         }
                     }
                     op = Op.RunSampleServer;
