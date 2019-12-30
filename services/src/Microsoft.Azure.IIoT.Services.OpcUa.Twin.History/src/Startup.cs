@@ -81,7 +81,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.History {
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public IServiceProvider ConfigureServices(IServiceCollection services) {
+        public void ConfigureServices(IServiceCollection services) {
 
             services.AddLogging(o => o.AddConsole().AddDebug());
 
@@ -118,13 +118,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.History {
                 Version = VersionInfo.PATH,
                 Description = ServiceInfo.Description,
             });
-
-            // Prepare DI container
-            var builder = new ContainerBuilder();
-            builder.Populate(services);
-            ConfigureContainer(builder);
-            var applicationContainer = builder.Build();
-            return new AutofacServiceProvider(applicationContainer);
         }
 
 

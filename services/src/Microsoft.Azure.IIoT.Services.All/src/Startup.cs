@@ -63,17 +63,10 @@ namespace Microsoft.Azure.IIoT.Services.All {
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public IServiceProvider ConfigureServices(IServiceCollection services) {
+        public void ConfigureServices(IServiceCollection services) {
 
             services.AddHttpContextAccessor();
             services.AddHealthChecks();
-
-            // Prepare DI container
-            var builder = new ContainerBuilder();
-            builder.Populate(services);
-            ConfigureContainer(builder);
-            var applicationContainer = builder.Build();
-            return new AutofacServiceProvider(applicationContainer);
         }
 
         /// <summary>

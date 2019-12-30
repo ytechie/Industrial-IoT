@@ -80,8 +80,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public IServiceProvider ConfigureServices(IServiceCollection services) {
-            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
+        public void ConfigureServices(IServiceCollection services) {
             services.AddLogging(o => o.AddConsole().AddDebug());
 
             // Setup (not enabling yet) CORS
@@ -107,13 +106,6 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
                 Version = VersionInfo.PATH,
                 Description = ServiceInfo.Description,
             });
-
-            // Prepare DI container
-            var builder = new ContainerBuilder();
-            builder.Populate(services);
-            ConfigureContainer(builder);
-            var applicationContainer = builder.Build();
-            return new AutofacServiceProvider(applicationContainer);
         }
 
         /// <summary>
