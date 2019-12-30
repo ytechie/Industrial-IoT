@@ -26,7 +26,8 @@ function install() {
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     cp ./microsoft.gpg /etc/apt/trusted.gpg.d/
     apt-get update
-    apt-get install -y --no-install-recommends moby-engine moby-cli iotedge
+    apt-get install -y --no-install-recommends moby-engine moby-cli
+    apt-get install -y --no-install-recommends iotedge
     echo "Iotedge installed."
     
     echo "Provisioning iotedge..."

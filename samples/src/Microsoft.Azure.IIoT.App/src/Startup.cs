@@ -46,11 +46,6 @@ namespace Microsoft.Azure.IIoT.App {
         public Config Config { get; }
 
         /// <summary>
-        /// Di container
-        /// </summary>
-        public ILifetimeScope ApplicationContainer { get; private set; }
-
-        /// <summary>
         /// Created through builder
         /// </summary>
         /// <param name="configuration"></param>
@@ -78,7 +73,7 @@ namespace Microsoft.Azure.IIoT.App {
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
             IHostApplicationLifetime appLifetime) {
-            ApplicationContainer = app.ApplicationServices.GetAutofacRoot();
+            var applicationContainer = app.ApplicationServices.GetAutofacRoot();
 
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
@@ -103,7 +98,7 @@ namespace Microsoft.Azure.IIoT.App {
 
             // If you want to dispose of resources that have been resolved in the
             // application container, register for the "ApplicationStopped" event.
-            appLifetime.ApplicationStopped.Register(ApplicationContainer.Dispose);
+            appLifetime.ApplicationStopped.Register(applicationContainer.Dispose);
         }
 
         /// <summary>

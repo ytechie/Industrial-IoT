@@ -50,11 +50,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Gateway {
         public IHostingEnvironment Environment { get; }
 
         /// <summary>
-        /// Di container - Initialized in `ConfigureServices`
-        /// </summary>
-        public IContainer ApplicationContainer { get; private set; }
-
-        /// <summary>
         /// Create startup
         /// </summary>
         /// <param name="env"></param>

@@ -42,11 +42,6 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
         public IHostingEnvironment Environment { get; }
 
         /// <summary>
-        /// Di container - Initialized in `ConfigureServices`
-        /// </summary>
-        public IContainer ApplicationContainer { get; private set; }
-
-        /// <summary>
         /// Create startup
         /// </summary>
         /// <param name="env"></param>
@@ -112,7 +107,7 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
             var builder = new ContainerBuilder();
             builder.Populate(services);
             ConfigureContainer(builder);
-            ApplicationContainer = builder.Build();
+            var ApplicationContainer = builder.Build();
             return new AutofacServiceProvider(ApplicationContainer);
         }
 
@@ -123,10 +118,10 @@ namespace Microsoft.Azure.IIoT.Services.Common.Configuration {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
-
-       //     if (Config.AuthRequired) {
-       //         app.UseAuthentication();
-       //     }
+            var ApplicationContainer = app.ApplicationServices.GetAutofacRoot();
+            //     if (Config.AuthRequired) {
+            //         app.UseAuthentication();
+            //     }
             if (Config.HttpsRedirectPort > 0) {
                 // app.UseHsts();
                 app.UseHttpsRedirection();

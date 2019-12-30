@@ -31,12 +31,12 @@ if ($PsVersionTable.Platform -eq "Unix") {
         }
         $configyml = Get-Content $file -Raw
         if ([string]::IsNullOrWhiteSpace($configyml)) {
-            throw new "$($file) empty."
+            throw "$($file) empty."
         }
         $configyml | Out-File $backup -Force
     }
     else {
-        throw new "$($file) does not exist."
+        throw "$($file) does not exist."
     }
 
     Write-Host "Create new IoT Edge enrollment."

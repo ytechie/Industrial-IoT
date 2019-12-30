@@ -34,11 +34,6 @@ namespace Microsoft.Azure.IIoT.Services.All {
         public IHostingEnvironment Environment { get; }
 
         /// <summary>
-        /// Autofac container
-        /// </summary>
-        public IContainer ApplicationContainer { get; private set; }
-
-        /// <summary>
         /// Create startup
         /// </summary>
         /// <param name="env"></param>

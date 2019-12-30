@@ -46,11 +46,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin {
         public IHostingEnvironment Environment { get; }
 
         /// <summary>
-        /// Di container - Initialized in `ConfigureServices`
-        /// </summary>
-        public IContainer ApplicationContainer { get; private set; }
-
-        /// <summary>
         /// Create startup
         /// </summary>
         /// <param name="env"></param>
@@ -124,7 +119,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin {
             var builder = new ContainerBuilder();
             builder.Populate(services);
             ConfigureContainer(builder);
-            ApplicationContainer = builder.Build();
+            var ApplicationContainer = builder.Build();
             return new AutofacServiceProvider(ApplicationContainer);
         }
 
@@ -136,7 +131,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin {
         /// <param name="app"></param>
         /// <param name="appLifetime"></param>
         public void Configure(IApplicationBuilder app, IApplicationLifetime appLifetime) {
-
+            var ApplicationContainer = app.ApplicationServices.GetAutofacRoot();
             var log = ApplicationContainer.Resolve<ILogger>();
 
             if (Config.AuthRequired) {
