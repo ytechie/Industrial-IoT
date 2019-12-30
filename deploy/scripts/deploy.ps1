@@ -592,12 +592,12 @@ Function New-Deployment() {
                     }
                     else {
                         $replyUrls.Add("$($website)/signin-oidc")
+                        $replyUrls.Add("$($website)/signin-oidc".Replace("https:", "http:"))
                     }
                 }
             }
             elseif ($aadAddReplyUrls) {
                 $replyUrls.Add("http://localhost:5000/signin-oidc")
-                $replyUrls.Add("https://localhost:5001/signin-oidc")
             }
 
             if ($aadAddReplyUrls -and ![string]::IsNullOrEmpty($script:aadConfig.ClientPrincipalId)) {
