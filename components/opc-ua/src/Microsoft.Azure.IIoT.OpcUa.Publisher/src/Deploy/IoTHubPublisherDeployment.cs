@@ -104,7 +104,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
                 {
                     ""Hostname"":""opcpublisher"",
                     ""Cmd"": [
-                        ""PkiRootPath=\\mount\\pki"",
                         ""--aa""
                     ],
                     ""NetworkingConfig"":{
@@ -112,15 +111,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
                             ""host"":{
                             }
                         }
-                    },
-                    ""HostConfig"": {
-                        ""Mounts"": [
-                            {
-                                ""Type"": ""bind"",
-                                ""Source"": ""C:\\IoTEdgeMapping"",
-                                ""Target"": ""C:\\mount""
-                            }
-                        ]
                     }
                 }";
             }

@@ -87,9 +87,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Twin.Deploy {
                 createOptions = @"
                 {
                     ""Hostname"": ""opctwin"",
-                    ""Cmd"": [
-                        ""AutoAccept=true""
-                    ],
                     ""NetworkingConfig"":{
                         ""EndpointsConfig"": {
                             ""host"": {
@@ -107,10 +104,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Twin.Deploy {
                 createOptions = @"
                 {
                     ""Hostname"":""opctwin"",
-                    ""Cmd"": [
-                        ""PkiRootPath=\\mount\\pki"",
-                        ""AutoAccept=true""
-                    ],
                     ""NetworkingConfig"":{
                         ""EndpointsConfig"":{
                             ""host"":{
@@ -119,14 +112,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Twin.Deploy {
                     },
                     ""HostConfig"": {
                         ""NetworkMode"": ""host"",
-                        ""CapAdd"": [ ""NET_ADMIN"" ],
-                        ""Mounts"": [
-                            {
-                                ""Type"": ""bind"",
-                                ""Source"": ""C:\\IoTEdgeMapping"",
-                                ""Target"": ""C:\\mount""
-                            }
-                        ]
+                        ""CapAdd"": [ ""NET_ADMIN"" ]
                     }
                 }";
             }
