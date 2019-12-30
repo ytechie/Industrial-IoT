@@ -6,7 +6,6 @@
 namespace Microsoft.Azure.IIoT.Services.Common.Jobs {
     using Microsoft.Azure.IIoT.Services.Common.Jobs.Runtime;
     using Microsoft.Azure.IIoT.Services.Common.Jobs.v2;
-    using Microsoft.Azure.IIoT.Services;
     using Microsoft.Azure.IIoT.Services.Auth;
     using Microsoft.Azure.IIoT.Services.Cors;
     using Microsoft.Azure.IIoT.Agent.Framework.Jobs;

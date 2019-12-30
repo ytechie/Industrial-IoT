@@ -7,7 +7,6 @@ namespace Microsoft.Azure.IIoT.Hub.Client {
     using Microsoft.Azure.Devices;
     using Microsoft.Azure.Devices.Common.Exceptions;
     using Microsoft.Azure.Devices.Shared;
-    using Microsoft.Azure.IIoT.Hub;
     using Microsoft.Azure.IIoT.Hub.Models;
     using Microsoft.Azure.IIoT.Utils;
     using Newtonsoft.Json.Linq;

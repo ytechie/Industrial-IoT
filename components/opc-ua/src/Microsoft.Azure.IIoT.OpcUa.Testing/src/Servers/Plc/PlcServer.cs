@@ -3,7 +3,7 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace OpcPlc {
+namespace Plc {
     using Opc.Ua;
     using Opc.Ua.Server;
 

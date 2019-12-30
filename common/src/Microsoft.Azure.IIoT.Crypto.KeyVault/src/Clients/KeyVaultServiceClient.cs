@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
-    using Microsoft.Azure.IIoT.Crypto.KeyVault;
     using Microsoft.Azure.IIoT.Crypto.KeyVault.Models;
     using Microsoft.Azure.IIoT.Crypto.Models;
     using Microsoft.Azure.IIoT.Exceptions;
@@ -33,9 +32,9 @@ namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
         /// Create key vault service client
         /// </summary>
         /// <param name="config">Keyvault configuration.</param>
-        /// <param name="provider"></param>
         /// <param name="certificates"></param>
         /// <param name="factory"></param>
+        /// <param name="provider"></param>
         public KeyVaultServiceClient(ICertificateRepository certificates,
             ICertificateFactory factory, IKeyVaultConfig config,
             Auth.ITokenProvider provider) : this (certificates, factory, config,
@@ -50,9 +49,9 @@ namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
         /// Create key vault service client
         /// </summary>
         /// <param name="config">Keyvault configuration.</param>
-        /// <param name="client"></param>
         /// <param name="certificates"></param>
         /// <param name="factory"></param>
+        /// <param name="client"></param>
         public KeyVaultServiceClient(ICertificateRepository certificates,
             ICertificateFactory factory, IKeyVaultConfig config,
             IKeyVaultClient client) {
@@ -799,8 +798,8 @@ namespace Microsoft.Azure.IIoT.Crypto.KeyVault.Clients {
         /// <param name="keyParams"></param>
         /// <param name="selfSigned"></param>
         /// <param name="reuseKey"></param>
-        /// <param name="exportable"></param>
         /// <param name="isHsm"></param>
+        /// <param name="exportable"></param>
         /// <returns></returns>
         private static CertificatePolicy CreateCertificatePolicy(string subject,
             CreateKeyParams keyParams, bool selfSigned, bool isHsm, bool reuseKey,

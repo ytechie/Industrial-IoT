@@ -139,8 +139,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         /// </summary>
         /// <param name="service"></param>
         /// <param name="onlyServerState"></param>
-        /// <param name="ct"></param>
         /// <param name="query"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         public static async Task<IEnumerable<SupervisorApiModel>> QueryAllSupervisorsAsync(
             this IRegistryServiceApi service, SupervisorQueryApiModel query, bool? onlyServerState = null,
@@ -182,8 +182,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         /// </summary>
         /// <param name="service"></param>
         /// <param name="onlyServerState"></param>
-        /// <param name="ct"></param>
         /// <param name="query"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         public static async Task<IEnumerable<PublisherApiModel>> QueryAllPublishersAsync(
             this IRegistryServiceApi service, PublisherQueryApiModel query, bool? onlyServerState = null,
@@ -223,8 +223,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         /// Find publishers
         /// </summary>
         /// <param name="service"></param>
-        /// <param name="ct"></param>
         /// <param name="query"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         public static async Task<IEnumerable<GatewayApiModel>> QueryAllGatewaysAsync(
             this IRegistryServiceApi service, GatewayQueryApiModel query,

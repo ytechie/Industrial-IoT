@@ -28,8 +28,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         /// <summary>
         /// Create server console host
         /// </summary>
-        /// <param name="logger"></param>
         /// <param name="factory"></param>
+        /// <param name="logger"></param>
         public ServerConsoleHost(IServerFactory factory, ILogger logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _factory = factory ?? throw new ArgumentNullException(nameof(factory));

@@ -61,8 +61,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
         /// <summary>
         /// Get base edge configuration
         /// </summary>
-        /// <param name="version"></param>
         /// <param name="isLinux"></param>
+        /// <param name="version"></param>
         /// <returns></returns>
         private IDictionary<string, IDictionary<string, object>> CreateLayeredDeployment(
             bool isLinux, string version = "latest") {

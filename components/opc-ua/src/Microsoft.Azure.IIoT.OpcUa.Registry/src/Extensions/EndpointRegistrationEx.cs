@@ -331,8 +331,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// Returns true if this registration matches the server endpoint
         /// model provided.
         /// </summary>
-        /// <param name="model"></param>
         /// <param name="registration"></param>
+        /// <param name="model"></param>
         /// <returns></returns>
         public static bool Matches(this EndpointRegistration registration, EndpointInfoModel model) {
             return model != null &&
@@ -347,8 +347,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// Returns true if this registration matches the endpoint
         /// model provided.
         /// </summary>
-        /// <param name="endpoint"></param>
         /// <param name="registration"></param>
+        /// <param name="endpoint"></param>
         /// <returns></returns>
         public static bool Matches(this EndpointRegistration registration, EndpointModel endpoint) {
             return endpoint != null &&

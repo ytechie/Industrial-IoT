@@ -18,7 +18,6 @@ namespace Microsoft.AspNetCore.Hosting {
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Autofac.Extensions.DependencyInjection;
     using Autofac.Extensions.Hosting;
 
     /// <summary>

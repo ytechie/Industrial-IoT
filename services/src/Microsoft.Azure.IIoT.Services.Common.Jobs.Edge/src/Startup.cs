@@ -10,7 +10,6 @@ namespace Microsoft.Azure.IIoT.Services.Common.Jobs.Edge {
     using Microsoft.Azure.IIoT.Agent.Framework.Storage.Database;
     using Microsoft.Azure.IIoT.Hub.Client;
     using Microsoft.Azure.IIoT.Hub.Auth;
-    using Microsoft.Azure.IIoT.Services;
     using Microsoft.Azure.IIoT.Services.Auth.Clients;
     using Microsoft.Azure.IIoT.Services.Cors;
     using Microsoft.Azure.IIoT.Http.Default;
