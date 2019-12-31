@@ -526,9 +526,13 @@ Function New-Deployment() {
         }
         
         # register aad application
+        Write-Host 
         Write-Host "Registering client and services AAD applications in your tenant..."
         $script:aadConfig = & (Join-Path $script:ScriptDir "aad-register.ps1") `
             -Context $context -Name $script:aadApplicationName
+
+        Write-Host "Client and services AAD applications registered..."
+        Write-Host 
         $aadAddReplyUrls = $true
     }
     
@@ -592,7 +596,6 @@ Function New-Deployment() {
                     }
                     else {
                         $replyUrls.Add("$($website)/signin-oidc")
-                        $replyUrls.Add("$($website)/signin-oidc".Replace("https:", "http:"))
                     }
                 }
             }
@@ -620,6 +623,7 @@ Function New-Deployment() {
             
             if ($aadAddReplyUrls) {            
                 # register reply urls in client application registration
+                Write-Host 
                 Write-Host "Registering reply urls for $($aadConfig.ClientPrincipalId)..."
 
                 try {
@@ -627,10 +631,14 @@ Function New-Deployment() {
                     $replyUrls.Add("urn:ietf:wg:oauth:2.0:oob")
                     Set-AzureADApplication -ObjectId $aadConfig.ClientPrincipalId -ReplyUrls $replyUrls
 
+                    $replyUrls | ForEach-Object { Write-Host $_ }
                     # TODO
                     #    & (Join-Path $script:ScriptDir "aad-update.ps1") `
                     #        $context `
                     #        -ObjectId $aadConfig.ClientPrincipalId -ReplyUrls $replyUrls
+
+                    Write-Host "Reply urls registered in client app $($aadConfig.ClientPrincipalId)..."
+                    Write-Host 
                 }
                 catch {
                     Write-Host $_.Exception.Message
