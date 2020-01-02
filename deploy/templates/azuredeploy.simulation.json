@@ -346,13 +346,13 @@
                                 "environmentVariables": [
                                     {
                                         "name": "SERVER_PORT",
-                                        "value": "[add(51200, copyIndex('containers'))]"
+                                        "value": "[add(50000, copyIndex('containers'))]"
                                     }
                                 ],
                                 "ports": [
                                     {
                                         "protocol": "TCP",
-                                        "port": "[add(51200, copyIndex('containers'))]"
+                                        "port": "[add(50000, copyIndex('containers'))]"
                                     }
                                 ],
                                 "resources": {
