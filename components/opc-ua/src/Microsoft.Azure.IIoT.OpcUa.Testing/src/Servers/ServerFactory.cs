@@ -32,8 +32,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Sample {
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="nodes"></param>
-        public ServerFactory(ILogger logger,
-            IEnumerable<INodeManagerFactory> nodes) {
+        public ServerFactory(ILogger logger, IEnumerable<INodeManagerFactory> nodes) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
         }

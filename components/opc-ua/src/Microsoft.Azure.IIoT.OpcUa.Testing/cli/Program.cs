@@ -83,6 +83,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Cli {
         /// Test client entry point
         /// </summary>
         public static void Main(string[] args) {
+            AppDomain.CurrentDomain.UnhandledException +=
+                (s, e) => Console.WriteLine("unhandled: " + e.ExceptionObject);
             var op = Op.None;
             var endpoint = new EndpointModel();
             string deviceId = null, moduleId = null, addressRanges = null, fileName = null;
@@ -265,7 +267,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Cli {
                             ports.Add(port);
                         }
                         else {
-                            throw new ArgumentException("Missing port to run sample server.");
+                            throw new ArgumentException(
+                                "Missing port to run sample server or specify --sample option.");
                         }
                     }
                     op = Op.RunSampleServer;
@@ -321,7 +324,7 @@ Operations (Mutually exclusive):
                 switch (op) {
                     case Op.RunSampleServer:
                         RunServerAsync(ports).Wait();
-                        break;
+                        return;
                     case Op.RunEventListener:
                         RunEventListenerAsync().Wait();
                         break;
@@ -373,6 +376,7 @@ Operations (Mutually exclusive):
             }
             catch (Exception e) {
                 Console.WriteLine(e);
+                return;
             }
 
             Console.WriteLine("Press key to exit...");
@@ -400,6 +404,7 @@ Operations (Mutually exclusive):
                     }
 #endif
                     await tcs.Task;
+                    logger.Logger.Information("Exiting.");
                 }
             }
         }
