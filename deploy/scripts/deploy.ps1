@@ -582,6 +582,13 @@ Function New-Deployment() {
             # Add reply urls
             #
             $replyUrls = New-Object System.Collections.Generic.List[System.String]
+            if ($aadAddReplyUrls) {
+                # retrieve existing urls
+                $app = Get-AzureADApplication -ObjectId $aadConfig.ClientPrincipalId
+                if ($app.ReplyUrls -and ($app.ReplyUrls.Count -ne 0)) {
+                    $replyUrls = $app.ReplyUrls;
+                }
+            }
             $website = $deployment.Outputs["appUrl"].Value
             if (![string]::IsNullOrEmpty($website)) {
                 Write-Host
@@ -629,6 +636,7 @@ Function New-Deployment() {
                 try {
                     # assumes we are still connected
                     $replyUrls.Add("urn:ietf:wg:oauth:2.0:oob")
+                    $replyUrls = ($replyUrls | sort-object –Unique)
                     Set-AzureADApplication -ObjectId $aadConfig.ClientPrincipalId -ReplyUrls $replyUrls
 
                     $replyUrls | ForEach-Object { Write-Host $_ }
