@@ -242,10 +242,6 @@ namespace Microsoft.Azure.IIoT.App.Services {
             };
 
             try {
-<<<<<<< HEAD
-
-=======
->>>>>>> fdb7d7960e087ef50f76d63e749ea1726d176b7a
                 var count = 0;
                 foreach (var item in parameters.InputArguments) {
                     var argument = new MethodCallArgumentApiModel {

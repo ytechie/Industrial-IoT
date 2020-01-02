@@ -34,29 +34,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         /// <inheritdoc/>
         public int Pending => _queue.Count + (_curOperation == null ? 0 : 1);
 
-<<<<<<< HEAD
         private ClientSession(ApplicationConfiguration config, ConnectionModel connection,
             ILogger logger, Func<ConnectionModel, EndpointConnectivityState, Task> statusCb,
             TimeSpan? maxOpTimeout, string sessionName, TimeSpan? timeout,
             TimeSpan? keepAlive) {
-=======
-        /// <summary>
-        /// Create client session
-        /// </summary>
-        /// <param name="config">Application configuration</param>
-        /// <param name="endpoint">Endpoint to connect to</param>
-        /// <param name="logger">Logger</param>
-        /// <param name="statusCb">Status callback for reporting</param>
-        /// <param name="persistent">Persists until closed</param>
-        /// <param name="maxOpTimeout"></param>
-        /// <param name="sessionName">Optional session name</param>
-        /// <param name="timeout">Session timeout</param>
-        /// <param name="keepAlive">Keep alive interval</param>
-        public ClientSession(ApplicationConfiguration config, EndpointModel endpoint,
-            ILogger logger, Func<EndpointModel, EndpointConnectivityState, Task> statusCb,
-            bool persistent, TimeSpan? maxOpTimeout = null, string sessionName = null,
-            TimeSpan? timeout = null, TimeSpan? keepAlive = null) {
->>>>>>> fdb7d7960e087ef50f76d63e749ea1726d176b7a
             _logger = logger ?? Log.Logger;
             _connection = connection.Clone();
             _config = config;

@@ -476,64 +476,6 @@ Function New-Deployment() {
             }
         }
 
-<<<<<<< HEAD
-        # set private container registry source if provided at command line
-        if (![string]::IsNullOrEmpty($script:acrRegistryName) `
-                -or ![string]::IsNullOrEmpty($script:acrSubscriptionName)) {
-            if (![string]::IsNullOrEmpty($script:acrSubscriptionName) `
-                    -and ($context.Subscription.Name -ne $script:acrSubscriptionName)) {
-                $containerContext = Get-AzContext -ListAvailable | Where-Object { 
-                    $_.Subscription.Name -eq $script:acrSubscriptionName 
-                }
-            }
-            if (!$containerContext) {
-                # use current context
-                $containerContext = $context
-                Write-Host "Using current authentication context to access container registry."
-            }
-            if ([string]::IsNullOrEmpty($script:acrRegistryName)) {
-                # use default dev images repository name - see acr-build.ps1
-                $script:acrRegistryName = "industrialiotdev"
-            }
-            Write-Host "Looking up credentials for $($script:acrRegistryName) registry."
-            
-            try {
-                $registry = Get-AzContainerRegistry -DefaultProfile $containerContext `
-                    | Where-Object { $_.Name -eq $script:acrRegistryName }
-            }
-            catch {
-                $registry = $null
-            }
-            if (!$registry) {
-                Write-Warning "$($script:acrRegistryName) registry not found - using mcr.microsoft.com."
-            }
-            else {
-                try {
-                    $creds = Get-AzContainerRegistryCredential -Registry $registry `
-                        -DefaultProfile $containerContext
-                }
-                catch {
-                    $creds = $null
-                }
-                if (!$creds) {
-                    Write-Warning "Failed to get credentials for $($script:acrRegistryName) - using mcr.microsoft.com."
-                }
-                else {
-                    $templateParameters.Add("dockerServer", $registry.LoginServer)
-                    $templateParameters.Add("dockerUser", $creds.Username)
-                    $templateParameters.Add("dockerPassword", $creds.Password)
-                    $namespace = $branchName
-                    if ($namespace.StartsWith("feature/")) {
-                        $namespace = $namespace.Replace("feature/", "")
-                    }
-                    elseif ($namespace.StartsWith("release/")) {
-                        $namespace = "master"
-                    }
-                    $namespace = $namespace.Substring(0, [Math]::Min($namespace.Length, 24))        
-                    $templateParameters.Add("imageNamespace", $namespace)
-                    Write-Host "Using latest $($namespace) images from $($registry.LoginServer)."
-                }
-=======
         $creds = Select-RegistryCredentials
         if ($creds) {
             $templateParameters.Add("dockerServer", $creds.dockerServer)
@@ -545,7 +487,6 @@ Function New-Deployment() {
             }
             elseif ($namespace.StartsWith("release/")) {
                 $namespace = "master"
->>>>>>> fdb7d7960e087ef50f76d63e749ea1726d176b7a
             }
             $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))
             $templateParameters.Add("imageNamespace", $namespace)

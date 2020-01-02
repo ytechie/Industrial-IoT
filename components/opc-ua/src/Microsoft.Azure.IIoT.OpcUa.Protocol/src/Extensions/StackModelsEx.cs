@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
+    using Microsoft.Azure.IIoT.OpcUa.Protocol.Services;
     using Microsoft.Azure.IIoT.OpcUa.Core.Models;
     using Microsoft.Azure.IIoT.OpcUa.Twin.Models;
     using Opc.Ua;
@@ -13,7 +14,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
     using System.Collections.Generic;
     using System.Security.Cryptography.X509Certificates;
     using System.Linq;
-    using Microsoft.Azure.IIoT.OpcUa.Protocol.Services;
 
     /// <summary>
     /// Stack models extensions
