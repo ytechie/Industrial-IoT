@@ -91,7 +91,7 @@ namespace Microsoft.Azure.IIoT.App.Services {
                                 DataType = nodeReference.Target.DataType,
                                 Value = string.Empty,
                                 Publishing = false,
-                                PublishedNode = null
+                                PublishedItem = null
                             });
                         }
                     }
@@ -232,7 +232,8 @@ namespace Microsoft.Azure.IIoT.App.Services {
         /// <param name="parameterValues"></param>
         /// <param name="nodeId"></param>
         /// <returns>Status</returns>
-        public async Task<string> MethodCallAsync(MethodMetadataResponseApiModel parameters, string[] parameterValues, string endpointId, string nodeId) {
+        public async Task<string> MethodCallAsync(MethodMetadataResponseApiModel parameters, string[] parameterValues,
+            string endpointId, string nodeId) {
 
             var argumentsList = new List<MethodCallArgumentApiModel>();
             var model = new MethodCallRequestApiModel() {
@@ -241,7 +242,10 @@ namespace Microsoft.Azure.IIoT.App.Services {
             };
 
             try {
+<<<<<<< HEAD
 
+=======
+>>>>>>> fdb7d7960e087ef50f76d63e749ea1726d176b7a
                 var count = 0;
                 foreach (var item in parameters.InputArguments) {
                     var argument = new MethodCallArgumentApiModel {

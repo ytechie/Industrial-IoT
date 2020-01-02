@@ -4,12 +4,19 @@
 // ------------------------------------------------------------
 
 namespace Opc.Ua.PubSub.Tests {
+<<<<<<< HEAD
     using Opc.Ua;
     using Opc.Ua.Encoders;
     using Opc.Ua.PubSub;
     using System;
     using System.Collections.Generic;
     using System.IO;
+=======
+    using System;
+    using System.IO;
+    using System.Collections.Generic;
+    using Opc.Ua.Encoders;
+>>>>>>> fdb7d7960e087ef50f76d63e749ea1726d176b7a
     using Xunit;
 
     public class PubSubJsonEncoderDecoder {

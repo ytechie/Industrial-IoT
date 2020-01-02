@@ -4,14 +4,11 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.App.Services {
-    using Microsoft.AspNetCore.Authentication.AzureAD.UI.Pages.Internal;
     using Microsoft.Azure.IIoT.App.Data;
     using Microsoft.Azure.IIoT.OpcUa.Api.Publisher;
     using Microsoft.Azure.IIoT.OpcUa.Api.Publisher.Models;
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -32,8 +29,8 @@ namespace Microsoft.Azure.IIoT.App.Services {
         /// </summary>
         /// <param name="endpointId"></param>
         /// <returns>PublishedNode</returns>
-        public async Task<PagedResult<PublishedNode>> PublishedAsync(string endpointId) {
-            var pageResult = new PagedResult<PublishedNode>();
+        public async Task<PagedResult<PublishedItemApiModel>> PublishedAsync(string endpointId) {
+            var pageResult = new PagedResult<PublishedItemApiModel>();
             try {
                 string continuationToken = string.Empty;
                 do {
@@ -42,11 +39,7 @@ namespace Microsoft.Azure.IIoT.App.Services {
 
                     if (result.Items != null) {
                         foreach (var item in result.Items) {
-                            pageResult.Results.Add(new PublishedNode {
-                                NodeId = item.NodeId,
-                                PublishingInterval = item.PublishingInterval,
-                                SamplingInterval = item.SamplingInterval,
-                            });
+                            pageResult.Results.Add(item);
                         }
                     }
                 } while (!string.IsNullOrEmpty(continuationToken));
@@ -78,10 +71,9 @@ namespace Microsoft.Azure.IIoT.App.Services {
                 var requestApiModel = new PublishStartRequestApiModel() {
                     Item = new PublishedItemApiModel() {
                         NodeId = nodeId,
-                        SamplingInterval = samplingInterval,
-                        PublishingInterval = publishingInterval
+                        SamplingInterval = TimeSpan.FromMilliseconds(samplingInterval),
+                        PublishingInterval = TimeSpan.FromMilliseconds(publishingInterval)
                     }
-
                 };
 
                 var resultApiModel = await _publisherService.NodePublishStartAsync(endpointId, requestApiModel);

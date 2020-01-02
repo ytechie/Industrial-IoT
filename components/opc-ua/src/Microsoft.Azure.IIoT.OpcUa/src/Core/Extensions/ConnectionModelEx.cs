@@ -3,8 +3,13 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+<<<<<<< HEAD:components/opc-ua/src/Microsoft.Azure.IIoT.OpcUa/src/Core/Extensions/ConnectionModelEx.cs
 namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
     using Microsoft.Azure.IIoT.OpcUa.Registry.Models;
+=======
+namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Models {
+    using Microsoft.Azure.IIoT.OpcUa.Core.Models;
+>>>>>>> fdb7d7960e087ef50f76d63e749ea1726d176b7a:components/opc-ua/src/Microsoft.Azure.IIoT.OpcUa/src/Publisher/Extensions/ConnectionModelEx.cs
     using Newtonsoft.Json.Linq;
     using System.Collections.Generic;
 

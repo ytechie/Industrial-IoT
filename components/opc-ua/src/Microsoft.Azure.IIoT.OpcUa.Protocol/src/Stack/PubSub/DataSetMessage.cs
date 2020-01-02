@@ -5,7 +5,6 @@
 
 namespace Opc.Ua.PubSub {
     using System;
-    using Opc.Ua;
 
     /// <summary>
     /// Data set message
@@ -89,7 +88,7 @@ namespace Opc.Ua.PubSub {
         }
 
         /// <inheritdoc/>
-        public override bool Equals(Object value) {
+        public override bool Equals(object value) {
             return IsEqual(value as IEncodeable);
         }
 
