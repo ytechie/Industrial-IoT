@@ -346,19 +346,19 @@
                                 "environmentVariables": [
                                     {
                                         "name": "SERVER_PORT",
-                                        "value": "[add(50000, copyIndex('containers'))]"
+                                        "value": "[add(51200, copyIndex('containers'))]"
                                     }
                                 ],
                                 "ports": [
                                     {
                                         "protocol": "TCP",
-                                        "port": "[add(50000, copyIndex('containers'))]"
+                                        "port": "[add(51200, copyIndex('containers'))]"
                                     }
                                 ],
                                 "resources": {
                                     "requests": {
-                                        "memoryInGB": 0.5,
-                                        "cpu": 1
+                                        "memoryInGB": 8,
+                                        "cpu": 2
                                     }
                                 }
                             }

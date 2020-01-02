@@ -71,18 +71,35 @@ Get-ChildItem $BuildRoot -Recurse -Include "container.json" | ForEach-Object {
     }
 
     $releaseImageName = "$($Registry).azurecr.io/$($imageName):$($tagPrefix)$($Version)"
-    Write-Host "Release image name: $($releaseImageName)"
+    Write-Host "Pulling $($releaseImageName)..."
+    $argumentList = @("pull", $releaseImageName)
+    & docker $argumentList
+    if ($LastExitCode -ne 0) {
+        throw "docker $($argumentList) failed with $($LastExitCode)."
+    }
 
     # tag release image with release tags
     $tags | ForEach-Object {
         $taggedImageName = "$($Registry).azurecr.io/$($imageName):$($tagPrefix)$($_)"
 
-        Write-Host "Tagging $($releaseImageName) as $($_)"
+        Write-Host "Tagging $($releaseImageName) as $($_) and pushing..."
         $argumentList = @("tag", $releaseImageName, $taggedImageName)
         Write-Host "docker $($argumentList)"
         & docker $argumentList
         if ($LastExitCode -ne 0) {
             throw "docker $($argumentList) failed with $($LastExitCode)."
         }
+        $argumentList = @("push", $taggedImageName)
+        & docker $argumentList
+        if ($LastExitCode -ne 0) {
+            throw "docker $($argumentList) failed with $($LastExitCode)."
+        }
+    }
+
+    Write-Host "Removing $($releaseImageName)..."
+    $argumentList = @("image", "rm", "-f", $releaseImageName)
+    & docker $argumentList
+    if ($LastExitCode -ne 0) {
+        throw "docker $($argumentList) failed with $($LastExitCode)."
     }
 }
