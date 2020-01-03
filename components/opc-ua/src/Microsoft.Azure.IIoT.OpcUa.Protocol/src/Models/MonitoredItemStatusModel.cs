@@ -4,29 +4,22 @@
 // ------------------------------------------------------------
 
 
-namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Models {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
+namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
+    using Opc.Ua;
 
     /// <summary>
-    /// Monitoring modes
+    /// Monitored item status
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum MonitoringMode {
+    public class MonitoredItemStatusModel {
 
         /// <summary>
-        /// Disabled
+        /// The identifier assigned by the server.
         /// </summary>
-        Disabled,
+        public uint? ServerId { get; set; }
 
         /// <summary>
-        /// Sampling
+        /// Any error condition associated with the monitored item.
         /// </summary>
-        Sampling,
-
-        /// <summary>
-        /// Reporting
-        /// </summary>
-        Reporting
+        public ServiceResult Error { get; set; }
     }
 }

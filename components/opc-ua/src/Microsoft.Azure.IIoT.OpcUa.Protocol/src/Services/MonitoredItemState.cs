@@ -6,10 +6,12 @@
 namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
     using Microsoft.Azure.IIoT.OpcUa.Core.Models;
     using Microsoft.Azure.IIoT.OpcUa.Publisher.Models;
+    using Opc.Ua.Client;
     using Serilog;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Monitored item diffing engine
@@ -17,30 +19,35 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
     public class MonitoredItemState {
 
         /// <summary>
-        /// Assigned monitored item id on server
+        /// Client Id
         /// </summary>
-        public uint? ServerId => Reported?.Status.Id;
+        public string ClientId => MonitoredItem.Id;
 
         /// <summary>
-        /// Desired Monitored item state
+        /// Server id
         /// </summary>
-        public MonitoredItemModel Desired { get; }
+        public uint? ServerId => Status.ServerId;
 
         /// <summary>
-        /// Reported monitored item state
+        /// Status
         /// </summary>
-        public MonitoredItemModel Reported { get; private set; }
+        public MonitoredItemStatusModel Status { get; private set; }
+
+        /// <summary>
+        /// Monitored item model
+        /// </summary>
+        public MonitoredItemModel MonitoredItem { get; set; }
 
         /// <summary>
         /// Create wrapper
         /// </summary>
-        /// <param name="template"></param>
+        /// <param name="monitoredItem"></param>
         /// <param name="logger"></param>
-        public MonitoredItemState(MonitoredItemModel template, ILogger logger) {
+        public MonitoredItemState(MonitoredItemModel monitoredItem, ILogger logger) {
             _logger = logger?.ForContext<MonitoredItemState>() ??
                 throw new ArgumentNullException(nameof(logger));
-            Desired = template.Clone() ??
-                throw new ArgumentNullException(nameof(template));
+            MonitoredItem = monitoredItem.Clone() ??
+                throw new ArgumentNullException(nameof(monitoredItem));
         }
 
         /// <inheritdoc/>
@@ -48,19 +55,19 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
             if (!(obj is MonitoredItemState item)) {
                 return false;
             }
-            if (Desired.Id != item.Reported.Id) {
+            if (MonitoredItem.Id != item.MonitoredItem.Id) {
                 return false;
             }
-            if (!Desired.RelativePath.SequenceEqualsSafe(item.Reported.RelativePath)) {
+            if (!MonitoredItem.RelativePath.SequenceEqualsSafe(item.MonitoredItem.RelativePath)) {
                 return false;
             }
-            if (Desired.StartNodeId != item.Reported.StartNodeId) {
+            if (MonitoredItem.StartNodeId != item.MonitoredItem.StartNodeId) {
                 return false;
             }
-            if (Desired.IndexRange != item.Reported.IndexRange) {
+            if (MonitoredItem.IndexRange != item.MonitoredItem.IndexRange) {
                 return false;
             }
-            if (Desired.AttributeId != item.Reported.AttributeId) {
+            if (MonitoredItem.AttributeId != item.MonitoredItem.AttributeId) {
                 return false;
             }
             return true;
@@ -70,55 +77,56 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
         public override int GetHashCode() {
             var hashCode = 1301977042;
             hashCode = (hashCode * -1521134295) +
-                EqualityComparer<string>.Default.GetHashCode(Desired.Id);
+                EqualityComparer<string>.Default.GetHashCode(MonitoredItem.Id);
             hashCode = (hashCode * -1521134295) +
-                EqualityComparer<string[]>.Default.GetHashCode(Desired.RelativePath);
+                EqualityComparer<string[]>.Default.GetHashCode(MonitoredItem.RelativePath);
             hashCode = (hashCode * -1521134295) +
-                EqualityComparer<string>.Default.GetHashCode(Desired.StartNodeId);
+                EqualityComparer<string>.Default.GetHashCode(MonitoredItem.StartNodeId);
             hashCode = (hashCode * -1521134295) +
-                EqualityComparer<string>.Default.GetHashCode(Desired.IndexRange);
+                EqualityComparer<string>.Default.GetHashCode(MonitoredItem.IndexRange);
             hashCode = (hashCode * -1521134295) +
-                EqualityComparer<NodeAttribute?>.Default.GetHashCode(Desired.AttributeId);
+                EqualityComparer<NodeAttribute?>.Default.GetHashCode(MonitoredItem.AttributeId);
             return hashCode;
         }
 
         /// <inheritdoc/>
         public override string ToString() {
-            return $"Item {Desired.Id ?? "<unknown>"}{ServerId}: '{Desired.StartNodeId}'" +
-                $" - {(Reported?.Status?.Created == true ? "" : "not ")}created";
+            return $"Item {MonitoredItem.Id ?? "<unknown>"}{Status.ServerId}: " +
+                $"'{MonitoredItem.StartNodeId}'" +
+                $" - {(Status.ServerId != null ? "" : "not ")}created";
         }
 
-      //  /// <summary>
-      //  /// Create new
-      //  /// </summary>
-      //  /// <param name="session"></param>
-      //  /// <returns></returns>
-      //  internal void Create(Session session) {
-      //      Reported = new MonitoredItem {
-      //          Handle = this,
-      //
-      //          DisplayName = Desired.DisplayName,
-      //          AttributeId = ((uint?)Desired.AttributeId) ?? Attributes.Value,
-      //          IndexRange = Desired.IndexRange,
-      //          RelativePath = Desired.RelativePath?
-      //                      .ToRelativePath(session.MessageContext)?
-      //                      .Format(session.NodeCache.TypeTree),
-      //          MonitoringMode = Desired.MonitoringMode.ToStackType() ??
-      //              Opc.Ua.MonitoringMode.Reporting,
-      //          StartNodeId = Desired.StartNodeId.ToNodeId(session.MessageContext),
-      //          QueueSize = Desired.QueueSize ?? 0,
-      //          SamplingInterval =
-      //              (int?)Desired.SamplingInterval?.TotalMilliseconds ?? -1,
-      //          DiscardOldest = !(Desired.DiscardNew ?? false),
-      //          Filter =
-      //              Desired.DataChangeFilter
-      //                  .ToStackModel() ??
-      //              Desired.EventFilter
-      //                  .ToStackModel(session.MessageContext, true) ??
-      //              ((MonitoringFilter)Desired.AggregateFilter
-      //                  .ToStackModel(session.MessageContext))
-      //      };
-      //  }
+        //  /// <summary>
+        //  /// Create new
+        //  /// </summary>
+        //  /// <param name="session"></param>
+        //  /// <returns></returns>
+        //  internal void Create(Session session) {
+        //      Reported = new MonitoredItem {
+        //          Handle = this,
+        //
+        //          DisplayName = Desired.DisplayName,
+        //          AttributeId = ((uint?)Desired.AttributeId) ?? Attributes.Value,
+        //          IndexRange = Desired.IndexRange,
+        //          RelativePath = Desired.RelativePath?
+        //                      .ToRelativePath(session.MessageContext)?
+        //                      .Format(session.NodeCache.TypeTree),
+        //          MonitoringMode = Desired.MonitoringMode.ToStackType() ??
+        //              Opc.Ua.MonitoringMode.Reporting,
+        //          StartNodeId = Desired.StartNodeId.ToNodeId(session.MessageContext),
+        //          QueueSize = Desired.QueueSize ?? 0,
+        //          SamplingInterval =
+        //              (int?)Desired.SamplingInterval?.TotalMilliseconds ?? -1,
+        //          DiscardOldest = !(Desired.DiscardNew ?? false),
+        //          Filter =
+        //              Desired.DataChangeFilter
+        //                  .ToStackModel() ??
+        //              Desired.EventFilter
+        //                  .ToStackModel(session.MessageContext, true) ??
+        //              ((MonitoringFilter)Desired.AggregateFilter
+        //                  .ToStackModel(session.MessageContext))
+        //      };
+        //  }
 
         /// <summary>
         /// Add the monitored item identifier of the triggering item.
@@ -212,23 +220,58 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
         /// Get any changes in the monitoring mode
         /// </summary>
         /// <returns></returns>
-        internal MonitoringMode? GetMonitoringModeChange() {
+        internal MonitoringItemMode? GetMonitoringModeChange() {
             var change = _modeChange;
             _modeChange = null;
-            return Reported.MonitoringMode == change ? null : change;
+            return MonitoredItem.MonitoringMode == change ? null : change;
+        }
+
+        /// <summary>
+        /// Test full equality across all configuration settings
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public bool IsEqualConfiguration(object obj) {
+            if (!Equals(obj)) {
+                return false;
+            }
+            var item = obj as MonitoredItemState;
+            if (MonitoredItem.DiscardNew != item.MonitoredItem.DiscardNew) {
+                return false;
+            }
+            if (!MonitoredItem.AggregateFilter.IsSameAs(item.MonitoredItem.AggregateFilter)) {
+                return false;
+            }
+            if (!MonitoredItem.EventFilter.IsSameAs(item.MonitoredItem.EventFilter)) {
+                return false;
+            }
+            if (!MonitoredItem.DataChangeFilter.IsSameAs(item.MonitoredItem.DataChangeFilter)) {
+                return false;
+            }
+            if (MonitoredItem.MonitoringMode != item.MonitoredItem.MonitoringMode) {
+                return false;
+            }
+            if (MonitoredItem.QueueSize != item.MonitoredItem.QueueSize) {
+                return false;
+            }
+            if (MonitoredItem.SamplingInterval != item.MonitoredItem.SamplingInterval) {
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
         /// Synchronize monitored items and triggering configuration in subscription
         /// </summary>
-        /// <param name="monitoredItems"></param>
+        /// <param name="desiredItems"></param>
         /// <param name="currentItems"></param>
         /// <param name="deletes"></param>
         /// <param name="add"></param>
         /// <param name="update"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public static bool GetMonitoredItemChangesPhase1(IEnumerable<MonitoredItemModel> monitoredItems,
+        public static bool GetMonitoredItemChangesPhase1(
+            IEnumerable<MonitoredItemModel> desiredItems,
             IEnumerable<MonitoredItemState> currentItems,
             out HashSet<MonitoredItemState> deletes,
             out HashSet<MonitoredItemState> add,
@@ -237,13 +280,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
 
             update = new HashSet<MonitoredItemState>();
             add = new HashSet<MonitoredItemState>();
-            if (monitoredItems == null) {
+            if (desiredItems == null) {
                 deletes = new HashSet<MonitoredItemState>();
                 return false;
             }
 
             // Synchronize the desired items with the state of the raw subscription
-            var desiredState = monitoredItems
+            var desiredState = desiredItems
                 .Select(m => new MonitoredItemState(m, logger))
                 .ToHashSetSafe();
             var currentState = currentItems
@@ -259,7 +302,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
             //
             //      // TODO: Claim monitored item
             //
-            //
             //      rawSubscription.RemoveItem(detached);
             //  }
 
@@ -274,7 +316,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
             var desiredUpdates = desiredState.Intersect(currentState)
                 .ToDictionary(k => k, v => v);
             foreach (var toUpdate in currentState.Intersect(desiredState)) {
-                if (!toUpdate.Equals(desiredUpdates[toUpdate])) {
+                if (!toUpdate.IsEqualConfiguration(desiredUpdates[toUpdate])) {
                     logger.Debug("Updating monitored item '{item}'...", toUpdate);
                     update.Add(toUpdate);
                     applyChanges = true;
@@ -293,18 +335,18 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
         /// <returns></returns>
         public static void GetMonitoredItemChangesPhase2(IEnumerable<MonitoredItemState> currentItems,
             out HashSet<uint> added, out HashSet<uint> removed,
-            out Dictionary<MonitoringMode, List<uint>> modeChanges) {
+            out Dictionary<MonitoringItemMode, List<uint>> modeChanges) {
 
             added = new HashSet<uint>();
             removed = new HashSet<uint>();
-            modeChanges = new Dictionary<MonitoringMode, List<uint>>();
+            modeChanges = new Dictionary<MonitoringItemMode, List<uint>>();
 
             var map = currentItems.ToDictionary(
-                k => k.Reported.Id ?? k.Reported.StartNodeId, v => v);
+                k => k.MonitoredItem.Id ?? k.MonitoredItem.StartNodeId, v => v);
             foreach (var item in currentItems.ToList()) {
-                if (item.Desired.TriggerId != null &&
-                    map.TryGetValue(item.Desired.TriggerId, out var trigger)) {
-                    trigger.AddTriggerLink(item.ServerId);
+                if (item.MonitoredItem.TriggerId != null &&
+                    map.TryGetValue(item.MonitoredItem.TriggerId, out var trigger)) {
+                    trigger.AddTriggerLink(item.Status.ServerId);
                 }
             }
 
@@ -318,24 +360,15 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
                 if (change.Key == null) {
                     continue;
                 }
-                modeChanges =
-                await rawSubscription.Session.SetMonitoringModeAsync(null,
-                    rawSubscription.Id, change.Key.Value,
-                    new UInt32Collection(change.Select(i => i.ServerId ?? 0)));
-            }
-
-            _currentlyMonitored = currentItems;
-
-            // Set timer to check connection periodically
-            if (_currentlyMonitored.Count > 0) {
-                _timer.Change(TimeSpan.FromSeconds(10), Timeout.InfiniteTimeSpan);
+                modeChanges.Add(change.Key.Value,
+                    change.Select(i => i.Status.ServerId ?? 0).ToList());
             }
         }
 
 
         private HashSet<uint> _newTriggers = new HashSet<uint>();
         private HashSet<uint> _triggers = new HashSet<uint>();
-        private Publisher.Models.MonitoringMode? _modeChange;
+        private MonitoringItemMode? _modeChange;
         private readonly ILogger _logger;
     }
 }

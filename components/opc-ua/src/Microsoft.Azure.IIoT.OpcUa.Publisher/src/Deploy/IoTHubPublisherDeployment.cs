@@ -95,6 +95,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Deploy {
                             ""host"": {
                             }
                         }
+                    },
+                    ""HostConfig"": {
+                        ""NetworkMode"": ""host"",
+                        ""CapAdd"": [ ""NET_ADMIN"" ]
                     }
                 }";
             }

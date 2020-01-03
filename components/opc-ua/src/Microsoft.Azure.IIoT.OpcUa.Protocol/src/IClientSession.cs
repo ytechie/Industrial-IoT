@@ -26,12 +26,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
         int Pending { get; }
 
         /// <summary>
-        /// Closes the session and cancels any outstanding operations.
-        /// </summary>
-        /// <returns></returns>
-        Task CloseAsync();
-
-        /// <summary>
         /// Try schedule operation on the session
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -52,5 +46,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
         /// </summary>
         /// <returns></returns>
         ISessionHandle GetSafeHandle();
+
+        /// <summary>
+        /// Closes the session and cancels any outstanding operations.
+        /// </summary>
+        /// <returns></returns>
+        Task CloseAsync();
     }
 }

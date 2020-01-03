@@ -31,9 +31,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         /// Create subscription manager
         /// </summary>
         /// <param name="client"></param>
+        /// <param name="codec"></param>
         /// <param name="logger"></param>
-        public SubscriptionServices(IEndpointServices client, ILogger logger) {
+        public SubscriptionServices(IEndpointServices client, IVariantEncoderFactory codec,
+            ILogger logger) {
             _client = client ?? throw new ArgumentNullException(nameof(client));
+            _codec = codec ?? throw new ArgumentNullException(nameof(codec));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -303,12 +306,14 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
 
                 var nowMonitored = new List<MonitoredItemWrapper>();
 
+                var codec = _outer._codec.Create(rawSubscription.Session.MessageContext);
+
                 // Add new monitored items not in current state
                 foreach (var toAdd in desiredState.Except(currentState)) {
                     _logger.Debug("Adding new monitored item '{item}'...", toAdd);
 
                     // Create monitored item
-                    toAdd.Create(rawSubscription.Session);
+                    toAdd.Create(rawSubscription.Session, codec);
                     toAdd.Item.Notification += OnMonitoredItemChanged;
 
                     rawSubscription.AddItem(toAdd.Item);
@@ -589,8 +594,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             /// Create new
             /// </summary>
             /// <param name="session"></param>
+            /// <param name="codec"></param>
             /// <returns></returns>
-            internal void Create(Session session) {
+            internal void Create(Session session, IVariantEncoder codec) {
                 Item = new MonitoredItem {
                     Handle = this,
 
@@ -608,10 +614,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                         (int?)Template.SamplingInterval?.TotalMilliseconds ?? -1,
                     DiscardOldest = !(Template.DiscardNew ?? false),
                     Filter =
-                        Template.DataChangeFilter
-                            .ToStackModel() ??
-                        Template.EventFilter
-                            .ToStackModel(session.MessageContext, true) ??
+                        Template.DataChangeFilter.ToStackModel() ??
+                        codec.Decode(Template.EventFilter, true) ??
                         ((MonitoringFilter)Template.AggregateFilter
                             .ToStackModel(session.MessageContext))
                 };
@@ -667,15 +671,15 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
                     changes = true;
                 }
 
-                if ((Template.MonitoringMode ?? Publisher.Models.MonitoringMode.Reporting) !=
-                    (model.Template.MonitoringMode ?? Publisher.Models.MonitoringMode.Reporting)) {
+                if ((Template.MonitoringMode ?? Publisher.Models.MonitoringItemMode.Reporting) !=
+                    (model.Template.MonitoringMode ?? Publisher.Models.MonitoringItemMode.Reporting)) {
                     _logger.Debug("{item}: Changing monitoring mode from {old} to {new}",
                         this,
-                        Template.MonitoringMode ?? Publisher.Models.MonitoringMode.Reporting,
-                        model.Template.MonitoringMode ?? Publisher.Models.MonitoringMode.Reporting);
+                        Template.MonitoringMode ?? Publisher.Models.MonitoringItemMode.Reporting,
+                        model.Template.MonitoringMode ?? Publisher.Models.MonitoringItemMode.Reporting);
                     Template.MonitoringMode = model.Template.MonitoringMode;
                     _modeChange = Template.MonitoringMode ??
-                        Publisher.Models.MonitoringMode.Reporting;
+                        Publisher.Models.MonitoringItemMode.Reporting;
                 }
 
                 // TODO
@@ -717,7 +721,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
 
             private HashSet<uint> _newTriggers = new HashSet<uint>();
             private HashSet<uint> _triggers = new HashSet<uint>();
-            private Publisher.Models.MonitoringMode? _modeChange;
+            private Publisher.Models.MonitoringItemMode? _modeChange;
             private readonly ILogger _logger;
         }
 
@@ -725,5 +729,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
         private readonly ConcurrentDictionary<string, SubscriptionWrapper> _subscriptions =
             new ConcurrentDictionary<string, SubscriptionWrapper>();
         private readonly IEndpointServices _client;
+        private readonly IVariantEncoderFactory _codec;
     }
 }
