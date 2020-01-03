@@ -419,6 +419,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Sample {
                     throw new ArgumentNullException(nameof(session));
                 }
 
+                if (args.NewIdentity is AnonymousIdentityToken guest) {
+                    args.Identity = new UserIdentity(guest);
+                    Utils.Trace("Guest access accepted: {0}", args.Identity.DisplayName);
+                    return;
+                }
+
                 // check for a user name token.
                 if (args.NewIdentity is UserNameIdentityToken userNameToken) {
                     var admin = VerifyPassword(userNameToken.UserName, userNameToken.DecryptedPassword);
@@ -426,7 +432,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Sample {
                     if (admin) {
                         args.Identity = new SystemConfigurationIdentity(args.Identity);
                     }
-                    Utils.Trace("UserName Token Accepted: {0}", args.Identity.DisplayName);
+                    Utils.Trace("UserName Token accepted: {0}", args.Identity.DisplayName);
                     return;
                 }
 
@@ -437,7 +443,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Sample {
                     if (admin) {
                         args.Identity = new SystemConfigurationIdentity(args.Identity);
                     }
-                    Utils.Trace("X509 Token Accepted: {0}", args.Identity.DisplayName);
+                    Utils.Trace("X509 Token accepted: {0}", args.Identity.DisplayName);
                     return;
                 }
 
@@ -448,7 +454,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Sample {
                     if (admin) {
                         args.Identity = new SystemConfigurationIdentity(args.Identity);
                     }
-                    Utils.Trace("Issued Token Accepted: {0}", args.Identity.DisplayName);
+                    Utils.Trace("Issued Token accepted: {0}", args.Identity.DisplayName);
                     return;
                 }
 

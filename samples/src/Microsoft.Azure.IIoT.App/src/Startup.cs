@@ -134,6 +134,10 @@ namespace Microsoft.Azure.IIoT.App {
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
 
+            services.AddAntiforgery(options => {
+                options.Cookie.SameSite = SameSiteMode.None;
+            });
+
             services.AddHttpContextAccessor();
             services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
                 .AddAzureAD(options => {
@@ -218,7 +222,7 @@ namespace Microsoft.Azure.IIoT.App {
             builder.RegisterType<RegistryServiceEvents>()
                 .AsImplementedInterfaces().AsSelf().SingleInstance();
             builder.RegisterType<PublisherServiceEvents>()
-                .AsImplementedInterfaces().SingleInstance();
+                .AsImplementedInterfaces().AsSelf().SingleInstance();
 
             builder.RegisterType<Registry>()
                 .AsImplementedInterfaces().AsSelf().SingleInstance();
