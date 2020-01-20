@@ -89,7 +89,7 @@ namespace Microsoft.Azure.IIoT.Module.Default {
         /// <summary>
         /// Http client handler for the tunnels
         /// </summary>
-        private sealed class HttpTunnelClientHandler : System.Net.Http.HttpClientHandler {
+        private sealed class HttpTunnelClientHandler : Http.Default.HttpClientHandler {
 
             /// <inheritdoc/>
             public override bool SupportsAutomaticDecompression => true;
@@ -118,6 +118,10 @@ namespace Microsoft.Azure.IIoT.Module.Default {
             /// <inheritdoc/>
             protected override async Task<HttpResponseMessage> SendAsync(
                 HttpRequestMessage request, CancellationToken ct) {
+                if (request.Headers.TryGetValues(HttpHeader.UdsPath, out var paths)) {
+                    // On edge we must still support unix sockets to talk to edgelet
+                    return await base.SendAsync(request, ct);
+                }
 
                 var headers = request.Headers?
                     .ToDictionary(h => h.Key, h => h.Value.ToList());
