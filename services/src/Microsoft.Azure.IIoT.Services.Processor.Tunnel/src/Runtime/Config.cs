@@ -9,23 +9,15 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
     using Microsoft.Azure.IIoT.Hub.Processor.Runtime;
     using Microsoft.Azure.IIoT.Hub.Client.Runtime;
     using Microsoft.Azure.IIoT.Messaging.EventHub;
-    using Microsoft.Azure.IIoT.Messaging.SignalR;
-    using Microsoft.Azure.IIoT.Messaging.SignalR.Runtime;
-    using Microsoft.Azure.IIoT.OpcUa.Api.Onboarding;
-    using Microsoft.Azure.IIoT.OpcUa.Api.Runtime;
     using Microsoft.Extensions.Configuration;
     using System;
 
     /// <summary>
     /// Telemetry processor service configuration
     /// </summary>
-    public class Config : DiagnosticsConfig, IEventProcessorConfig, IEventHubConsumerConfig,
-        IOnboardingConfig, ISignalRServiceConfig {
+    public class Config : DiagnosticsConfig, IEventProcessorConfig, 
+        IEventHubConsumerConfig {
 
-        /// <inheritdoc/>
-        public string OpcUaOnboardingServiceUrl => _ia.OpcUaOnboardingServiceUrl;
-        /// <inheritdoc/>
-        public string OpcUaOnboardingServiceResourceId => _ia.OpcUaOnboardingServiceResourceId;
         /// <inheritdoc/>
         public string EventHubConnString => _eh.EventHubConnString;
         /// <inheritdoc/>
@@ -38,14 +30,11 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
         public int ReceiveBatchSize => _ep.ReceiveBatchSize;
         /// <inheritdoc/>
         public TimeSpan ReceiveTimeout => _ep.ReceiveTimeout;
+
         /// <inheritdoc/>
         public string BlobStorageConnString => _ep.BlobStorageConnString;
         /// <inheritdoc/>
         public string LeaseContainerName => _ep.LeaseContainerName;
-        /// <inheritdoc/>
-        public string SignalRHubName => _sr.SignalRHubName;
-        /// <inheritdoc/>
-        public string SignalRConnString => _sr.SignalRConnString;
 
         /// <summary>
         /// Configuration constructor
@@ -54,13 +43,9 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
         public Config(IConfiguration configuration) : base(configuration) {
             _ep = new EventProcessorConfig(configuration);
             _eh = new IoTHubEventConfig(configuration);
-            _ia = new InternalApiConfig(configuration);
-            _sr = new SignalRServiceConfig(configuration);
         }
 
         private readonly EventProcessorConfig _ep;
         private readonly IoTHubEventConfig _eh;
-        private readonly InternalApiConfig _ia;
-        private readonly SignalRServiceConfig _sr;
     }
 }

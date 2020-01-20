@@ -5,11 +5,6 @@
 
 namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
     using Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime;
-    using Microsoft.Azure.IIoT.Messaging.SignalR.Services;
-    using Microsoft.Azure.IIoT.OpcUa.Api.Onboarding;
-    using Microsoft.Azure.IIoT.OpcUa.Api.Onboarding.Clients;
-    using Microsoft.Azure.IIoT.OpcUa.Api.Registry.Clients;
-    using Microsoft.Azure.IIoT.OpcUa.Registry.Handlers;
     using Microsoft.Azure.IIoT.Exceptions;
     using Microsoft.Azure.IIoT.Hub.Processor.EventHub;
     using Microsoft.Azure.IIoT.Hub.Processor.Services;
@@ -24,6 +19,8 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
     using System.IO;
     using System.Runtime.Loader;
     using System.Threading.Tasks;
+    using Microsoft.Azure.IIoT.Module.Default;
+    using Microsoft.Azure.IIoT.Hub.Client;
 
     /// <summary>
     /// IoT Hub device telemetry event processor host.  Processes all
@@ -115,38 +112,25 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
                 .AutoActivate()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // Handle telemetry events
+            // Handle tunnel events
             builder.RegisterType<IoTHubDeviceEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
-
-            // Handle discovery events
-            builder.RegisterType<DiscoveryEventHandler>()
+            builder.RegisterType<HttpTunnelServer>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // ... requires the corresponding services
-
-            // Http client module (needed for api)
+            // Http client module to call other services
             builder.RegisterModule<HttpClientModule>();
             // Managed or service principal authentication
             builder.RegisterType<AppAuthenticationProvider>()
                 .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<OnboardingAdapter>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<OnboardingServiceClient>()
-                .AsImplementedInterfaces().SingleInstance();
 
-            // Handle discovery messages
-            builder.RegisterType<DiscoveryMessageHandler>()
+            // which builds on Iot hub method calls for responses
+            builder.RegisterType<ChunkMethodClient>()
                 .AsImplementedInterfaces().SingleInstance();
-
-            // ... forward progress directly to clients
-            builder.RegisterType<DiscoveryProgressPublisher>()
+            builder.RegisterType<IoTHubTwinMethodClient>()
                 .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<SignalRServiceHost>()
+            builder.RegisterType<IoTHubServiceClient>()
                 .AsImplementedInterfaces().SingleInstance();
-
-            // Handle twin events
-            // ...
 
             return builder;
         }
