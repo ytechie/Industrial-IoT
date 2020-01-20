@@ -24,8 +24,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
 
     /// <summary>
     /// IoT Hub device telemetry event processor host.  Processes all
-    /// telemetry from devices - forwards unknown telemetry on to
-    /// time series event hub.
+    /// tunnel requests from devices.
     /// </summary>
     public class Program {
 
@@ -112,7 +111,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
                 .AutoActivate()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // Handle tunnel events
+            // Handle tunnel server events
             builder.RegisterType<IoTHubDeviceEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<HttpTunnelServer>()
