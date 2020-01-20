@@ -11,6 +11,9 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
     using Microsoft.Azure.IIoT.OpcUa.Api.Registry.Clients;
     using Microsoft.Azure.IIoT.OpcUa.Registry.Handlers;
     using Microsoft.Azure.IIoT.Exceptions;
+    using Microsoft.Azure.IIoT.Messaging.Default;
+    using Microsoft.Azure.IIoT.Messaging.ServiceBus.Clients;
+    using Microsoft.Azure.IIoT.Messaging.ServiceBus.Services;
     using Microsoft.Azure.IIoT.Hub.Processor.EventHub;
     using Microsoft.Azure.IIoT.Hub.Processor.Services;
     using Microsoft.Azure.IIoT.Hub.Services;
@@ -114,38 +117,45 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
                 .AutoActivate()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // Handle telemetry events
+            // Handle iot hub telemetry events...
             builder.RegisterType<IoTHubDeviceEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
+            // ... and pass to the following handlers:
 
-            // Handle discovery events
+            // 1.) Handler for discovery events
             builder.RegisterType<DiscoveryEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
-
             // ... requires the corresponding services
-
-            // Http client module (needed for api)
-            builder.RegisterModule<HttpClientModule>();
-            // Managed or service principal authentication
-            builder.RegisterType<AppAuthenticationProvider>()
-                .AsImplementedInterfaces().SingleInstance();
+            // Call onboarder
             builder.RegisterType<OnboardingAdapter>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OnboardingServiceClient>()
                 .AsImplementedInterfaces().SingleInstance();
-
-            // Handle discovery messages
-            builder.RegisterType<DiscoveryMessageHandler>()
+            // using Http client module (needed for api)
+            builder.RegisterModule<HttpClientModule>();
+            // with Managed or service principal authentication
+            builder.RegisterType<AppAuthenticationProvider>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // ... forward progress directly to clients
+            // 2.) Handler for discovery messages
+            builder.RegisterType<DiscoveryMessageHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            // ... and forward discovery progress to clients
             builder.RegisterType<DiscoveryProgressPublisher>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<SignalRServiceHost>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // Handle twin events
-            // ...
+            // 3.) Handler for twin change events, publish to ...
+            builder.RegisterType<TwinChangeEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            // ... registered event bus 
+            builder.RegisterType<EventBusHost>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ServiceBusClientFactory>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ServiceBusEventBus>()
+                .AsImplementedInterfaces().SingleInstance();
 
             return builder;
         }
