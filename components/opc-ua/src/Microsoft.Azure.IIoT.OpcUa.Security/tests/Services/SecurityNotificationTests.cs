@@ -184,7 +184,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Security.Services {
                     .Without(y => y.Endpoint)
                     .Do(y => y.Endpoint = fix
                         .Build<EndpointModel>()
-                        .With(z => z.Certificate, certificate)
+                        .With(z => z.Certificate, certificate.ToSha1Hash())
                         .With(z => z.SecurityMode, mode)
                         .With(z => z.SecurityPolicy, policy)
                         .Create())

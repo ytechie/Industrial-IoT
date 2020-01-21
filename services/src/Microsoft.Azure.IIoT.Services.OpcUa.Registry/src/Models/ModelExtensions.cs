@@ -619,7 +619,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 Id = model.Id,
                 SiteId = model.SiteId,
                 LogLevel = (IIoT.OpcUa.Api.Registry.Models.TraceLogLevel?)model.LogLevel,
-                Certificate = model.Certificate,
                 Configuration = model.Configuration.ToApiModel(),
                 OutOfSync = model.OutOfSync,
                 Connected = model.Connected
@@ -762,7 +761,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 Id = model.Id,
                 SiteId = model.SiteId,
                 LogLevel = (IIoT.OpcUa.Api.Registry.Models.TraceLogLevel?)model.LogLevel,
-                Certificate = model.Certificate,
                 OutOfSync = model.OutOfSync,
                 Connected = model.Connected
             };

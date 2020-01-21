@@ -67,17 +67,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     null : JToken.FromObject(update.Capabilities));
             }
 
-            var certUpdate = update?.Certificate?.DecodeAsByteArray()?.SequenceEqualsSafe(
-                existing?.Certificate.DecodeAsByteArray());
-            if (!(certUpdate ?? true)) {
-                twin.Properties.Desired.Add(nameof(PublisherRegistration.Certificate),
-                    update?.Certificate == null ?
-                    null : JToken.FromObject(update.Certificate));
-                twin.Tags.Add(nameof(PublisherRegistration.Thumbprint),
-                    update?.Certificate?.DecodeAsByteArray()?.ToSha1Hash());
-            }
-
-
             if (update?.JobOrchestratorUrl != existing?.JobOrchestratorUrl) {
                 twin.Properties.Desired.Add(nameof(PublisherRegistration.JobOrchestratorUrl),
                     update?.JobOrchestratorUrl);
@@ -144,13 +133,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     tags.GetValueOrDefault<bool>(nameof(PublisherRegistration.IsDisabled), null),
                 NotSeenSince =
                     tags.GetValueOrDefault<DateTime>(nameof(PublisherRegistration.NotSeenSince), null),
-                Thumbprint =
-                    tags.GetValueOrDefault<string>(nameof(PublisherRegistration.Thumbprint), null),
 
                 // Properties
 
-                Certificate =
-                    properties.GetValueOrDefault<Dictionary<string, string>>(nameof(PublisherRegistration.Certificate), null),
                 LogLevel =
                     properties.GetValueOrDefault<TraceLogLevel>(nameof(PublisherRegistration.LogLevel), null),
                 JobOrchestratorUrl =
@@ -257,11 +242,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 JobCheckInterval = model.Configuration?.JobCheckInterval,
                 MaxWorkers = model.Configuration?.MaxWorkers,
                 HeartbeatInterval = model.Configuration?.HeartbeatInterval,
-                Certificate = model.Certificate?.EncodeAsDictionary(),
                 Capabilities = model.Configuration?.Capabilities?
                     .ToDictionary(k => k.Key, v => v.Value),
                 Connected = model.Connected ?? false,
-                Thumbprint = model.Certificate?.ToSha1Hash(),
                 SiteId = model.SiteId,
             };
         }
@@ -275,7 +258,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
             return new PublisherModel {
                 Id = PublisherModelEx.CreatePublisherId(registration.DeviceId, registration.ModuleId),
                 SiteId = registration.SiteId,
-                Certificate = registration.Certificate?.DecodeAsByteArray(),
                 LogLevel = registration.LogLevel,
                 Configuration = registration.ToConfigModel(),
                 Connected = registration.IsConnected() ? true : (bool?)null,

@@ -48,9 +48,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         public string SiteId { get; set; }
 
         /// <summary>
-        /// Application cert
+        /// Application certificate thumbprint
         /// </summary>
-        public byte[] Certificate { get; set; }
+        public string Certificate { get; set; }
 
         /// <summary>
         /// Application capabilities

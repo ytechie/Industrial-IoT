@@ -121,7 +121,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
             var fix = new Fixture();
             var cert = fix.CreateMany<byte>(1000).ToArray();
             var r1 = fix.Build<ApplicationRegistration>()
-                .With(x => x.Certificate, cert.EncodeAsDictionary())
                 .With(x => x.Thumbprint, cert.ToSha1Hash())
                 .With(x => x.Capabilities, fix.CreateMany<string>().ToHashSet()
                     .EncodeAsDictionary(true))

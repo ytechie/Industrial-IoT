@@ -56,16 +56,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
             // Settings
 
-            var certUpdate = update?.Certificate?.DecodeAsByteArray()?.SequenceEqualsSafe(
-                existing?.Certificate.DecodeAsByteArray());
-            if (!(certUpdate ?? true)) {
-                twin.Properties.Desired.Add(nameof(SupervisorRegistration.Certificate),
-                    update?.Certificate == null ?
-                    null : JToken.FromObject(update.Certificate));
-                twin.Tags.Add(nameof(SupervisorRegistration.Thumbprint),
-                    update?.Certificate?.DecodeAsByteArray()?.ToSha1Hash());
-            }
-
             if (update?.LogLevel != existing?.LogLevel) {
                 twin.Properties.Desired.Add(nameof(SupervisorRegistration.LogLevel),
                     update?.LogLevel == null ?
@@ -110,13 +100,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     tags.GetValueOrDefault<bool>(nameof(SupervisorRegistration.IsDisabled), null),
                 NotSeenSince =
                     tags.GetValueOrDefault<DateTime>(nameof(SupervisorRegistration.NotSeenSince), null),
-                Thumbprint =
-                    tags.GetValueOrDefault<string>(nameof(SupervisorRegistration.Thumbprint), null),
 
                 // Properties
 
-                Certificate =
-                    properties.GetValueOrDefault<Dictionary<string, string>>(nameof(SupervisorRegistration.Certificate), null),
                 LogLevel =
                     properties.GetValueOrDefault<TraceLogLevel>(nameof(SupervisorRegistration.LogLevel), null),
 
@@ -209,9 +195,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 DeviceId = deviceId,
                 ModuleId = moduleId,
                 LogLevel = model.LogLevel,
-                Certificate = model.Certificate?.EncodeAsDictionary(),
                 Connected = model.Connected ?? false,
-                Thumbprint = model.Certificate?.ToSha1Hash(),
                 SiteId = model.SiteId,
             };
         }
@@ -225,7 +209,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
             return new SupervisorModel {
                 Id = SupervisorModelEx.CreateSupervisorId(registration.DeviceId, registration.ModuleId),
                 SiteId = registration.SiteId,
-                Certificate = registration.Certificate?.DecodeAsByteArray(),
                 LogLevel = registration.LogLevel,
                 Connected = registration.IsConnected() ? true : (bool?)null,
                 OutOfSync = registration.IsConnected() && !registration._isInSync ? true : (bool?)null

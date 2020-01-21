@@ -61,11 +61,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Onboarding.Models {
         public Dictionary<string, string> LocalizedNames { get; set; }
 
         /// <summary>
-        /// Application public cert
+        /// Application certificate thumbprint
         /// </summary>
         [JsonProperty(PropertyName = "certificate",
             NullValueHandling = NullValueHandling.Ignore)]
-        public byte[] Certificate { get; set; }
+        public string Certificate { get; set; }
 
         /// <summary>
         /// The capabilities advertised by the server.

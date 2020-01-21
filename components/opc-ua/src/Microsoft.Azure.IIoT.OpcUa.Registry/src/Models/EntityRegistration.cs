@@ -52,16 +52,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         public virtual DateTime? NotSeenSince { get; set; }
 
         /// <summary>
-        /// Certificate hash
-        /// </summary>
-        public virtual string Thumbprint { get; set; }
-
-        /// <summary>
-        /// The certificate of the endpoint
-        /// </summary>
-        public virtual Dictionary<string, string> Certificate { get; set; }
-
-        /// <summary>
         /// Reported Type
         /// </summary>
         public virtual string Type { get; set; }
@@ -79,9 +69,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 DeviceType == registration.DeviceType &&
                 SiteId == registration.SiteId &&
                 (IsDisabled ?? false) == (registration.IsDisabled ?? false) &&
-                NotSeenSince == registration.NotSeenSince &&
-                Certificate.DecodeAsByteArray().SequenceEqualsSafe(
-                    registration.Certificate.DecodeAsByteArray());
+                NotSeenSince == registration.NotSeenSince;
         }
 
         /// <inheritdoc/>
@@ -105,8 +93,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 EqualityComparer<bool>.Default.GetHashCode(IsDisabled ?? false);
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<DateTime?>.Default.GetHashCode(NotSeenSince);
-            hashCode = (hashCode * -1521134295) +
-                EqualityComparer<string>.Default.GetHashCode(Thumbprint);
             return hashCode;
         }
     }

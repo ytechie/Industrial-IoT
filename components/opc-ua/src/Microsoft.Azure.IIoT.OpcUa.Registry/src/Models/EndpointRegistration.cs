@@ -98,6 +98,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         public EndpointConnectivityState State { get; set; }
 
         /// <summary>
+        /// Certificate Thumbprint
+        /// </summary>
+        public string Thumbprint { get; set; }
+
+        /// <summary>
         /// Device id is the endpoint id
         /// </summary>
         [JsonProperty(PropertyName = "id")]
@@ -145,6 +150,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 SecurityLevel == registration.SecurityLevel &&
                 SecurityPolicy == registration.SecurityPolicy &&
                 SecurityMode == registration.SecurityMode &&
+                Thumbprint == registration.Thumbprint &&
                 AuthenticationMethods.DecodeAsList().SetEqualsSafe(
                     AuthenticationMethods.DecodeAsList(), JToken.DeepEquals);
         }
@@ -169,6 +175,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 EqualityComparer<string>.Default.GetHashCode(SupervisorId);
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<string>.Default.GetHashCode(ApplicationId);
+            hashCode = (hashCode * -1521134295) +
+                EqualityComparer<string>.Default.GetHashCode(Thumbprint);
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<bool>.Default.GetHashCode(Activated ?? false);
             hashCode = (hashCode * -1521134295) +

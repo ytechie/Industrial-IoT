@@ -115,9 +115,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                     $"'{model.SiteOrGatewayId}' ";
             }
             if (model?.Certificate != null) {
-                // If cert provided, include it in search
-                query += $"AND tags.{nameof(EntityRegistration.Thumbprint)} = " +
-                    $"{model.Certificate.ToSha1Hash()} ";
+                // If cert thumbprint provided, include it in search
+                query += $"AND tags.{nameof(EndpointRegistration.Thumbprint)} = " +
+                    $"{model.Certificate} ";
             }
             if (model?.SecurityMode != null) {
                 // If SecurityMode provided, include it in search

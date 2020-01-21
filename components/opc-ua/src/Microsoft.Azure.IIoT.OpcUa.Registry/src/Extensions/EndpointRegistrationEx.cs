@@ -80,15 +80,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 twin.Tags.Add(nameof(EntityRegistration.SiteId), update?.SiteId);
             }
 
-            var certUpdate = update?.Certificate.DecodeAsByteArray().SequenceEqualsSafe(
-                existing?.Certificate.DecodeAsByteArray());
-            if (!(certUpdate ?? true)) {
-                twin.Tags.Add(nameof(EntityRegistration.Certificate), update?.Certificate == null ?
-                    null : JToken.FromObject(update.Certificate));
-                twin.Tags.Add(nameof(EntityRegistration.Thumbprint),
-                    update?.Certificate?.DecodeAsByteArray()?.ToSha1Hash());
-            }
-
             twin.Tags.Add(nameof(EntityRegistration.DeviceType), update?.DeviceType);
 
 
@@ -147,12 +138,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     update.SecurityPolicy);
             }
 
-            var certEqual = update?.Certificate.DecodeAsByteArray().SequenceEqualsSafe(
-                existing?.Certificate.DecodeAsByteArray());
-            if (update?.Certificate != null && !(certEqual ?? true)) {
-                twin.Properties.Desired.Add(nameof(EndpointRegistration.Certificate),
-                    update?.Certificate == null ?
-                    null : JToken.FromObject(update.Certificate));
+            if (update?.Thumbprint != existing?.Thumbprint) {
+                twin.Properties.Desired.Add(nameof(EndpointRegistration.Thumbprint), update?.Thumbprint);
             }
 
             // Recalculate identity
@@ -216,8 +203,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 NotSeenSince =
                     tags.GetValueOrDefault<DateTime>(nameof(EndpointRegistration.NotSeenSince), null),
 
-                Thumbprint =
-                    tags.GetValueOrDefault<string>(nameof(EndpointRegistration.Thumbprint), null),
                 SupervisorId =
                     tags.GetValueOrDefault<string>(nameof(EndpointRegistration.SupervisorId), null),
                 DiscovererId =
@@ -253,8 +238,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     properties.GetValueOrDefault<SecurityMode>(nameof(EndpointRegistration.SecurityMode), null),
                 SecurityPolicy =
                     properties.GetValueOrDefault<string>(nameof(EndpointRegistration.SecurityPolicy), null),
-                Certificate =
-                    properties.GetValueOrDefault<Dictionary<string, string>>(nameof(EndpointRegistration.Certificate), null),
+                Thumbprint =
+                    properties.GetValueOrDefault<string>(nameof(EndpointRegistration.Thumbprint), null)
             };
             return registration;
         }
@@ -325,7 +310,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                             null : registration.SecurityMode,
                         SecurityPolicy = string.IsNullOrEmpty(registration.SecurityPolicy) ?
                             null : registration.SecurityPolicy,
-                        Certificate = registration.Certificate.DecodeAsByteArray()
+                        Certificate = registration.Thumbprint
                     }
                 },
                 ActivationState = registration.ActivationState,
@@ -366,8 +351,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     endpoint.AlternativeUrls) &&
                 registration.SecurityMode == (endpoint.SecurityMode ?? SecurityMode.Best) &&
                 registration.SecurityPolicy == endpoint.SecurityPolicy &&
-                endpoint.Certificate.SequenceEqualsSafe(
-                    registration.Certificate.DecodeAsByteArray());
+                endpoint.Certificate == registration.Thumbprint;
         }
 
 
@@ -402,10 +386,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 SecurityMode = model.Registration?.Endpoint.SecurityMode ??
                     SecurityMode.Best,
                 SecurityPolicy = model.Registration?.Endpoint.SecurityPolicy,
-                Certificate = model.Registration?.Endpoint?
-                    .Certificate.EncodeAsDictionary(),
-                Thumbprint = model.Registration?.Endpoint?
-                    .Certificate?.ToSha1Hash(),
+                Thumbprint = model.Registration?.Endpoint.Certificate,
                 ActivationState = model.ActivationState
             };
         }
@@ -443,8 +424,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     other.AlternativeUrls.DecodeAsList()) &&
                 registration.SecurityPolicy == other.SecurityPolicy &&
                 registration.SecurityMode == other.SecurityMode &&
-                registration.Certificate.DecodeAsByteArray().SequenceEqualsSafe(
-                    other.Certificate.DecodeAsByteArray());
+                registration.Thumbprint == other.Thumbprint;
         }
 
         /// <summary>

@@ -66,12 +66,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public Dictionary<string, string> LocalizedNames { get; set; }
 
         /// <summary>
-        /// Application public cert
+        /// Application certificate thumbprint
         /// </summary>
         [JsonProperty(PropertyName = "certificate",
             NullValueHandling = NullValueHandling.Ignore)]
         [DefaultValue(null)]
-        public byte[] Certificate { get; set; }
+        public string Certificate { get; set; }
 
         /// <summary>
         /// The capabilities advertised by the server.
