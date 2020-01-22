@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
-    using Microsoft.Azure.IIoT.OpcUa.Core.Models;
     using Microsoft.Azure.IIoT.OpcUa.Protocol.Models;
     using System;
     using System.Collections.Generic;
@@ -26,14 +25,5 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol {
         /// <returns></returns>
         Task<IEnumerable<DiscoveredEndpointModel>> FindEndpointsAsync(
             Uri discoveryUrl, List<string> locales, CancellationToken ct = default);
-
-        /// <summary>
-        /// Read endpoint certificate chain
-        /// </summary>
-        /// <param name="endpoint"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        Task<byte[]> GetEndpointCertificateAsync(EndpointModel endpoint,
-            CancellationToken ct = default);
     }
 }

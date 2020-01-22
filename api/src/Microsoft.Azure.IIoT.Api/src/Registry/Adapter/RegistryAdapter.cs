@@ -52,6 +52,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         }
 
         /// <inheritdoc/>
+        public Task<byte[]> GetEndpointCertificateAsync(string id, CancellationToken ct) {
+            return _client.GetEndpointCertificateAsync(id, ct);
+        }
+
+        /// <inheritdoc/>
         public Task ActivateEndpointAsync(string id, RegistryOperationContextModel context,
             CancellationToken ct) {
             return _client.ActivateEndpointAsync(id, ct);

@@ -592,6 +592,19 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Clients {
         }
 
         /// <inheritdoc/>
+        public async Task<byte[]> GetEndpointCertificateAsync(string endpointId,
+            CancellationToken ct) {
+            if (string.IsNullOrEmpty(endpointId)) {
+                throw new ArgumentNullException(nameof(endpointId));
+            }
+            var uri = new UriBuilder($"{_serviceUri}/v2/endpoints/{endpointId}/certificate");
+            var request = _httpClient.NewRequest(uri.Uri, _resourceId);
+            var response = await _httpClient.GetAsync(request, ct).ConfigureAwait(false);
+            response.Validate();
+            return response.GetContent<byte[]>();
+        }
+
+        /// <inheritdoc/>
         public async Task ActivateEndpointAsync(string endpointId, CancellationToken ct) {
             if (string.IsNullOrEmpty(endpointId)) {
                 throw new ArgumentNullException(nameof(endpointId));

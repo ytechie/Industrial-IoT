@@ -41,6 +41,20 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Controllers {
         }
 
         /// <summary>
+        /// Get endpoint certificate chain
+        /// </summary>
+        /// <remarks>
+        /// Gets current certificate of the endpoint.
+        /// </remarks>
+        /// <param name="endpointId">endpoint identifier</param>
+        /// <returns>Endpoint registration</returns>
+        [HttpGet("{endpointId}/certificate")]
+        public async Task<byte[]> GetEndpointCertificateAsync(string endpointId) {
+            var result = await _endpoints.GetEndpointCertificateAsync(endpointId);
+            return result;
+        }
+
+        /// <summary>
         /// Activate endpoint
         /// </summary>
         /// <remarks>
@@ -70,9 +84,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Controllers {
         public async Task<EndpointInfoApiModel> GetEndpointAsync(string endpointId,
             [FromQuery] bool? onlyServerState) {
             var result = await _endpoints.GetEndpointAsync(endpointId, onlyServerState ?? false);
-
-            // TODO: Redact username/token in endpoint based on policy/permission
-
             return result.ToApiModel();
         }
 

@@ -43,6 +43,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Default {
         }
 
         /// <inheritdoc/>
+        public Task<byte[]> GetEndpointCertificateAsync(string endpointId,
+            CancellationToken ct) {
+            return Task.FromException<byte[]>(new ResourceNotFoundException());
+        }
+
+        /// <inheritdoc/>
         public Task<EndpointInfoListModel> ListEndpointsAsync(string continuation,
             bool onlyServerState, int? pageSize, CancellationToken ct) {
             return Task.FromResult(new EndpointInfoListModel());

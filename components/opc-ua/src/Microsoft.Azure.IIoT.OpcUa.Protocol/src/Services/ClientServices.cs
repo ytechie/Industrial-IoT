@@ -8,6 +8,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
     using Microsoft.Azure.IIoT.OpcUa.Protocol.Runtime;
     using Microsoft.Azure.IIoT.OpcUa.Registry.Models;
     using Microsoft.Azure.IIoT.OpcUa.Core.Models;
+    using Microsoft.Azure.IIoT.OpcUa.Registry;
     using Microsoft.Azure.IIoT.Exceptions;
     using Microsoft.Azure.IIoT.Utils;
     using Opc.Ua;
@@ -28,7 +29,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
     /// Opc ua stack based service client
     /// </summary>
     public class ClientServices : IClientHost, IEndpointServices, IEndpointDiscovery,
-        IDisposable {
+        ICertificateServices<EndpointModel>, IDisposable {
 
         /// <summary>
         /// Create client host services

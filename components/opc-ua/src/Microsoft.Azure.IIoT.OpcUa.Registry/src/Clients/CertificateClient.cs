@@ -14,9 +14,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Clients {
     using System.Threading;
 
     /// <summary>
-    /// Client to retrieve endpoint certificate from discoverer
+    /// Client to retrieve endpoint certificate through the supervisor
     /// </summary>
-    public sealed class CertificateClient : ICertificateClient {
+    public sealed class CertificateClient : ICertificateServices<EndpointRegistrationModel> {
 
         /// <summary>
         /// Create service
@@ -34,39 +34,24 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Clients {
             if (registration == null) {
                 throw new ArgumentNullException(nameof(registration));
             }
-            var result = await CallServiceOnSupervisorAsync<byte[]>(
-                "GetEndpointCertificate_V2", registration, ct);
-            return result;
-        }
-
-        /// <summary>
-        /// helper to invoke service
-        /// </summary>
-        /// <typeparam name="R"></typeparam>
-        /// <param name="service"></param>
-        /// <param name="registration"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        private async Task<R> CallServiceOnSupervisorAsync<R>(string service,
-            EndpointRegistrationModel registration, CancellationToken ct) {
-            if (registration == null) {
-                throw new ArgumentNullException(nameof(registration));
-            }
             if (registration.Endpoint == null) {
                 throw new ArgumentNullException(nameof(registration.Endpoint));
             }
             if (string.IsNullOrEmpty(registration.SupervisorId)) {
                 throw new ArgumentNullException(nameof(registration.SupervisorId));
             }
-            var sw = Stopwatch.StartNew();
+
             var deviceId = SupervisorModelEx.ParseDeviceId(registration.SupervisorId,
                 out var moduleId);
-            var result = await _client.CallMethodAsync(deviceId, moduleId, service,
-                JsonConvertEx.SerializeObject(registration), null, ct);
-            _logger.Debug("Calling supervisor service '{service}' on {deviceId}/{moduleId} " +
-                "took {elapsed} ms and returned {result}!", service, deviceId, moduleId,
+
+            var sw = Stopwatch.StartNew();
+            var result = await _client.CallMethodAsync(deviceId, moduleId,
+                 "GetEndpointCertificate_V2",
+                JsonConvertEx.SerializeObject(registration.Endpoint), null, ct);
+            _logger.Debug("Calling supervisor {deviceId}/{moduleId} to get certificate." +
+                "Took {elapsed} ms and returned {result}!", deviceId, moduleId,
                 sw.ElapsedMilliseconds, result);
-            return JsonConvertEx.DeserializeObject<R>(result);
+            return JsonConvertEx.DeserializeObject<byte[]>(result);
         }
 
         private readonly IMethodClient _client;

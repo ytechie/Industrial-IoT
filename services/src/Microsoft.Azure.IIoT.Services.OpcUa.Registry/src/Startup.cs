@@ -242,6 +242,8 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry {
             // Additional registry services
             builder.RegisterType<ActivationClient>()
                 .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<CertificateClient>()
+                .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<DiagnosticsClient>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OnboardingClient>()

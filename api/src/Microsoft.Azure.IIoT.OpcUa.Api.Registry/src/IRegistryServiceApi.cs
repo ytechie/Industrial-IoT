@@ -180,6 +180,15 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
             CancellationToken ct = default);
 
         /// <summary>
+        /// Get endpoint certificate
+        /// </summary>
+        /// <param name="endpointId"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<byte[]> GetEndpointCertificateAsync(
+            string endpointId, CancellationToken ct = default);
+
+        /// <summary>
         /// Set endpoint activation state to activated
         /// </summary>
         /// <param name="endpointId"></param>

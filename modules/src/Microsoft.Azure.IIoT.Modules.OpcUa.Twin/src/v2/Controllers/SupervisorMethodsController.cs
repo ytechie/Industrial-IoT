@@ -14,7 +14,6 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
     using Microsoft.Azure.IIoT.OpcUa.History;
     using System;
     using System.Threading.Tasks;
-    using Microsoft.Azure.IIoT.OpcUa.Protocol;
 
     /// <summary>
     /// Supervisor method controller
@@ -34,7 +33,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
         /// <param name="historian"></param>
         /// <param name="browse"></param>
         public SupervisorMethodsController(ISupervisorServices supervisor,
-            IActivationServices<string> activator, IEndpointDiscovery discovery,
+            IActivationServices<string> activator, ICertificateServices<EndpointModel> discovery,
             INodeServices<EndpointModel> nodes, IHistoricAccessServices<EndpointModel> historian,
             IBrowseServices<EndpointModel> browse) {
             _discovery = discovery ?? throw new ArgumentNullException(nameof(discovery));
@@ -325,7 +324,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
         }
 
         private readonly IActivationServices<string> _activator;
-        private readonly IEndpointDiscovery _discovery;
+        private readonly ICertificateServices<EndpointModel> _discovery;
         private readonly ISupervisorServices _supervisor;
         private readonly IBrowseServices<EndpointModel> _browse;
         private readonly IHistoricAccessServices<EndpointModel> _historian;

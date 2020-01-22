@@ -4,22 +4,22 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Registry {
-    using Microsoft.Azure.IIoT.OpcUa.Registry.Models;
     using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Certificate client
+    /// Get endpoint certificate
     /// </summary>
-    public interface ICertificateClient {
+    /// <typeparam name="T"></typeparam>
+    public interface ICertificateServices<T> {
 
         /// <summary>
-        /// Get endpoint certificate
+        /// Activate endpoint
         /// </summary>
-        /// <param name="registration"></param>
+        /// <param name="id"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<byte[]> GetEndpointCertificateAsync(
-            EndpointRegistrationModel registration, CancellationToken ct);
+        Task<byte[]> GetEndpointCertificateAsync(T id,
+            CancellationToken ct = default);
     }
 }
