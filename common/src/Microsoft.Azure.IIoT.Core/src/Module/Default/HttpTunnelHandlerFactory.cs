@@ -67,7 +67,8 @@ namespace Microsoft.Azure.IIoT.Module.Default {
         }
 
         /// <inheritdoc/>
-        public Task<byte[]> InvokeAsync(byte[] payload, string contentType) {
+        public Task<byte[]> InvokeAsync(byte[] payload, string contentType,
+            IMethodHandler context) {
             // Handle response from device method
             var result = Encoding.UTF8.GetString(payload);
             var response = JsonConvertEx.DeserializeObject<HttpTunnelResponseModel>(result);

@@ -47,7 +47,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
                                 result.Description.Server.ApplicationName.Text
                         },
                     NotSeenSince = null,
-                    Certificate = result.Description.ServerCertificate?.ToSha1Hash(),
                     Capabilities = new HashSet<string>(result.Capabilities)
                 },
                 Endpoints = new List<EndpointRegistrationModel> {

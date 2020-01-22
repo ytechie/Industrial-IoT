@@ -210,8 +210,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
             int? pageSize = null, CancellationToken ct = default);
 
         /// <summary>
-        /// Find endpoint based on specified critiria. Pass continuation
-        /// token if any is returned to ListTwins to retrieve
+        /// Find endpoint based on specified criteria. Pass continuation
+        /// token if any is returned to ListEndpointsAsync to retrieve
         /// the remaining items
         /// </summary>
         /// <param name="query"></param>

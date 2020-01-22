@@ -33,7 +33,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 ApplicationName = model.ApplicationName,
                 Locale = model.Locale,
                 LocalizedNames = model.LocalizedNames,
-                Certificate = model.Certificate,
                 ProductUri = model.ProductUri,
                 SiteId = model.SiteId,
                 HostAddresses = model.HostAddresses,
@@ -167,7 +166,6 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 LocalizedNames = model.LocalizedNames?
                     .ToDictionary(k => k.Key, v => v.Value),
                 ProductUri = model.ProductUri,
-                Certificate = model.Certificate,
                 Capabilities = model.Capabilities,
                 DiscoveryUrls = model.DiscoveryUrls,
                 GatewayServerUri = model.GatewayServerUri,

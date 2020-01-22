@@ -135,11 +135,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         public uint? RecordId { get; set; }
 
         /// <summary>
-        /// Certificate Thumbprint
-        /// </summary>
-        public string Thumbprint { get; set; }
-
-        /// <summary>
         /// Application registration id
         /// </summary>
         [JsonProperty(PropertyName = "id")]
@@ -162,7 +157,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 CreateTime == registration.CreateTime &&
                 GatewayServerUri == registration.GatewayServerUri &&
                 ProductUri == registration.ProductUri &&
-                Thumbprint == registration.Thumbprint &&
                 HostAddresses.DecodeAsList().SequenceEqualsSafe(
                     registration.HostAddresses.DecodeAsList()) &&
                 ApplicationName == registration.ApplicationName &&
@@ -199,8 +193,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 EqualityComparer<string>.Default.GetHashCode(GatewayServerUri);
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<string>.Default.GetHashCode(ApplicationName);
-            hashCode = (hashCode * -1521134295) +
-                EqualityComparer<string>.Default.GetHashCode(Thumbprint);
             return hashCode;
         }
     }

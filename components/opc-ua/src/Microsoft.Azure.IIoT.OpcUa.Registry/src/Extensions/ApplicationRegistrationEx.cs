@@ -75,10 +75,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 twin.Tags.Add(nameof(EntityRegistration.SiteId), update?.SiteId);
             }
 
-            if (update?.Thumbprint != existing?.Thumbprint) {
-                twin.Tags.Add(nameof(ApplicationRegistration.Thumbprint), update?.Thumbprint);
-            }
-
             twin.Tags.Add(nameof(EntityRegistration.DeviceType), update?.DeviceType);
 
             if (update?.ApplicationType != null &&
@@ -392,8 +388,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     tags.GetValueOrDefault<Dictionary<string, string>>(nameof(ApplicationRegistration.HostAddresses), null),
                 DiscoveryUrls =
                     tags.GetValueOrDefault<Dictionary<string, string>>(nameof(ApplicationRegistration.DiscoveryUrls), null),
-                Thumbprint =
-                    tags.GetValueOrDefault<string>(nameof(ApplicationRegistration.Thumbprint), null),
 
                 CreateTime =
                     tags.GetValueOrDefault<DateTime>(nameof(ApplicationRegistration.CreateTime), null),
@@ -440,7 +434,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     .ToDictionary(k => k.Key, v => v.Value),
                 DiscoveryUrls = registration.DiscoveryUrls?
                     .ToDictionary(k => k.Key, v => v.Value),
-                Thumbprint = registration.Thumbprint,
                 CreateTime = registration.CreateTime,
                 CreateAuthorityId = registration.CreateAuthorityId,
                 UpdateTime = registration.UpdateTime,
@@ -480,7 +473,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 DiscoveryProfileUri = model.DiscoveryProfileUri,
                 GatewayServerUri = model.GatewayServerUri,
                 Capabilities = model.Capabilities.EncodeAsDictionary(true),
-                Thumbprint = model.Certificate,
                 DiscoveryUrls = model.DiscoveryUrls?.ToList().EncodeAsDictionary(),
                 CreateAuthorityId = model.Created?.AuthorityId,
                 CreateTime = model.Created?.Time,
@@ -507,7 +499,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 ApplicationUri = string.IsNullOrEmpty(registration.ApplicationUri) ?
                     registration.ApplicationUriLC : registration.ApplicationUri,
                 ProductUri = registration.ProductUri,
-                Certificate = registration.Thumbprint,
                 SiteId = string.IsNullOrEmpty(registration.SiteId) ?
                     null : registration.SiteId,
                 DiscovererId = string.IsNullOrEmpty(registration.DiscovererId) ?
@@ -549,8 +540,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                     model.Capabilities?.Select(x =>
                         JTokenEx.SanitizePropertyName(x).ToUpperInvariant())) &&
                 registration.DiscoveryUrls.DecodeAsList().SequenceEqualsSafe(
-                    model.DiscoveryUrls) &&
-                registration.Thumbprint == model.Certificate;
+                    model.DiscoveryUrls);
         }
 
         /// <summary>

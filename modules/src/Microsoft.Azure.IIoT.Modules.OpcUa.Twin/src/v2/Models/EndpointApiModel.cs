@@ -81,7 +81,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Models {
         /// Certificate thumbprint to validate against or
         /// null to trust none.
         /// </summary>
-        [JsonProperty(PropertyName = "certificate",
+        [JsonProperty(PropertyName = "Certificate",
             NullValueHandling = NullValueHandling.Ignore)]
         public string Certificate { get; set; }
     }

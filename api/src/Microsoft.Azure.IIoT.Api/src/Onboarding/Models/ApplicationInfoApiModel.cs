@@ -61,13 +61,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Onboarding.Models {
         public Dictionary<string, string> LocalizedNames { get; set; }
 
         /// <summary>
-        /// Application certificate thumbprint
-        /// </summary>
-        [JsonProperty(PropertyName = "certificate",
-            NullValueHandling = NullValueHandling.Ignore)]
-        public string Certificate { get; set; }
-
-        /// <summary>
         /// The capabilities advertised by the server.
         /// </summary>
         /// <example>LDS</example>
