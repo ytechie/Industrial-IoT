@@ -20,9 +20,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Security.Cryptography.X509Certificates;
 
     /// <summary>
     /// Opc ua stack based service client
@@ -216,12 +216,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Services {
             return results;
         }
 
-        /// <summary>
-        /// Get certificate for the endpoint
-        /// </summary>
-        /// <param name="endpoint"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task<byte[]> GetEndpointCertificateAsync(
             EndpointModel endpoint, CancellationToken ct) {
             if (string.IsNullOrEmpty(endpoint?.Url)) {

@@ -14,6 +14,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
     using Microsoft.Azure.IIoT.OpcUa.History;
     using System;
     using System.Threading.Tasks;
+    using Microsoft.Azure.IIoT.OpcUa.Protocol;
 
     /// <summary>
     /// Supervisor method controller
@@ -28,13 +29,15 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
         /// </summary>
         /// <param name="supervisor"></param>
         /// <param name="activator"></param>
+        /// <param name="discovery"></param>
         /// <param name="nodes"></param>
         /// <param name="historian"></param>
         /// <param name="browse"></param>
         public SupervisorMethodsController(ISupervisorServices supervisor,
-            IActivationServices<string> activator,
+            IActivationServices<string> activator, IEndpointDiscovery discovery,
             INodeServices<EndpointModel> nodes, IHistoricAccessServices<EndpointModel> historian,
             IBrowseServices<EndpointModel> browse) {
+            _discovery = discovery ?? throw new ArgumentNullException(nameof(discovery));
             _supervisor = supervisor ?? throw new ArgumentNullException(nameof(supervisor));
             _browse = browse ?? throw new ArgumentNullException(nameof(browse));
             _historian = historian ?? throw new ArgumentNullException(nameof(historian));
@@ -274,6 +277,21 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
         }
 
         /// <summary>
+        /// Get endpoint certificate
+        /// </summary>
+        /// <param name="endpoint"></param>
+        /// <returns></returns>
+        public async Task<byte[]> GetEndpointCertificateAsync(
+            EndpointApiModel endpoint) {
+            if (endpoint == null) {
+                throw new ArgumentNullException(nameof(endpoint));
+            }
+            var result = await _discovery.GetEndpointCertificateAsync(
+                endpoint.ToServiceModel());
+            return result;
+        }
+
+        /// <summary>
         /// Activate endpoint
         /// </summary>
         /// <param name="id"></param>
@@ -307,6 +325,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
         }
 
         private readonly IActivationServices<string> _activator;
+        private readonly IEndpointDiscovery _discovery;
         private readonly ISupervisorServices _supervisor;
         private readonly IBrowseServices<EndpointModel> _browse;
         private readonly IHistoricAccessServices<EndpointModel> _historian;

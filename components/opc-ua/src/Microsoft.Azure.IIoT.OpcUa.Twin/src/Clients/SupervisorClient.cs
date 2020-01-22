@@ -179,7 +179,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Twin.Clients {
                 "HistoryUpdate_V2", registration, request);
         }
 
-
         /// <summary>
         /// helper to invoke service
         /// </summary>
