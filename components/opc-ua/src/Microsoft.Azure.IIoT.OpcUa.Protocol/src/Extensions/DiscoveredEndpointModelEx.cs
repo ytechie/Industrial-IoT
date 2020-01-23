@@ -64,7 +64,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Protocol.Models {
                                 result.AccessibleEndpointUrl,
                                 result.Description.EndpointUrl,
                             },
-                            Certificate = result.Description.ServerCertificate?.ToSha1Hash(),
+                            Certificate = result.Description.ServerCertificate?.ToThumbprint(),
                             SecurityMode = result.Description.SecurityMode.ToServiceType() ??
                                 SecurityMode.None,
                             SecurityPolicy = result.Description.SecurityPolicyUri

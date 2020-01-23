@@ -6,6 +6,8 @@
 namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
     using Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime;
     using Microsoft.Azure.IIoT.Exceptions;
+    using Microsoft.Azure.IIoT.Module.Default;
+    using Microsoft.Azure.IIoT.Hub.Client;
     using Microsoft.Azure.IIoT.Hub.Processor.EventHub;
     using Microsoft.Azure.IIoT.Hub.Processor.Services;
     using Microsoft.Azure.IIoT.Hub.Services;
@@ -19,8 +21,6 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel {
     using System.IO;
     using System.Runtime.Loader;
     using System.Threading.Tasks;
-    using Microsoft.Azure.IIoT.Module.Default;
-    using Microsoft.Azure.IIoT.Hub.Client;
 
     /// <summary>
     /// IoT Hub device telemetry event processor host.  Processes all

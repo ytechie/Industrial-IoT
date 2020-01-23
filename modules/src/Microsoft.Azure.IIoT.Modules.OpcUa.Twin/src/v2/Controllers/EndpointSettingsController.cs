@@ -94,7 +94,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor {
                     SecurityPolicy = _securityPolicy,
                     Url = _endpointUrl,
                     AlternativeUrls = _alternativeUrls?.DecodeAsList().ToHashSetSafe(),
-                    Certificate = _thumbprint ?? _certificate?.ToSha1Hash()
+                    Certificate = _thumbprint ?? _certificate?.ToThumbprint()
                 });
         }
 

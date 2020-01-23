@@ -30,10 +30,10 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.v2.Supervisor.Api {
                 () => _module.HubContainer.Resolve<INodeServices<EndpointApiModel>>(),
                 new EndpointApiModel {
                     Url = $"opc.tcp://{Dns.GetHostName()}:{_server.Port}/UA/SampleServer",
-                    Certificate = _server.Certificate?.RawData?.ToSha1Hash()
+                    Certificate = _server.Certificate?.RawData?.ToThumbprint()
                 }, (ep, n) => _server.Client.ReadValueAsync(new EndpointModel {
                     Url = ep.Url,
-                    Certificate = _server.Certificate?.RawData?.ToSha1Hash()
+                    Certificate = _server.Certificate?.RawData?.ToThumbprint()
                 }, n));
         }
 

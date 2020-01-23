@@ -48,6 +48,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public DateTime? NotAfterUtc { get; set; }
 
         /// <summary>
+        /// Self signed
+        /// </summary>
+        [JsonProperty(PropertyName = "selfSigned",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public bool? SelfSigned { get; set; }
+
+        /// <summary>
         /// Raw data
         /// </summary>
         [JsonProperty(PropertyName = "certificate")]

@@ -55,7 +55,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Vault.Models {
                 SerialNumber = certificate.GetSerialNumberAsString(),
                 NotBeforeUtc = certificate.NotBeforeUtc,
                 NotAfterUtc = certificate.NotAfterUtc,
-                Subject = certificate.Subject.Name
+                Subject = certificate.Subject.Name,
+                SelfSigned = certificate.IsSelfSigned() ? true : (bool?)null
             };
         }
 

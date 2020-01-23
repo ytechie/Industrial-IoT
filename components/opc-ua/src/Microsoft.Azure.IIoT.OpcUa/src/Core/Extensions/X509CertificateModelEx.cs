@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
+    using System.Collections.Generic;
     using System.Security.Cryptography.X509Certificates;
 
     /// <summary>
@@ -26,8 +27,19 @@ namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
                 NotBeforeUtc = cert.NotBefore,
                 SerialNumber = cert.GetSerialNumberString(),
                 Subject = cert.Subject,
-                Thumbprint = cert.Thumbprint
+                Thumbprint = cert.Thumbprint,
+                SelfSigned = IsSelfIssued(cert) ? true : (bool?)null
             };
+        }
+
+        /// <summary>
+        /// Test self issued - no validation is done on signature.
+        /// </summary>
+        /// <param name="cert"></param>
+        /// <returns></returns>
+        private static bool IsSelfIssued(this X509Certificate2 cert) {
+            return cert.IssuerName.RawData
+                .SequenceEqualsSafe(cert.SubjectName.RawData);
         }
     }
 }

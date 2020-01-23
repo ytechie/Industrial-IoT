@@ -37,6 +37,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
         public DateTime? NotAfterUtc { get; set; }
 
         /// <summary>
+        /// Self signed certificate
+        /// </summary>
+        public bool? SelfSigned { get; set; }
+
+        /// <summary>
         /// Raw data
         /// </summary>
         public byte[] Certificate { get; set; }

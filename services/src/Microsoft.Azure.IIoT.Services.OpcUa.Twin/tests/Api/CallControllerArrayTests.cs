@@ -37,7 +37,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Twin.Api {
 
         public EndpointModel Endpoint => new EndpointModel {
             Url = $"opc.tcp://{Dns.GetHostName()}:{_server.Port}/UA/SampleServer",
-            Certificate = _server.Certificate?.RawData?.ToSha1Hash()
+            Certificate = _server.Certificate?.RawData?.ToThumbprint()
         };
 
         private readonly WebAppFixture _factory;

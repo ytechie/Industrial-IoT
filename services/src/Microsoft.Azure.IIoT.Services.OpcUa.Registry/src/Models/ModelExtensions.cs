@@ -849,6 +849,7 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 NotBeforeUtc = model.NotBeforeUtc,
                 SerialNumber = model.SerialNumber,
                 Subject = model.Subject,
+                SelfSigned = model.SelfSigned,
                 Thumbprint = model.Thumbprint
             };
         }
@@ -863,6 +864,9 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 return null;
             }
             return new X509CertificateChainApiModel {
+                Status = model.Status?
+                    .Select(s => (IIoT.OpcUa.Api.Registry.Models.X509ChainStatus)s)
+                    .ToList(),
                 Chain = model.Chain?
                     .Select(c => c.ToApiModel())
                     .ToList()

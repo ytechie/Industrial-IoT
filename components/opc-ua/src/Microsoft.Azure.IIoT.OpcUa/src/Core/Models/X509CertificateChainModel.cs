@@ -15,5 +15,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Core.Models {
         /// Chain
         /// </summary>
         public List<X509CertificateModel> Chain { get; set; }
+
+        /// <summary>
+        /// Chain validation status if validated
+        /// </summary>
+        public List<X509ChainStatus> Status { get; set; }
     }
+
 }
