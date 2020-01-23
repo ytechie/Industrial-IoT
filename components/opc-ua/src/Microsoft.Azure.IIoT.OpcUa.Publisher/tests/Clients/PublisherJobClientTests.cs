@@ -370,6 +370,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Publisher.Clients {
                 throw new NotImplementedException();
             }
 
+            public Task<byte[]> GetEndpointCertificateAsync(string endpointId, CancellationToken ct = default) {
+                throw new NotImplementedException();
+            }
+
             public Task<EndpointInfoListModel> ListEndpointsAsync(string continuation, bool onlyServerState = false, int? pageSize = null, CancellationToken ct = default) {
                 throw new NotImplementedException();
             }
