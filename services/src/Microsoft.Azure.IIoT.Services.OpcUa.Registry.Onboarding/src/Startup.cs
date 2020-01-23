@@ -203,6 +203,8 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Onboarding {
                 .AsImplementedInterfaces().SingleInstance();
 #endif
             // which need additional registry services
+            builder.RegisterType<CertificateClient>()
+                .AsImplementedInterfaces();
             builder.RegisterType<ActivationClient>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<OnboardingClient>()
