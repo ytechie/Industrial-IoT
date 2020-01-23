@@ -833,5 +833,41 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Models {
                 LogLevel = (IIoT.OpcUa.Registry.Models.TraceLogLevel?)model.LogLevel
             };
         }
+
+        /// <summary>
+        /// Create api model
+        /// </summary>
+        /// <param name="model"></param>
+        public static X509CertificateApiModel ToApiModel(
+            this X509CertificateModel model) {
+            if (model == null) {
+                return null;
+            }
+            return new X509CertificateApiModel {
+                Certificate = model.Certificate,
+                NotAfterUtc = model.NotAfterUtc,
+                NotBeforeUtc = model.NotBeforeUtc,
+                SerialNumber = model.SerialNumber,
+                Subject = model.Subject,
+                Thumbprint = model.Thumbprint
+            };
+        }
+
+        /// <summary>
+        /// Create collection
+        /// </summary>
+        /// <param name="model"></param>
+        public static X509CertificateChainApiModel ToApiModel(
+            this X509CertificateChainModel model) {
+            if (model == null) {
+                return null;
+            }
+            return new X509CertificateChainApiModel {
+                Chain = model.Chain?
+                    .Select(c => c.ToApiModel())
+                    .ToList()
+            };
+        }
+
     }
 }

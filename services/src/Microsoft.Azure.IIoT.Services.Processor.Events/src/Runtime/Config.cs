@@ -11,6 +11,8 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
     using Microsoft.Azure.IIoT.Messaging.EventHub;
     using Microsoft.Azure.IIoT.Messaging.SignalR;
     using Microsoft.Azure.IIoT.Messaging.SignalR.Runtime;
+    using Microsoft.Azure.IIoT.Messaging.ServiceBus;
+    using Microsoft.Azure.IIoT.Messaging.ServiceBus.Runtime;
     using Microsoft.Azure.IIoT.OpcUa.Api.Onboarding;
     using Microsoft.Azure.IIoT.OpcUa.Api.Runtime;
     using Microsoft.Extensions.Configuration;
@@ -20,12 +22,20 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
     /// Telemetry processor service configuration
     /// </summary>
     public class Config : DiagnosticsConfig, IEventProcessorConfig, IEventHubConsumerConfig,
-        IOnboardingConfig, ISignalRServiceConfig {
+        IOnboardingConfig, ISignalRServiceConfig, IServiceBusConfig {
+
+        /// <inheritdoc/>
+        public string SignalRHubName => _sr.SignalRHubName;
+        /// <inheritdoc/>
+        public string SignalRConnString => _sr.SignalRConnString;
+        /// <inheritdoc/>
+        public string ServiceBusConnString => _sb.ServiceBusConnString;
 
         /// <inheritdoc/>
         public string OpcUaOnboardingServiceUrl => _ia.OpcUaOnboardingServiceUrl;
         /// <inheritdoc/>
         public string OpcUaOnboardingServiceResourceId => _ia.OpcUaOnboardingServiceResourceId;
+
         /// <inheritdoc/>
         public string EventHubConnString => _eh.EventHubConnString;
         /// <inheritdoc/>
@@ -34,6 +44,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
         public string ConsumerGroup => "events";
         /// <inheritdoc/>
         public bool UseWebsockets => _eh.UseWebsockets;
+
         /// <inheritdoc/>
         public int ReceiveBatchSize => _ep.ReceiveBatchSize;
         /// <inheritdoc/>
@@ -42,10 +53,6 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
         public string BlobStorageConnString => _ep.BlobStorageConnString;
         /// <inheritdoc/>
         public string LeaseContainerName => _ep.LeaseContainerName;
-        /// <inheritdoc/>
-        public string SignalRHubName => _sr.SignalRHubName;
-        /// <inheritdoc/>
-        public string SignalRConnString => _sr.SignalRConnString;
 
         /// <summary>
         /// Configuration constructor
@@ -56,11 +63,13 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
             _eh = new IoTHubEventConfig(configuration);
             _ia = new InternalApiConfig(configuration);
             _sr = new SignalRServiceConfig(configuration);
+            _sb = new ServiceBusConfig(configuration);
         }
 
         private readonly EventProcessorConfig _ep;
         private readonly IoTHubEventConfig _eh;
         private readonly InternalApiConfig _ia;
         private readonly SignalRServiceConfig _sr;
+        private readonly ServiceBusConfig _sb;
     }
 }

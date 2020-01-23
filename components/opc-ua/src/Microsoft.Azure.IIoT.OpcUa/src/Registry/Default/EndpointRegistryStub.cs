@@ -4,8 +4,9 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Registry.Default {
-    using Microsoft.Azure.IIoT.Exceptions;
     using Microsoft.Azure.IIoT.OpcUa.Registry.Models;
+    using Microsoft.Azure.IIoT.OpcUa.Core.Models;
+    using Microsoft.Azure.IIoT.Exceptions;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -43,9 +44,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Default {
         }
 
         /// <inheritdoc/>
-        public Task<byte[]> GetEndpointCertificateAsync(string endpointId,
-            CancellationToken ct) {
-            return Task.FromException<byte[]>(new ResourceNotFoundException());
+        public Task<X509CertificateChainModel> GetEndpointCertificateAsync(
+            string endpointId, CancellationToken ct) {
+            return Task.FromException<X509CertificateChainModel>(new ResourceNotFoundException());
         }
 
         /// <inheritdoc/>

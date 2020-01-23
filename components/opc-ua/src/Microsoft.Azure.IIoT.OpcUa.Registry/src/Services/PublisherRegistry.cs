@@ -84,7 +84,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
             return registration.ToServiceModel();
         }
 
-
         /// <inheritdoc/>
         public async Task UpdatePublisherAsync(string publisherId,
             PublisherUpdateModel request, CancellationToken ct) {

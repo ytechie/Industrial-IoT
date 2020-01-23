@@ -185,7 +185,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         /// <param name="endpointId"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<byte[]> GetEndpointCertificateAsync(
+        Task<X509CertificateChainApiModel> GetEndpointCertificateAsync(
             string endpointId, CancellationToken ct = default);
 
         /// <summary>

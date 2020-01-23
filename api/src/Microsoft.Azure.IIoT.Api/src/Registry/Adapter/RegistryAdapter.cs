@@ -10,6 +10,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
     using System;
     using System.Threading.Tasks;
     using System.Threading;
+    using Microsoft.Azure.IIoT.OpcUa.Core.Models;
 
     /// <summary>
     /// Registry services adapter to run dependent services outside of cloud.
@@ -52,8 +53,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         }
 
         /// <inheritdoc/>
-        public Task<byte[]> GetEndpointCertificateAsync(string id, CancellationToken ct) {
-            return _client.GetEndpointCertificateAsync(id, ct);
+        public async Task<X509CertificateChainModel> GetEndpointCertificateAsync(
+            string id, CancellationToken ct) {
+            var result = await _client.GetEndpointCertificateAsync(id, ct);
+            return result.Map<X509CertificateChainModel>();
         }
 
         /// <inheritdoc/>

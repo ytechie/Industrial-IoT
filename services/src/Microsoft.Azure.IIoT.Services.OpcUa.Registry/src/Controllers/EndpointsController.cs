@@ -49,9 +49,10 @@ namespace Microsoft.Azure.IIoT.Services.OpcUa.Registry.Controllers {
         /// <param name="endpointId">endpoint identifier</param>
         /// <returns>Endpoint registration</returns>
         [HttpGet("{endpointId}/certificate")]
-        public async Task<byte[]> GetEndpointCertificateAsync(string endpointId) {
+        public async Task<X509CertificateChainApiModel> GetEndpointCertificateAsync(
+            string endpointId) {
             var result = await _endpoints.GetEndpointCertificateAsync(endpointId);
-            return result;
+            return result.ToApiModel();
         }
 
         /// <summary>

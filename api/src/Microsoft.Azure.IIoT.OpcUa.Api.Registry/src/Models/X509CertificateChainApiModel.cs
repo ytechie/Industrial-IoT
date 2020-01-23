@@ -3,23 +3,20 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.Azure.IIoT.OpcUa.Vault.Models {
-    using Microsoft.Azure.IIoT.OpcUa.Core.Models;
+namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
+    using Newtonsoft.Json;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Certificate chain list
+    /// Certificate chain
     /// </summary>
-    public sealed class X509CertificateChainListModel {
+    public sealed class X509CertificateChainApiModel {
 
         /// <summary>
-        /// Certificate collection
+        /// Chain
         /// </summary>
-        public List<X509CertificateChainModel> Chains { get; set; }
-
-        /// <summary>
-        /// Next link
-        /// </summary>
-        public string NextPageLink { get; set; }
+        [JsonProperty(PropertyName = "chain",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public List<X509CertificateApiModel> Chain { get; set; }
     }
 }

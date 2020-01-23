@@ -253,6 +253,9 @@ namespace Microsoft.Azure.IIoT.Api.Cli {
                                 case "query":
                                     await QueryEndpointsAsync(options);
                                     break;
+                                case "validate":
+                                    await GetEndpointCertificateAsync(options);
+                                    break;
                                 case "activate":
                                     await ActivateEndpointsAsync(options);
                                     break;
@@ -2245,6 +2248,14 @@ namespace Microsoft.Azure.IIoT.Api.Cli {
         }
 
         /// <summary>
+        /// Get endpoint certificate
+        /// </summary>
+        private async Task GetEndpointCertificateAsync(CliOptions options) {
+            var result = await _registry.GetEndpointCertificateAsync(GetEndpointId(options));
+            PrintResult(options, result);
+        }
+
+        /// <summary>
         /// Monitor endpoints
         /// </summary>
         private async Task MonitorEndpointsAsync() {
@@ -2955,16 +2966,21 @@ Commands and Options
         -A, --all       Return all endpoints (unpaged)
         -F, --format    Json format for result
 
-     activate    Activate endpoints
-        with ...
-        -i, --id        Id of endpoint or ...
-        -m, --mode      Security mode (default:SignAndEncrypt)
-
      get         Get endpoint
         with ...
         -i, --id        Id of endpoint to retrieve (mandatory)
         -S, --server    Return only server state (default:false)
         -F, --format    Json format for result
+
+     validate    Get endpoint certificate chain and validate
+        with ...
+        -i, --id        Id of endpoint to retrieve (mandatory)
+        -F, --format    Json format for result
+
+     activate    Activate endpoints
+        with ...
+        -i, --id        Id of endpoint or ...
+        -m, --mode      Security mode (default:SignAndEncrypt)
 
      deactivate  Deactivate endpoints
         with ...

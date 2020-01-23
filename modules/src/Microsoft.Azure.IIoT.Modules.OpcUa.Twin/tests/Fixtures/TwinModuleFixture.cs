@@ -297,6 +297,8 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.Tests {
             // Supervisor clients
             builder.RegisterType<ActivationClient>()
                 .AsImplementedInterfaces();
+            builder.RegisterType<CertificateClient>()
+                .AsImplementedInterfaces();
             builder.RegisterType<DiagnosticsClient>()
                 .AsImplementedInterfaces();
             builder.RegisterType<DiscovererClient>()

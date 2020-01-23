@@ -8,6 +8,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
     using Microsoft.Azure.IIoT.Hub.Processor;
     using Microsoft.Azure.IIoT.Hub.Processor.Runtime;
     using Microsoft.Azure.IIoT.Hub.Client.Runtime;
+    using Microsoft.Azure.IIoT.Hub.Client;
     using Microsoft.Azure.IIoT.Messaging.EventHub;
     using Microsoft.Extensions.Configuration;
     using System;
@@ -15,8 +16,8 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
     /// <summary>
     /// Telemetry processor service configuration
     /// </summary>
-    public class Config : DiagnosticsConfig, IEventProcessorConfig, 
-        IEventHubConsumerConfig {
+    public class Config : DiagnosticsConfig, IEventProcessorConfig,
+        IEventHubConsumerConfig, IIoTHubConfig {
 
         /// <inheritdoc/>
         public string EventHubConnString => _eh.EventHubConnString;
@@ -36,6 +37,11 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
         /// <inheritdoc/>
         public string LeaseContainerName => _ep.LeaseContainerName;
 
+        /// <inheritdoc/>
+        public string IoTHubConnString => _hub.IoTHubConnString;
+        /// <inheritdoc/>
+        public string IoTHubResourceId => _hub.IoTHubResourceId;
+
         /// <summary>
         /// Configuration constructor
         /// </summary>
@@ -43,9 +49,11 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Tunnel.Runtime {
         public Config(IConfiguration configuration) : base(configuration) {
             _ep = new EventProcessorConfig(configuration);
             _eh = new IoTHubEventConfig(configuration);
+            _hub = new IoTHubConfig(configuration);
         }
 
         private readonly EventProcessorConfig _ep;
         private readonly IoTHubEventConfig _eh;
+        private readonly IoTHubConfig _hub;
     }
 }

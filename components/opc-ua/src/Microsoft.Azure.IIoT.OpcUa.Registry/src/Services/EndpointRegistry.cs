@@ -16,6 +16,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
     using System.Linq;
     using System.Threading.Tasks;
     using System.Threading;
+    using System.Security.Cryptography.X509Certificates;
 
     /// <summary>
     /// Endpoint registry services using the IoT Hub twin services for endpoint
@@ -172,8 +173,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
         }
 
         /// <inheritdoc/>
-        public async Task<byte[]> GetEndpointCertificateAsync(string endpointId,
-            CancellationToken ct) {
+        public async Task<X509CertificateChainModel> GetEndpointCertificateAsync(
+            string endpointId, CancellationToken ct) {
             if (string.IsNullOrEmpty(endpointId)) {
                 throw new ArgumentException(nameof(endpointId));
             }
@@ -193,8 +194,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
             }
 
             var endpoint = registration.ToServiceModel();
-            return await _certificates.GetEndpointCertificateAsync(
+            var rawCertificates = await _certificates.GetEndpointCertificateAsync(
                 endpoint.Registration, ct);
+            return rawCertificates.ToCertificateChain();
         }
 
         /// <inheritdoc/>
