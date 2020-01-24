@@ -65,13 +65,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Security.Services {
 
         /// <inheritdoc/>
         public Task OnEndpointUpdatedAsync(RegistryOperationContextModel context,
-            EndpointInfoModel endpoint) {
-            return CheckEndpointInfoAsync(endpoint);
+            EndpointInfoModel endpoint, bool isPatch) {
+            return isPatch ? Task.CompletedTask : CheckEndpointInfoAsync(endpoint);
         }
 
         /// <inheritdoc/>
         public Task OnEndpointDeletedAsync(RegistryOperationContextModel context,
-            EndpointInfoModel endpoint) {
+            string endpointId, EndpointInfoModel endpoint) {
             return Task.CompletedTask;
         }
 
@@ -89,8 +89,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Security.Services {
 
         /// <inheritdoc/>
         public Task OnApplicationUpdatedAsync(RegistryOperationContextModel context,
-            ApplicationInfoModel application) {
-            return CheckApplicationInfoAsync(application);
+            ApplicationInfoModel application, bool isPatch) {
+            return isPatch ? Task.CompletedTask : CheckApplicationInfoAsync(application);
         }
 
         /// <inheritdoc/>
@@ -107,7 +107,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Security.Services {
 
         /// <inheritdoc/>
         public Task OnApplicationDeletedAsync(RegistryOperationContextModel context,
-            ApplicationInfoModel application) {
+            string applicationId, ApplicationInfoModel application) {
             return Task.CompletedTask;
         }
 

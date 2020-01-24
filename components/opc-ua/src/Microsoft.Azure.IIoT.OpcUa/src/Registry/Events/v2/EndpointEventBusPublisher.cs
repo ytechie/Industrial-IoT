@@ -37,8 +37,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
 
         /// <inheritdoc/>
         public Task OnEndpointDeletedAsync(
-            RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Deleted, context, endpoint));
+            RegistryOperationContextModel context, string endpointId, EndpointInfoModel endpoint) {
+            return endpoint == null ? Task.CompletedTask :
+                _bus.PublishAsync(Wrap(EndpointEventType.Deleted, context, endpoint));
         }
 
         /// <inheritdoc/>
@@ -61,8 +62,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
 
         /// <inheritdoc/>
         public Task OnEndpointUpdatedAsync(
-            RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Updated, context, endpoint));
+            RegistryOperationContextModel context, EndpointInfoModel endpoint, bool isPatch) {
+            return _bus.PublishAsync(Wrap(EndpointEventType.Updated, context, endpoint, isPatch));
         }
 
         /// <summary>
@@ -71,13 +72,16 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         /// <param name="type"></param>
         /// <param name="context"></param>
         /// <param name="endpoint"></param>
+        /// <param name="isPatch"></param>
         /// <returns></returns>
         private static EndpointEventModel Wrap(EndpointEventType type,
-            RegistryOperationContextModel context, EndpointInfoModel endpoint) {
+            RegistryOperationContextModel context, EndpointInfoModel endpoint,
+            bool isPatch = false) {
             return new EndpointEventModel {
                 EventType = type,
                 Context = context,
-                Endpoint = endpoint
+                Endpoint = endpoint,
+                IsPatch = isPatch == true ? true : (bool?)null
             };
         }
 

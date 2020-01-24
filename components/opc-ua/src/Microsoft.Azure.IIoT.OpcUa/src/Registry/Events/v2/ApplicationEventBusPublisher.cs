@@ -24,9 +24,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         }
 
         /// <inheritdoc/>
-        public Task OnApplicationDeletedAsync(
-            RegistryOperationContextModel context, ApplicationInfoModel application) {
-            return _bus.PublishAsync(Wrap(ApplicationEventType.Deleted, context, application));
+        public Task OnApplicationDeletedAsync(RegistryOperationContextModel context,
+            string applicationId, ApplicationInfoModel application) {
+            return application == null ? Task.CompletedTask :
+                _bus.PublishAsync(Wrap(ApplicationEventType.Deleted, context, application));
         }
 
         /// <inheritdoc/>
@@ -48,9 +49,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         }
 
         /// <inheritdoc/>
-        public Task OnApplicationUpdatedAsync(
-            RegistryOperationContextModel context, ApplicationInfoModel application) {
-            return _bus.PublishAsync(Wrap(ApplicationEventType.Updated, context, application));
+        public Task OnApplicationUpdatedAsync(RegistryOperationContextModel context,
+            ApplicationInfoModel application, bool isPatch) {
+            return _bus.PublishAsync(Wrap(ApplicationEventType.Updated, context,
+                application, isPatch));
         }
 
         /// <summary>
@@ -59,13 +61,16 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         /// <param name="type"></param>
         /// <param name="context"></param>
         /// <param name="application"></param>
+        /// <param name="isPatch"></param>
         /// <returns></returns>
         private static ApplicationEventModel Wrap(ApplicationEventType type,
-            RegistryOperationContextModel context, ApplicationInfoModel application) {
+            RegistryOperationContextModel context, ApplicationInfoModel application,
+            bool isPatch = false) {
             return new ApplicationEventModel {
                 EventType = type,
                 Context = context,
-                Application = application
+                Application = application,
+                IsPatch = isPatch == true ? true : (bool?)null
             };
         }
 

@@ -16,7 +16,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
     using System.Linq;
     using System.Threading.Tasks;
     using System.Threading;
-    using System.Security.Cryptography.X509Certificates;
 
     /// <summary>
     /// Endpoint registry services using the IoT Hub twin services for endpoint
@@ -274,7 +273,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
 
         /// <inheritdoc/>
         public Task OnApplicationUpdatedAsync(RegistryOperationContextModel context,
-            ApplicationInfoModel application) {
+            ApplicationInfoModel application, bool isPatch) {
             return Task.CompletedTask;
         }
 
@@ -350,10 +349,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
 
         /// <inheritdoc/>
         public async Task OnApplicationDeletedAsync(RegistryOperationContextModel context,
-            ApplicationInfoModel application) {
+            string applicationId, ApplicationInfoModel application) {
             // Get all endpoint registrations and for each one, call delete, if failure,
             // stop half way and throw and do not complete.
-            var endpoints = await GetEndpointsAsync(application.ApplicationId, true);
+            var endpoints = await GetEndpointsAsync(applicationId, true);
             foreach (var registration in endpoints) {
                 var endpoint = registration.ToServiceModel();
                 try {
@@ -365,7 +364,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                         registration.Id);
                 }
                 await _iothub.DeleteAsync(registration.DeviceId);
-                await _broker.NotifyAllAsync(l => l.OnEndpointDeletedAsync(context, endpoint));
+                await _broker.NotifyAllAsync(l => l.OnEndpointDeletedAsync(context,
+                    endpoint.Registration.Id, endpoint));
             }
         }
 
@@ -435,7 +435,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                             // Then hard delete...
                             await _iothub.DeleteAsync(item.DeviceId);
                             await _broker.NotifyAllAsync(l => l.OnEndpointDeletedAsync(context,
-                                item.ToServiceModel()));
+                                item.DeviceId, item.ToServiceModel()));
                         }
                         else if (!(item.IsDisabled ?? false)) {
                             var endpoint = item.ToServiceModel();

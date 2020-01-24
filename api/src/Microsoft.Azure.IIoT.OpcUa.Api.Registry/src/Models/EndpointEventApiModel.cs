@@ -23,5 +23,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         [JsonProperty(PropertyName = "endpoint",
             NullValueHandling = NullValueHandling.Ignore)]
         public EndpointInfoApiModel Endpoint { get; set; }
+
+        /// <summary>
+        /// The information is provided as a patch
+        /// </summary>
+        [JsonProperty(PropertyName = "isPatch",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsPatch { get; set; }
     }
 }

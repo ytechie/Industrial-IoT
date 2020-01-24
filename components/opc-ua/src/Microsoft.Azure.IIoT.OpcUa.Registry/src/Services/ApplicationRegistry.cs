@@ -112,7 +112,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                 return;
             }
 
-            await _broker.NotifyAllAsync(l => l.OnApplicationDeletedAsync(context, app));
+            await _broker.NotifyAllAsync(l => l.OnApplicationDeletedAsync(context, applicationId, app));
         }
 
         /// <inheritdoc/>
@@ -184,7 +184,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                             continue;
                         }
                         await _broker.NotifyAllAsync(
-                            l => l.OnApplicationDeletedAsync(context, app));
+                            l => l.OnApplicationDeletedAsync(context, app.ApplicationId, app));
                     }
                     catch (Exception ex) {
                         _logger.Error(ex, "Exception purging application {id} - continue",
