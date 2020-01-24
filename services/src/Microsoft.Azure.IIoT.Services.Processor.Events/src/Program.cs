@@ -149,7 +149,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
             // 3.) Handler for twin change events, publish to ...
             builder.RegisterType<TwinChangeEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
-            // ... registered event bus 
+            // ... registered event bus
             builder.RegisterType<EventBusHost>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<ServiceBusClientFactory>()

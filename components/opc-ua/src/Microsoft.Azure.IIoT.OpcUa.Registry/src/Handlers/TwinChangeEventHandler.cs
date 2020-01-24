@@ -29,9 +29,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Handlers {
 
         /// <inheritdoc/>
         public async Task HandleAsync(string deviceId, string moduleId,
-            byte[] payload, IDictionary<string, string> properties, 
+            byte[] payload, IDictionary<string, string> properties,
             Func<Task> checkpoint) {
-            
+
             if (!properties.TryGetValue("opType", out var opType) ||
                 !properties.TryGetValue("operationTimestamp", out var ts)) {
                 return;
