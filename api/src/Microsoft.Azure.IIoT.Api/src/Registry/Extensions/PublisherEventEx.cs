@@ -4,27 +4,26 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
+    using Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models;
     using System;
 
-    public static partial class ApplicationEventEx {
-        /// <summary>
-        /// Publisher event extensions
-        /// </summary>
-        public static class PublisherEventEx {
+    /// <summary>
+    /// Publisher event extensions
+    /// </summary>
+    public static class PublisherEventEx {
 
-            /// <summary>
-            /// Convert to api model
-            /// </summary>
-            /// <param name="model"></param>
-            /// <returns></returns>
-            public static PublisherEventApiModel ToApiModel(
-                this PublisherEventModel model) {
-                return new PublisherEventApiModel {
-                    EventType = (PublisherEventType)model.EventType,
-                    IsPatch = model.IsPatch,
-                    Publisher = model.Supervisor.Map<PublisherApiModel>()
-                };
-            }
+        /// <summary>
+        /// Convert to api model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static PublisherEventApiModel ToApiModel(
+            this PublisherEventModel model) {
+            return new PublisherEventApiModel {
+                EventType = (PublisherEventType)model.EventType,
+                IsPatch = model.IsPatch,
+                Publisher = model.Publisher.Map<PublisherApiModel>()
+            };
         }
     }
 }
