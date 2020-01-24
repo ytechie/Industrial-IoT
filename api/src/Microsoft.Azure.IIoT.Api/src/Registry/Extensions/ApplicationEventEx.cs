@@ -10,7 +10,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
     /// <summary>
     /// Application event extensions
     /// </summary>
-    public static class ApplicationEventEx {
+    public static partial class ApplicationEventEx {
 
         /// <summary>
         /// Convert to api model

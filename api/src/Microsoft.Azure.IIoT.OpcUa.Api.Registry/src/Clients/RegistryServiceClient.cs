@@ -801,6 +801,30 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Clients {
             return response.GetContent<GatewayInfoApiModel>();
         }
 
+        /// <inheritdoc/>
+        public async Task SubscribeGatewayEventsAsync(string userId, CancellationToken ct) {
+            if (string.IsNullOrEmpty(userId)) {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            var request = _httpClient.NewRequest(
+                $"{_serviceUri}/v2/gateways/events", _resourceId);
+            request.SetContent<string>(userId);
+            var response = await _httpClient.PutAsync(request, ct).ConfigureAwait(false);
+            response.Validate();
+        }
+
+        /// <inheritdoc/>
+        public async Task UnsubscribeGatewayEventsAsync(string userId,
+            CancellationToken ct) {
+            if (string.IsNullOrEmpty(userId)) {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            var request = _httpClient.NewRequest(
+                $"{_serviceUri}/v2/gateways/events/{userId}", _resourceId);
+            var response = await _httpClient.DeleteAsync(request, ct).ConfigureAwait(false);
+            response.Validate();
+        }
+
         private readonly IHttpClient _httpClient;
         private readonly string _serviceUri;
         private readonly string _resourceId;

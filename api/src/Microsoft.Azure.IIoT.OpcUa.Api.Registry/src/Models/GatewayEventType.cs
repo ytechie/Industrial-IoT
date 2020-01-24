@@ -8,10 +8,10 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
     using Newtonsoft.Json.Converters;
 
     /// <summary>
-    /// Supervisor event type
+    /// Gateway event type
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum SupervisorEventType {
+    public enum GatewayEventType {
 
         /// <summary>
         /// New

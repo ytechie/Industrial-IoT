@@ -7,22 +7,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Supervisor event
+    /// Gateway event
     /// </summary>
-    public class SupervisorEventApiModel {
+    public class GatewayEventApiModel {
 
         /// <summary>
         /// Event type
         /// </summary>
         [JsonProperty(PropertyName = "eventType")]
-        public SupervisorEventType EventType { get; set; }
+        public GatewayEventType EventType { get; set; }
 
         /// <summary>
-        /// Application
+        /// Discoverer
         /// </summary>
-        [JsonProperty(PropertyName = "supervisor",
+        [JsonProperty(PropertyName = "gateway",
             NullValueHandling = NullValueHandling.Ignore)]
-        public SupervisorApiModel Supervisor { get; set; }
+        public GatewayApiModel Gateway { get; set; }
 
         /// <summary>
         /// The information is provided as a patch

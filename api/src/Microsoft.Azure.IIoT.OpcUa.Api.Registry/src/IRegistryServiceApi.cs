@@ -561,5 +561,23 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry {
         Task<GatewayListApiModel> QueryGatewaysAsync(
             GatewayQueryApiModel query, int? pageSize = null,
             CancellationToken ct = default);
+
+        /// <summary>
+        /// Subscribe client to gateway events
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task SubscribeGatewayEventsAsync(string userId,
+            CancellationToken ct = default);
+
+        /// <summary>
+        /// Unsubscribe client from gateway events
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task UnsubscribeGatewayEventsAsync(string userId,
+            CancellationToken ct = default);
     }
 }

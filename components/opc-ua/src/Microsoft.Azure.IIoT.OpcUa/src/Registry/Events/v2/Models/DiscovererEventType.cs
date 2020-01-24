@@ -3,15 +3,12 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
+namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
 
     /// <summary>
-    /// Supervisor event type
+    /// Discoverer event type
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum SupervisorEventType {
+    public enum DiscovererEventType {
 
         /// <summary>
         /// New

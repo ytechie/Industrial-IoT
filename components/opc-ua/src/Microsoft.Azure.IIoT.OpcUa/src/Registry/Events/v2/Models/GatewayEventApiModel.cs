@@ -3,29 +3,27 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
+namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
+    using Microsoft.Azure.IIoT.OpcUa.Registry.Models;
 
     /// <summary>
-    /// Supervisor event type
+    /// Gateway event
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum SupervisorEventType {
+    public class GatewayEventApiModel {
 
         /// <summary>
-        /// New
+        /// Event type
         /// </summary>
-        New,
+        public GatewayEventType EventType { get; set; }
 
         /// <summary>
-        /// Updated
+        /// Discoverer
         /// </summary>
-        Updated,
+        public GatewayModel Gateway { get; set; }
 
         /// <summary>
-        /// Deleted
+        /// The information is provided as a patch
         /// </summary>
-        Deleted,
+        public bool? IsPatch { get; set; }
     }
 }

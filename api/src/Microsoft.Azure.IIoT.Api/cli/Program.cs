@@ -554,6 +554,9 @@ namespace Microsoft.Azure.IIoT.Api.Cli {
                                 case "update":
                                     await UpdateGatewayAsync(options);
                                     break;
+                                case "monitor":
+                                    await MonitorGatewaysAsync();
+                                    break;
                                 case "list":
                                     await ListGatewaysAsync(options);
                                     break;
@@ -1135,6 +1138,21 @@ namespace Microsoft.Azure.IIoT.Api.Cli {
                 new GatewayUpdateApiModel {
                     SiteId = options.GetValueOrDefault<string>("-s", "--siteId", null),
                 });
+        }
+
+        /// <summary>
+        /// Monitor gateways
+        /// </summary>
+        private async Task MonitorGatewaysAsync() {
+            var events = _scope.Resolve<IRegistryServiceEvents>();
+            Console.WriteLine("Press any key to stop.");
+            var complete = await events.SubscribeGatewayEventsAsync(null, PrintEvent);
+            try {
+                Console.ReadKey();
+            }
+            finally {
+                await complete.DisposeAsync();
+            }
         }
 
         private string _groupId;
@@ -2634,6 +2652,14 @@ namespace Microsoft.Azure.IIoT.Api.Cli {
         /// <summary>
         /// Print event
         /// </summary>
+        private static Task PrintEvent(GatewayEventApiModel ev) {
+            Console.WriteLine(JsonConvertEx.SerializeObjectPretty(ev));
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Print event
+        /// </summary>
         private static Task PrintEvent(DiscovererEventApiModel ev) {
             Console.WriteLine(JsonConvertEx.SerializeObjectPretty(ev));
             return Task.CompletedTask;
@@ -3096,6 +3122,8 @@ Commands and Options
         -i, --id        Gateway id to select.
         -c, --clear     Clear current selection
         -s, --show      Show current selection
+
+     monitor     Monitor changes to gateways.
 
      update      Update gateway
         with ...
