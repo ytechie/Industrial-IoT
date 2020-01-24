@@ -146,8 +146,10 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
             builder.RegisterType<SignalRServiceHost>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // 3.) Handler for twin change events, publish to ...
+            // 3.) Handler for device change events, publish to ...
             builder.RegisterType<TwinChangeEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DeviceLifecycleEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
             // ... registered event bus
             builder.RegisterType<EventBusHost>()

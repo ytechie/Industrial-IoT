@@ -4,10 +4,14 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Registry.Handlers {
+    using Microsoft.Azure.IIoT.OpcUa.Registry.Models;
     using Microsoft.Azure.IIoT.Hub;
+    using Microsoft.Azure.IIoT.Hub.Models;
+    using Newtonsoft.Json;
     using Serilog;
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -36,6 +40,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Handlers {
                 !properties.TryGetValue("operationTimestamp", out var ts)) {
                 return;
             }
+
+            var patch = Encoding.UTF8.GetString(payload);
+            _logger.Information("{deviceId} - {operation} - {ts} - {payload}",
+                deviceId, opType, ts, patch);
+
+            var twin = JsonConvertEx.DeserializeObject<DeviceTwinModel>(patch);
+            var registration = twin.ToEntityRegistration();
 
             // TODO
             await Task.Delay(1);
