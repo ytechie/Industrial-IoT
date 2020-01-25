@@ -533,7 +533,7 @@
         },
         {
             "comments": "Azure IoT Hub",
-            "apiVersion": "2019-03-22",
+            "apiVersion": "2019-11-04",
             "type": "Microsoft.Devices/Iothubs",
             "name": "[parameters('iotHubName')]",
             "location": "[resourceGroup().location]",
@@ -576,6 +576,15 @@
                         {
                             "name": "DeviceLifecycle",
                             "source": "DeviceLifecycleEvents",
+                            "condition": "true",
+                            "endpointNames": [
+                                "events"
+                            ],
+                            "isEnabled": true
+                        },
+                        {
+                            "name": "ModuleLifecycle",
+                            "source": "ModuleLifecycleEvents",
                             "condition": "true",
                             "endpointNames": [
                                 "events"

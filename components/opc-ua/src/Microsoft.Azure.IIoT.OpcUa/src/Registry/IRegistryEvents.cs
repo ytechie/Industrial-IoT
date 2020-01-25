@@ -3,18 +3,19 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+
 namespace Microsoft.Azure.IIoT.OpcUa.Registry {
     using System;
 
     /// <summary>
-    /// Register for endpoint registry events
+    /// Emits Registry events
     /// </summary>
-    public interface IEndpointRegistryEvents {
+    public interface IRegistryEvents<T> where T : class {
 
         /// <summary>
         /// Register listener
         /// </summary>
         /// <returns></returns>
-        Action Register(IEndpointRegistryListener listener);
+        Action Register(T listener);
     }
 }

@@ -9,7 +9,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
     /// <summary>
     /// Gateway event
     /// </summary>
-    public class GatewayEventApiModel {
+    public class GatewayEventModel {
 
         /// <summary>
         /// Event type
@@ -17,7 +17,17 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
         public GatewayEventType EventType { get; set; }
 
         /// <summary>
-        /// Discoverer
+        /// Context
+        /// </summary>
+        public RegistryOperationContextModel Context { get; set; }
+
+        /// <summary>
+        /// Gateway id
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gateway
         /// </summary>
         public GatewayModel Gateway { get; set; }
 

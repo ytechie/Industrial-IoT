@@ -3,20 +3,24 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.Azure.IIoT.OpcUa.Registry {
+namespace Microsoft.Azure.IIoT.Hub {
+    using Microsoft.Azure.IIoT.Hub.Models;
     using System;
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Endpoint registry event broker
+    /// Device twin event handler
     /// </summary>
-    public interface IEndpointEventBroker {
+    public interface IIoTHubDeviceTwinEventHandler {
 
         /// <summary>
-        /// Notify all listeners
+        /// Handles twin
         /// </summary>
-        /// <param name="evt"></param>
+        /// <param name="twin"></param>
+        /// <param name="opTime"></param>
+        /// <param name="ev"></param>
         /// <returns></returns>
-        Task NotifyAllAsync(Func<IEndpointRegistryListener, Task> evt);
+        Task<bool> HandleAsync(DeviceTwinModel twin,
+            DateTime opTime, DeviceTwinEvent ev);
     }
 }

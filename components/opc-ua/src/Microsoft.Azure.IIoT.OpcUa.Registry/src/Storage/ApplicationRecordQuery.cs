@@ -26,7 +26,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
         /// <param name="logger"></param>
         /// <param name="events"></param>
         public ApplicationRecordQuery(IItemContainerFactory db, ILogger logger,
-            IApplicationRegistryEvents events = null) {
+            IRegistryEvents<IApplicationRegistryListener> events = null) {
             _database = new ApplicationDatabase(db, logger);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _unregister = events?.Register(this);

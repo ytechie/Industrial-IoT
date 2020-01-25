@@ -4,17 +4,25 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.Hub.Models {
-    using Newtonsoft.Json;
 
     /// <summary>
     /// Environment variable as part of module model.
     /// </summary>
-    public class EnvironmentVariableModel {
+    public enum DeviceTwinEvent {
 
         /// <summary>
-        /// Value of variable
+        /// Device twin created
         /// </summary>
-        [JsonProperty(PropertyName = "value")]
-        public string Value { get; set; }
+        Create,
+
+        /// <summary>
+        /// Device twin updated
+        /// </summary>
+        Update,
+
+        /// <summary>
+        /// Device deleted
+        /// </summary>
+        Delete
     }
 }

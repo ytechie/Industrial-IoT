@@ -21,5 +21,11 @@ namespace Microsoft.Azure.IIoT.Hub {
         /// </summary>
         public const string DeviceLifecycleNotification =
             "deviceLifecycleNotification";
+
+        /// <summary>
+        /// Content is a lifecycle event
+        /// </summary>
+        public const string ModuleLifecycleNotification =
+            "moduleLifecycleNotification";
     }
 }

@@ -310,10 +310,7 @@ namespace Microsoft.Azure.IIoT.Modules.OpcUa.Twin.Tests {
             builder.RegisterModule<RegistryServices>();
             builder.RegisterType<ApplicationTwins>()
                 .AsImplementedInterfaces();
-            builder.RegisterType<EndpointEventBrokerStub>()
-                .AsImplementedInterfaces();
-            builder.RegisterType<ApplicationEventBrokerStub>()
-                .AsImplementedInterfaces();
+            builder.RegisterModule<EventBrokerStubs>();
 
             // Register http client module
             builder.RegisterModule<HttpClientModule>();

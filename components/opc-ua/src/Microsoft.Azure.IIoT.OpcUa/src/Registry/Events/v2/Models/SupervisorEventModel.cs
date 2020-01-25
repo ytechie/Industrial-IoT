@@ -9,12 +9,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
     /// <summary>
     /// Supervisor event
     /// </summary>
-    public class SupervisorEventApiModel {
+    public class SupervisorEventModel {
 
         /// <summary>
         /// Event type
         /// </summary>
         public SupervisorEventType EventType { get; set; }
+
+        /// <summary>
+        /// Context
+        /// </summary>
+        public RegistryOperationContextModel Context { get; set; }
+
+        /// <summary>
+        /// Supervisor id
+        /// </summary>
+        public string Id { get; set; }
 
         /// <summary>
         /// Supervisor

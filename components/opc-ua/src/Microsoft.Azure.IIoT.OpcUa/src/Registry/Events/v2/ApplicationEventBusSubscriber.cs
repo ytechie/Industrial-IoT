@@ -63,7 +63,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
                 case ApplicationEventType.Deleted:
                     await Task.WhenAll(_listeners
                         .Select(l => l.OnApplicationDeletedAsync(
-                            eventData.Context, eventData.Application.ApplicationId, eventData.Application)
+                            eventData.Context, eventData.Id, eventData.Application)
                         .ContinueWith(t => Task.CompletedTask)));
                     break;
             }

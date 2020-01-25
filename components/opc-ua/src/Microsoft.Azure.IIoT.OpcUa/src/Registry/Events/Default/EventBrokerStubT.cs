@@ -8,18 +8,18 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Default {
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Application event broker stubs
+    /// Event broker stubs
     /// </summary>
-    public sealed class ApplicationEventBrokerStub : IApplicationEventBroker,
-        IApplicationRegistryEvents {
+    public sealed class EventBrokerStubT<T> : IRegistryEventBroker<T>,
+        IRegistryEvents<T> where T : class {
 
         /// <inheritdoc/>
-        public Task NotifyAllAsync(Func<IApplicationRegistryListener, Task> evt) {
+        public Task NotifyAllAsync(Func<T, Task> evt) {
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public Action Register(IApplicationRegistryListener listener) {
+        public Action Register(T listener) {
             return () => { };
         }
     }

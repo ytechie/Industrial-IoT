@@ -9,12 +9,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
     /// <summary>
     /// Discoverer event
     /// </summary>
-    public class DiscovererEventApiModel {
+    public class DiscovererEventModel {
 
         /// <summary>
         /// Event type
         /// </summary>
         public DiscovererEventType EventType { get; set; }
+
+        /// <summary>
+        /// Context
+        /// </summary>
+        public RegistryOperationContextModel Context { get; set; }
+
+        /// <summary>
+        /// Discoverer id
+        /// </summary>
+        public string Id { get; set; }
 
         /// <summary>
         /// Discoverer

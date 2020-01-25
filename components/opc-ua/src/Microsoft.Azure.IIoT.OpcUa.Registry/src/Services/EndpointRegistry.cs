@@ -33,10 +33,11 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
         /// <param name="activator"></param>
         /// <param name="certificates"></param>
         /// <param name="events"></param>
-        public EndpointRegistry(IIoTHubTwinServices iothub, IEndpointEventBroker broker,
-            ILogger logger, IActivationServices<EndpointRegistrationModel> activator,
-            ICertificateServices<EndpointRegistrationModel> certificates,
-            IApplicationRegistryEvents events = null) {
+        public EndpointRegistry(IIoTHubTwinServices iothub,
+            IRegistryEventBroker<IEndpointRegistryListener> broker,
+            IActivationServices<EndpointRegistrationModel> activator,
+            ICertificateServices<EndpointRegistrationModel> certificates, ILogger logger,
+            IRegistryEvents<IApplicationRegistryListener> events = null) {
             _iothub = iothub ?? throw new ArgumentNullException(nameof(iothub));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _certificates = certificates ?? throw new ArgumentNullException(nameof(certificates));
@@ -738,7 +739,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
 
         private readonly IActivationServices<EndpointRegistrationModel> _activator;
         private readonly ICertificateServices<EndpointRegistrationModel> _certificates;
-        private readonly IEndpointEventBroker _broker;
+        private readonly IRegistryEventBroker<IEndpointRegistryListener> _broker;
         private readonly Action _unregister;
         private readonly IIoTHubTwinServices _iothub;
         private readonly ILogger _logger;

@@ -9,12 +9,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2.Models {
     /// <summary>
     /// Publisher event
     /// </summary>
-    public class PublisherEventApiModel {
+    public class PublisherEventModel {
 
         /// <summary>
         /// Event type
         /// </summary>
         public PublisherEventType EventType { get; set; }
+
+        /// <summary>
+        /// Context
+        /// </summary>
+        public RegistryOperationContextModel Context { get; set; }
+
+        /// <summary>
+        /// Publisher id
+        /// </summary>
+        public string Id { get; set; }
 
         /// <summary>
         /// Publisher

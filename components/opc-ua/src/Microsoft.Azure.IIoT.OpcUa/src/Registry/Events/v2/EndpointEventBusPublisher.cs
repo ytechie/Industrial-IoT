@@ -26,44 +26,50 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         /// <inheritdoc/>
         public Task OnEndpointActivatedAsync(
             RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Activated, context, endpoint));
+            return _bus.PublishAsync(Wrap(EndpointEventType.Activated, context,
+                endpoint.Registration.Id, endpoint));
         }
 
         /// <inheritdoc/>
         public Task OnEndpointDeactivatedAsync(
             RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Deactivated, context, endpoint));
+            return _bus.PublishAsync(Wrap(EndpointEventType.Deactivated, context,
+                endpoint.Registration.Id, endpoint));
         }
 
         /// <inheritdoc/>
         public Task OnEndpointDeletedAsync(
             RegistryOperationContextModel context, string endpointId, EndpointInfoModel endpoint) {
-            return endpoint == null ? Task.CompletedTask :
-                _bus.PublishAsync(Wrap(EndpointEventType.Deleted, context, endpoint));
+            return _bus.PublishAsync(Wrap(EndpointEventType.Deleted, context,
+                endpointId, endpoint));
         }
 
         /// <inheritdoc/>
         public Task OnEndpointDisabledAsync(
             RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Disabled, context, endpoint));
+            return _bus.PublishAsync(Wrap(EndpointEventType.Disabled, context,
+                endpoint.Registration.Id, endpoint));
         }
 
         /// <inheritdoc/>
         public Task OnEndpointEnabledAsync(
             RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Enabled, context, endpoint));
+            return _bus.PublishAsync(Wrap(EndpointEventType.Enabled, context,
+                endpoint.Registration.Id, endpoint));
         }
 
         /// <inheritdoc/>
         public Task OnEndpointNewAsync(
             RegistryOperationContextModel context, EndpointInfoModel endpoint) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.New, context, endpoint));
+            return _bus.PublishAsync(Wrap(EndpointEventType.New, context,
+                endpoint.Registration.Id, endpoint));
         }
 
         /// <inheritdoc/>
         public Task OnEndpointUpdatedAsync(
             RegistryOperationContextModel context, EndpointInfoModel endpoint, bool isPatch) {
-            return _bus.PublishAsync(Wrap(EndpointEventType.Updated, context, endpoint, isPatch));
+            return _bus.PublishAsync(Wrap(EndpointEventType.Updated, context,
+                endpoint.Registration.Id, endpoint, isPatch));
         }
 
         /// <summary>
@@ -75,11 +81,12 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         /// <param name="isPatch"></param>
         /// <returns></returns>
         private static EndpointEventModel Wrap(EndpointEventType type,
-            RegistryOperationContextModel context, EndpointInfoModel endpoint,
-            bool isPatch = false) {
+            RegistryOperationContextModel context, string endpointId,
+            EndpointInfoModel endpoint, bool isPatch = false) {
             return new EndpointEventModel {
                 EventType = type,
                 Context = context,
+                Id = endpointId,
                 Endpoint = endpoint,
                 IsPatch = isPatch == true ? true : (bool?)null
             };

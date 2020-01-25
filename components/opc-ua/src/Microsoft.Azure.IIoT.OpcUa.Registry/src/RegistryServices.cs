@@ -30,11 +30,22 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry {
             builder.RegisterType<ApplicationRegistry>()
                 .AsImplementedInterfaces().SingleInstance();
 
+            builder.RegisterType<SupervisorEventBroker>()
+                .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<SupervisorRegistry>()
+                .AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterType<PublisherEventBroker>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<PublisherRegistry>()
                 .AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterType<DiscovererEventBroker>()
+                .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<DiscovererRegistry>()
+                .AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterType<GatewayEventBroker>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<GatewayRegistry>()
                 .AsImplementedInterfaces().SingleInstance();
