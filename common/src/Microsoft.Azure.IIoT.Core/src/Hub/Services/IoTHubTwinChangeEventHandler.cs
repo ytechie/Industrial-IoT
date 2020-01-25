@@ -6,79 +6,39 @@
 namespace Microsoft.Azure.IIoT.Hub.Services {
     using Microsoft.Azure.IIoT.Hub;
     using Microsoft.Azure.IIoT.Hub.Models;
-    using Microsoft.Azure.IIoT.Utils;
-    using Newtonsoft.Json;
     using Serilog;
-    using System;
     using System.Collections.Generic;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Linq;
 
     /// <summary>
-    /// Registry Twin change events
+    /// Twin registry change events
     /// </summary>
-    public sealed class IoTHubTwinChangeEventHandler : IDeviceTelemetryHandler {
+    public sealed class IoTHubTwinChangeEventHandler : IoTHubDeviceTwinChangeHandlerBase {
 
         /// <inheritdoc/>
-        public string MessageSchema => Hub.MessageSchemaTypes.TwinChangeNotification;
+        public override string MessageSchema => Hub.MessageSchemaTypes.TwinChangeNotification;
 
         /// <summary>
         /// Create handler
         /// </summary>
         /// <param name="handlers"></param>
         /// <param name="logger"></param>
-        public IoTHubTwinChangeEventHandler(IEnumerable<IIoTHubDeviceTwinEventHandler> handlers, ILogger logger) {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _handlers = handlers.ToList();
+        public IoTHubTwinChangeEventHandler(IEnumerable<IIoTHubDeviceTwinEventHandler> handlers,
+            ILogger logger) : base (handlers, logger) {
         }
 
-        /// <inheritdoc/>
-        public async Task HandleAsync(string deviceId, string moduleId,
-            byte[] payload, IDictionary<string, string> properties,
-            Func<Task> checkpoint) {
-
-            if (!properties.TryGetValue("opType", out var opType) ||
-                !properties.TryGetValue("operationTimestamp", out var ts)) {
-                return;
-            }
-
-            var twin = Try.Op(() => JsonConvertEx.DeserializeObject<DeviceTwinModel>(
-                Encoding.UTF8.GetString(payload)));
-            if (twin == null) {
-                return;
-            }
-
-            DeviceTwinEvent operation;
+        /// <summary>
+        /// Get operation
+        /// </summary>
+        /// <param name="opType"></param>
+        /// <returns></returns>
+        protected override DeviceTwinEvent? GetOperation(string opType) {
             switch (opType) {
                 case "replaceTwin":
-                    operation = DeviceTwinEvent.Create;
-                    break;
+                    return DeviceTwinEvent.Create;
                 case "updateTwin":
-                    operation = DeviceTwinEvent.Update;
-                    break;
-                default:
-                    // Unknown
-                    return;
+                    return DeviceTwinEvent.Update;
             }
-
-            twin.ModuleId = moduleId;
-            twin.Id = deviceId;
-            DateTime.TryParse(ts, out var time);
-            foreach (var handler in _handlers) {
-                var handled = await handler.HandleAsync(twin, time, operation);
-                if (handled) {
-                    return; // Done
-                }
-            }
+            return null;
         }
-
-        /// <inheritdoc/>
-        public Task OnBatchCompleteAsync() {
-            return Task.CompletedTask;
-        }
-
-        private readonly ILogger _logger;
-        private readonly List<IIoTHubDeviceTwinEventHandler> _handlers;
     }
 }

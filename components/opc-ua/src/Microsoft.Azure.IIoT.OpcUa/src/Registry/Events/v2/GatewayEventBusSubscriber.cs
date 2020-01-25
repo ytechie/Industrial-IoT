@@ -12,19 +12,19 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Publisher registry change listener
+    /// Gateway registry change listener
     /// </summary>
-    public class PublisherEventBusSubscriber : IEventHandler<PublisherEventModel>, IDisposable {
+    public class GatewayEventBusSubscriber : IEventHandler<GatewayEventModel>, IDisposable {
 
         /// <summary>
         /// Create event subscriber
         /// </summary>
         /// <param name="bus"></param>
         /// <param name="listeners"></param>
-        public PublisherEventBusSubscriber(IEventBus bus,
-            IEnumerable<IPublisherRegistryListener> listeners) {
+        public GatewayEventBusSubscriber(IEventBus bus,
+            IEnumerable<IGatewayRegistryListener> listeners) {
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-            _listeners = listeners?.ToList() ?? new List<IPublisherRegistryListener>();
+            _listeners = listeners?.ToList() ?? new List<IGatewayRegistryListener>();
             _token = _bus.RegisterAsync(this).Result;
         }
 
@@ -34,23 +34,23 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         }
 
         /// <inheritdoc/>
-        public async Task HandleAsync(PublisherEventModel eventData) {
+        public async Task HandleAsync(GatewayEventModel eventData) {
             switch (eventData.EventType) {
-                case PublisherEventType.New:
+                case GatewayEventType.New:
                     await Task.WhenAll(_listeners
-                        .Select(l => l.OnPublisherNewAsync(
-                            eventData.Context, eventData.Publisher)
+                        .Select(l => l.OnGatewayNewAsync(
+                            eventData.Context, eventData.Gateway)
                         .ContinueWith(t => Task.CompletedTask)));
                     break;
-                case PublisherEventType.Updated:
+                case GatewayEventType.Updated:
                     await Task.WhenAll(_listeners
-                        .Select(l => l.OnPublisherUpdatedAsync(
-                            eventData.Context, eventData.Publisher, eventData.IsPatch ?? false)
+                        .Select(l => l.OnGatewayUpdatedAsync(
+                            eventData.Context, eventData.Gateway, eventData.IsPatch ?? false)
                         .ContinueWith(t => Task.CompletedTask)));
                     break;
-                case PublisherEventType.Deleted:
+                case GatewayEventType.Deleted:
                     await Task.WhenAll(_listeners
-                        .Select(l => l.OnPublisherDeletedAsync(
+                        .Select(l => l.OnGatewayDeletedAsync(
                             eventData.Context, eventData.Id)
                         .ContinueWith(t => Task.CompletedTask)));
                     break;
@@ -58,7 +58,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         }
 
         private readonly IEventBus _bus;
-        private readonly List<IPublisherRegistryListener> _listeners;
+        private readonly List<IGatewayRegistryListener> _listeners;
         private readonly string _token;
     }
 }

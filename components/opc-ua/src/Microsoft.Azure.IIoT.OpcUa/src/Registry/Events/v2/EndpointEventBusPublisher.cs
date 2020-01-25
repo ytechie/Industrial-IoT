@@ -77,6 +77,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Events.v2 {
         /// </summary>
         /// <param name="type"></param>
         /// <param name="context"></param>
+        /// <param name="endpointId"></param>
         /// <param name="endpoint"></param>
         /// <param name="isPatch"></param>
         /// <returns></returns>

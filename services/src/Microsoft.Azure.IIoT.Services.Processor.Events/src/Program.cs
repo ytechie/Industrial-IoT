@@ -147,9 +147,9 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
                 .AsImplementedInterfaces().SingleInstance();
 
             // 3.) Handler for device change events, publish to ...
-            builder.RegisterType<TwinChangeEventHandler>()
+            builder.RegisterType<IoTHubTwinChangeEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<DeviceLifecycleEventHandler>()
+            builder.RegisterType<IoTHubDeviceLifecycleEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
             // ... registered event bus
             builder.RegisterType<EventBusHost>()
