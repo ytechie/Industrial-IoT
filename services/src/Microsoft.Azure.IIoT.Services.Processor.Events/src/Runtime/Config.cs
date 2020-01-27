@@ -8,6 +8,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
     using Microsoft.Azure.IIoT.Hub.Processor;
     using Microsoft.Azure.IIoT.Hub.Processor.Runtime;
     using Microsoft.Azure.IIoT.Hub.Client.Runtime;
+    using Microsoft.Azure.IIoT.Hub.Client;
     using Microsoft.Azure.IIoT.Messaging.EventHub;
     using Microsoft.Azure.IIoT.Messaging.SignalR;
     using Microsoft.Azure.IIoT.Messaging.SignalR.Runtime;
@@ -21,8 +22,9 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
     /// <summary>
     /// Telemetry processor service configuration
     /// </summary>
-    public class Config : DiagnosticsConfig, IEventProcessorConfig, IEventHubConsumerConfig,
-        IOnboardingConfig, ISignalRServiceConfig, IServiceBusConfig {
+    public class Config : DiagnosticsConfig, IEventProcessorConfig, 
+        IEventHubConsumerConfig, IOnboardingConfig, ISignalRServiceConfig,
+        IServiceBusConfig, IIoTHubConfig {
 
         /// <inheritdoc/>
         public string SignalRHubName => _sr.SignalRHubName;
@@ -54,6 +56,11 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
         /// <inheritdoc/>
         public string LeaseContainerName => _ep.LeaseContainerName;
 
+        /// <inheritdoc/>
+        public string IoTHubConnString => _hub.IoTHubConnString;
+        /// <inheritdoc/>
+        public string IoTHubResourceId => _hub.IoTHubResourceId;
+
         /// <summary>
         /// Configuration constructor
         /// </summary>
@@ -64,6 +71,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
             _ia = new InternalApiConfig(configuration);
             _sr = new SignalRServiceConfig(configuration);
             _sb = new ServiceBusConfig(configuration);
+            _hub = new IoTHubConfig(configuration);
         }
 
         private readonly EventProcessorConfig _ep;
@@ -71,5 +79,6 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events.Runtime {
         private readonly InternalApiConfig _ia;
         private readonly SignalRServiceConfig _sr;
         private readonly ServiceBusConfig _sb;
+        private readonly IoTHubConfig _hub;
     }
 }

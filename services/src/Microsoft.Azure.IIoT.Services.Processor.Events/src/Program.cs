@@ -9,7 +9,10 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
     using Microsoft.Azure.IIoT.OpcUa.Api.Onboarding;
     using Microsoft.Azure.IIoT.OpcUa.Api.Onboarding.Clients;
     using Microsoft.Azure.IIoT.OpcUa.Api.Registry.Clients;
+    using Microsoft.Azure.IIoT.OpcUa.Registry;
     using Microsoft.Azure.IIoT.OpcUa.Registry.Handlers;
+    using Microsoft.Azure.IIoT.OpcUa.Registry.Services;
+    using Microsoft.Azure.IIoT.OpcUa.Registry.Clients;
     using Microsoft.Azure.IIoT.Exceptions;
     using Microsoft.Azure.IIoT.Messaging.Default;
     using Microsoft.Azure.IIoT.Messaging.ServiceBus.Clients;
@@ -27,6 +30,7 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
     using System.IO;
     using System.Runtime.Loader;
     using System.Threading.Tasks;
+    using Microsoft.Azure.IIoT.Hub.Client;
 
     /// <summary>
     /// IoT Hub device events event processor host.  Processes all
@@ -146,17 +150,37 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
             builder.RegisterType<SignalRServiceHost>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // 3.) Handler for device change events, publish to ...
+            // 3.) Handler for device change events ...
             builder.RegisterType<IoTHubTwinChangeEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<IoTHubDeviceLifecycleEventHandler>()
                 .AsImplementedInterfaces().SingleInstance();
-            // ... registered event bus
+            builder.RegisterType<IoTHubModuleLifecycleEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+
+            builder.RegisterType<SupervisorTwinEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<PublisherTwinEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<DiscovererTwinEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<GatewayTwinEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<EndpointTwinEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ApplicationTwinEventHandler>()
+                .AsImplementedInterfaces().SingleInstance();
+
+            // ... publish to registered event bus
             builder.RegisterType<EventBusHost>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<ServiceBusClientFactory>()
                 .AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<ServiceBusEventBus>()
+                .AsImplementedInterfaces().SingleInstance();
+
+            // Iot hub services
+            builder.RegisterType<IoTHubMessagingHttpClient>()
                 .AsImplementedInterfaces().SingleInstance();
 
             return builder;

@@ -28,8 +28,8 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
         /// </summary>
         /// <param name="handlers"></param>
         /// <param name="logger"></param>
-        public IoTHubDeviceTwinChangeHandlerBase(IEnumerable<IIoTHubDeviceTwinEventHandler> handlers,
-            ILogger logger) {
+        public IoTHubDeviceTwinChangeHandlerBase(
+            IEnumerable<IIoTHubDeviceTwinEventHandler> handlers, ILogger logger) {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _handlers = handlers.ToList();
         }
@@ -38,6 +38,10 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
         public async Task HandleAsync(string deviceId, string moduleId,
             byte[] payload, IDictionary<string, string> properties,
             Func<Task> checkpoint) {
+
+            if (_handlers.Count == 0) {
+                return;
+            }
 
             if (!properties.TryGetValue("opType", out var opType) ||
                 !properties.TryGetValue("operationTimestamp", out var ts)) {
@@ -50,18 +54,24 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
                 return;
             }
 
+            twin.ModuleId = moduleId;
+            twin.Id = deviceId;
             var operation = GetOperation(opType);
             if (operation == null) {
                 return;
             }
-            twin.ModuleId = moduleId;
-            twin.Id = deviceId;
+
             DateTime.TryParse(ts, out var time);
+            var ev = new DeviceTwinEvent {
+                Twin = twin,
+                Event = operation.Value,
+                IsPatch = true,
+                Handled = false,
+                AuthorityId = null, // TODO
+                Timestamp = time
+            };
             foreach (var handler in _handlers) {
-                var handled = await handler.HandleAsync(twin, time, operation.Value);
-                if (handled) {
-                    return; // Done
-                }
+                await handler.HandleDeviceTwinEventAsync(ev);
             }
         }
 
@@ -75,7 +85,7 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
         /// </summary>
         /// <param name="opType"></param>
         /// <returns></returns>
-        protected abstract DeviceTwinEvent? GetOperation(string opType);
+        protected abstract DeviceTwinEventType? GetOperation(string opType);
 
         private readonly ILogger _logger;
         private readonly List<IIoTHubDeviceTwinEventHandler> _handlers;

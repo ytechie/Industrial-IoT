@@ -5,7 +5,6 @@
 
 namespace Microsoft.Azure.IIoT.Hub {
     using Microsoft.Azure.IIoT.Hub.Models;
-    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -14,13 +13,13 @@ namespace Microsoft.Azure.IIoT.Hub {
     public interface IIoTHubDeviceTwinEventHandler {
 
         /// <summary>
-        /// Handles twin
+        /// Handles twin change events. Each handler is
+        /// called in sequence.  Since the event is 
+        /// mutable the next handler can process an
+        /// updated version of it.
         /// </summary>
-        /// <param name="twin"></param>
-        /// <param name="opTime"></param>
         /// <param name="ev"></param>
         /// <returns></returns>
-        Task<bool> HandleAsync(DeviceTwinModel twin,
-            DateTime opTime, DeviceTwinEvent ev);
+        Task HandleDeviceTwinEventAsync(DeviceTwinEvent ev);
     }
 }

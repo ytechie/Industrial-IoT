@@ -286,6 +286,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <param name="registration"></param>
         /// <returns></returns>
         public static EndpointInfoModel ToServiceModel(this EndpointRegistration registration) {
+            if (registration == null) {
+                return null;
+            }
             return new EndpointInfoModel {
                 ApplicationId = registration.ApplicationId,
                 Registration = new EndpointRegistrationModel {
@@ -320,40 +323,6 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 OutOfSync = registration.Connected && !registration._isInSync ? true : (bool?)null
             };
         }
-
-        /// <summary>
-        /// Returns true if this registration matches the server endpoint
-        /// model provided.
-        /// </summary>
-        /// <param name="registration"></param>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public static bool Matches(this EndpointRegistration registration, EndpointInfoModel model) {
-            return model != null &&
-                registration.Matches(model.Registration?.Endpoint) &&
-                registration.NotSeenSince == model.NotSeenSince &&
-                registration.ApplicationId == model.ApplicationId &&
-                (registration.ActivationState ?? EndpointActivationState.Deactivated) ==
-                    (model.ActivationState ?? EndpointActivationState.Deactivated);
-        }
-
-        /// <summary>
-        /// Returns true if this registration matches the endpoint
-        /// model provided.
-        /// </summary>
-        /// <param name="registration"></param>
-        /// <param name="endpoint"></param>
-        /// <returns></returns>
-        public static bool Matches(this EndpointRegistration registration, EndpointModel endpoint) {
-            return endpoint != null &&
-                registration.EndpointUrl == endpoint.Url &&
-                registration.AlternativeUrls.DecodeAsList().ToHashSetSafe().SetEqualsSafe(
-                    endpoint.AlternativeUrls) &&
-                registration.SecurityMode == (endpoint.SecurityMode ?? SecurityMode.Best) &&
-                registration.SecurityPolicy == endpoint.SecurityPolicy &&
-                endpoint.Certificate == registration.Thumbprint;
-        }
-
 
         /// <summary>
         /// Decode tags and property into registration object
@@ -417,6 +386,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <param name="other"></param>
         internal static bool IsInSyncWith(this EndpointRegistration registration,
             EndpointRegistration other) {
+            if (registration == null) {
+                return other == null;
+            }
             return
                 other != null &&
                 registration.EndpointUrl == other.EndpointUrl &&

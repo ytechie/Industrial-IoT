@@ -167,6 +167,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <param name="registration"></param>
         /// <returns></returns>
         public static GatewayModel ToServiceModel(this GatewayRegistration registration) {
+            if (registration == null) {
+                return null;
+            }
             return new GatewayModel {
                 Id = registration.DeviceId,
                 SiteId = registration.SiteId,

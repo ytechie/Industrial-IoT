@@ -22,7 +22,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\components\opc-ua\src\Microsoft.Azure.IIoT.OpcUa.Registry\src\Microsoft.Azure.IIoT.OpcUa.Registry.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

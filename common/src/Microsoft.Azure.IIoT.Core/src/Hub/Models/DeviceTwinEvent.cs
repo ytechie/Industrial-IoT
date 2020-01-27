@@ -1,28 +1,44 @@
-// ------------------------------------------------------------
+﻿// ------------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.Hub.Models {
+    using System;
 
     /// <summary>
-    /// Environment variable as part of module model.
+    /// Device Twin Event
     /// </summary>
-    public enum DeviceTwinEvent {
+    public class DeviceTwinEvent {
 
         /// <summary>
-        /// Device twin created
+        /// Event
         /// </summary>
-        Create,
+        public DeviceTwinEventType Event { get; set; }
 
         /// <summary>
-        /// Device twin updated
+        /// Twin
         /// </summary>
-        Update,
+        public DeviceTwinModel Twin { get; set; }
 
         /// <summary>
-        /// Device deleted
+        /// Twin is not a patch
         /// </summary>
-        Delete
+        public bool IsPatch { get; set; }
+
+        /// <summary>
+        /// User causing the change
+        /// </summary>
+        public string AuthorityId { get; set; }
+
+        /// <summary>
+        /// Timestamp of event
+        /// </summary>
+        public DateTime Timestamp { get; set; }
+
+        /// <summary>
+        /// Whether event was handled
+        /// </summary>
+        public bool Handled { get; set; }
     }
 }

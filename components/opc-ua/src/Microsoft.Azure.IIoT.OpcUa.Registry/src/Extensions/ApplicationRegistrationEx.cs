@@ -488,6 +488,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <param name="registration"></param>
         /// <returns></returns>
         public static ApplicationInfoModel ToServiceModel(this ApplicationRegistration registration) {
+            if (registration == null) {
+                return null;
+            }
             return new ApplicationInfoModel {
                 ApplicationId = registration.ApplicationId,
                 ApplicationName = registration.ApplicationName,
@@ -521,6 +524,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// <returns></returns>
         public static bool Matches(this ApplicationRegistration registration,
             ApplicationInfoModel model) {
+            if (registration == null) {
+                return model == null;
+            }
             return model != null &&
                 registration.ApplicationId == model.ApplicationId &&
                 registration.ApplicationType == model.ApplicationType &&
@@ -548,6 +554,9 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
         /// </summary>
         /// <param name="registration">The application record.</param>
         public static string GetApplicationName(this ApplicationRegistration registration) {
+            if (registration == null) {
+                return null;
+            }
             if (!string.IsNullOrEmpty(registration.ApplicationName)) {
                 return registration.ApplicationName;
             }

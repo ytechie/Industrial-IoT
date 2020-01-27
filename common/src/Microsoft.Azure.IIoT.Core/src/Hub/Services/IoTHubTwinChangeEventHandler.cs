@@ -31,12 +31,12 @@ namespace Microsoft.Azure.IIoT.Hub.Services {
         /// </summary>
         /// <param name="opType"></param>
         /// <returns></returns>
-        protected override DeviceTwinEvent? GetOperation(string opType) {
+        protected override DeviceTwinEventType? GetOperation(string opType) {
             switch (opType) {
                 case "replaceTwin":
-                    return DeviceTwinEvent.Create;
+                    return DeviceTwinEventType.Create;
                 case "updateTwin":
-                    return DeviceTwinEvent.Update;
+                    return DeviceTwinEventType.Update;
             }
             return null;
         }
