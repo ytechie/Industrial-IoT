@@ -39,7 +39,8 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
             if (!isPatch || update.OutOfSync != null) {
                 endpoint.OutOfSync = update.OutOfSync;
             }
-            endpoint.Registration = update.Registration.Patch(endpoint.Registration, isPatch);
+            endpoint.Registration = update.Registration.Patch(
+                endpoint.Registration, isPatch);
             return endpoint;
         }
     }

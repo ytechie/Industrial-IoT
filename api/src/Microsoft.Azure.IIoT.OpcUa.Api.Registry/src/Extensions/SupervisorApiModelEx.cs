@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
+
     /// <summary>
     /// Handle event
     /// </summary>
