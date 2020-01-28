@@ -188,7 +188,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
             !(r1 == r2);
 
         /// <inheritdoc/>
-        public override int GetHashCode() {s
+        public override int GetHashCode() {
             var hashCode = base.GetHashCode();
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<string>.Default.GetHashCode(EndpointUrlLC);
