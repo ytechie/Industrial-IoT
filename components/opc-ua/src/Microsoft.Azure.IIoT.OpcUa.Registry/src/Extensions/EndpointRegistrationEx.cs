@@ -226,7 +226,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 Type =
                     properties.GetValueOrDefault<string>(TwinProperty.Type, null),
                 State =
-                    properties.GetValueOrDefault(nameof(EndpointRegistration.State), EndpointConnectivityState.Connecting),
+                    properties.GetValueOrDefault(nameof(EndpointRegistration.State), EndpointConnectivityState.Disconnected),
                 SiteId =
                     properties.GetValueOrDefault(TwinProperty.SiteId,
                         tags.GetValueOrDefault<string>(nameof(EndpointRegistration.SiteId), null)),
@@ -319,7 +319,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
                 ActivationState = registration.ActivationState,
                 NotSeenSince = registration.NotSeenSince,
                 EndpointState = registration.ActivationState == EndpointActivationState.ActivatedAndConnected ?
-                    registration.State : (EndpointConnectivityState?)null,
+                    registration.State : EndpointConnectivityState.Disconnected,
                 OutOfSync = registration.Connected && !registration._isInSync ? true : (bool?)null
             };
         }
