@@ -21,6 +21,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
             this SupervisorEventModel model) {
             return new SupervisorEventApiModel {
                 EventType = (SupervisorEventType)model.EventType,
+                Id = model.Id,
                 IsPatch = model.IsPatch,
                 Supervisor = model.Supervisor.Map<SupervisorApiModel>()
             };

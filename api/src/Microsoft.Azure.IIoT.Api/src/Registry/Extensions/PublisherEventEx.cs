@@ -21,6 +21,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
             this PublisherEventModel model) {
             return new PublisherEventApiModel {
                 EventType = (PublisherEventType)model.EventType,
+                Id = model.Id,
                 IsPatch = model.IsPatch,
                 Publisher = model.Publisher.Map<PublisherApiModel>()
             };

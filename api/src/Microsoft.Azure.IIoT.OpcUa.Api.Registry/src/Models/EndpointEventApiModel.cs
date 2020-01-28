@@ -18,6 +18,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public EndpointEventType EventType { get; set; }
 
         /// <summary>
+        /// Endpoint id
+        /// </summary>
+        [JsonProperty(PropertyName = "id",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Endpoint info
         /// </summary>
         [JsonProperty(PropertyName = "endpoint",

@@ -18,7 +18,14 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public GatewayEventType EventType { get; set; }
 
         /// <summary>
-        /// Discoverer
+        /// Gateway id
+        /// </summary>
+        [JsonProperty(PropertyName = "id",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gateway
         /// </summary>
         [JsonProperty(PropertyName = "gateway",
             NullValueHandling = NullValueHandling.Ignore)]

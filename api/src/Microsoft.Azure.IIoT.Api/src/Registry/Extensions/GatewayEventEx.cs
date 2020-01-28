@@ -21,6 +21,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
             this GatewayEventModel model) {
             return new GatewayEventApiModel {
                 EventType = (GatewayEventType)model.EventType,
+                Id = model.Id,
                 IsPatch = model.IsPatch,
                 Gateway = model.Gateway.Map<GatewayApiModel>()
             };

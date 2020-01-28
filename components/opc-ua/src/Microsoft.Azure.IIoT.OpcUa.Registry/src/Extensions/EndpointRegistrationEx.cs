@@ -406,11 +406,19 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
             /// <inheritdoc />
             public bool Equals(EndpointRegistration x, EndpointRegistration y) {
-                return
-                    x.EndpointUrlLC == y.EndpointUrlLC &&
-                    x.ApplicationId == y.ApplicationId &&
-                    x.SecurityPolicy == y.SecurityPolicy &&
-                    x.SecurityMode == y.SecurityMode;
+                if (x.EndpointUrlLC != y.EndpointUrlLC) {
+                    return false;
+                }
+                if (x.ApplicationId != y.ApplicationId) {
+                    return false;
+                }
+                if (x.SecurityPolicy != y.SecurityPolicy) {
+                    return false;
+                }
+                if (x.SecurityMode != y.SecurityMode) {
+                    return false;
+                }
+                return true;
             }
 
             /// <inheritdoc />

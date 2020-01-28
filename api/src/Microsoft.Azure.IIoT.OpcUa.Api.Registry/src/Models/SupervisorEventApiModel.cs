@@ -18,6 +18,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public SupervisorEventType EventType { get; set; }
 
         /// <summary>
+        /// Supervisor id
+        /// </summary>
+        [JsonProperty(PropertyName = "id",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Application
         /// </summary>
         [JsonProperty(PropertyName = "supervisor",

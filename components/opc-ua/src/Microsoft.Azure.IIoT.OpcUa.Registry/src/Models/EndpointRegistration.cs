@@ -138,21 +138,44 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
         /// <inheritdoc/>
         public override bool Equals(object obj) {
-            var registration = obj as EndpointRegistration;
-            return base.Equals(registration) &&
-                DiscovererId == registration.DiscovererId &&
-                SupervisorId == registration.SupervisorId &&
-                ApplicationId == registration.ApplicationId &&
-                (Activated ?? false) == (registration.Activated ?? false) &&
-                EndpointUrlLC == registration.EndpointUrlLC &&
-                SupervisorId == registration.SupervisorId &&
-                State == registration.State &&
-                SecurityLevel == registration.SecurityLevel &&
-                SecurityPolicy == registration.SecurityPolicy &&
-                SecurityMode == registration.SecurityMode &&
-                Thumbprint == registration.Thumbprint &&
-                AuthenticationMethods.DecodeAsList().SetEqualsSafe(
-                    AuthenticationMethods.DecodeAsList(), JToken.DeepEquals);
+            if (!(obj is EndpointRegistration registration)) {
+                return false;
+            }
+            if (!base.Equals(registration)) {
+                return false;
+            }
+            if (DiscovererId != registration.DiscovererId) {
+                return false;
+            }
+            if (SupervisorId != registration.SupervisorId) {
+                return false;
+            }
+            if (ApplicationId != registration.ApplicationId) {
+                return false;
+            }
+            if (EndpointUrlLC != registration.EndpointUrlLC) {
+                return false;
+            }
+            if (SupervisorId != registration.SupervisorId) {
+                return false;
+            }
+            if (SecurityLevel != registration.SecurityLevel) {
+                return false;
+            }
+            if (SecurityPolicy != registration.SecurityPolicy) {
+                return false;
+            }
+            if (SecurityMode != registration.SecurityMode) {
+                return false;
+            }
+            if (Thumbprint != registration.Thumbprint) {
+                return false;
+            }
+            if (!AuthenticationMethods.DecodeAsList().SetEqualsSafe(
+                    AuthenticationMethods.DecodeAsList(), JToken.DeepEquals)) {
+                return false;
+            }
+            return true;
         }
 
         /// <inheritdoc/>
@@ -165,7 +188,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
             !(r1 == r2);
 
         /// <inheritdoc/>
-        public override int GetHashCode() {
+        public override int GetHashCode() {s
             var hashCode = base.GetHashCode();
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<string>.Default.GetHashCode(EndpointUrlLC);
@@ -178,11 +201,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<string>.Default.GetHashCode(Thumbprint);
             hashCode = (hashCode * -1521134295) +
-                EqualityComparer<bool>.Default.GetHashCode(Activated ?? false);
-            hashCode = (hashCode * -1521134295) +
                 EqualityComparer<int?>.Default.GetHashCode(SecurityLevel);
-            hashCode = (hashCode * -1521134295) +
-                EqualityComparer<EndpointConnectivityState?>.Default.GetHashCode(State);
             hashCode = (hashCode * -1521134295) +
                 EqualityComparer<SecurityMode?>.Default.GetHashCode(SecurityMode);
             hashCode = (hashCode * -1521134295) +

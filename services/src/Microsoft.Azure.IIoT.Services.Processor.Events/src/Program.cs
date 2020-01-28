@@ -151,38 +151,8 @@ namespace Microsoft.Azure.IIoT.Services.Processor.Events {
             builder.RegisterType<SignalRServiceHost>()
                 .AsImplementedInterfaces().SingleInstance();
 
-            // 3.) Handler for twin and device change events ...
-            builder.RegisterType<IoTHubTwinChangeEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<IoTHubDeviceLifecycleEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<IoTHubModuleLifecycleEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-
-            builder.RegisterType<SupervisorTwinEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<SupervisorEventBroker>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<PublisherTwinEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<PublisherEventBroker>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<DiscovererTwinEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<DiscovererEventBroker>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<GatewayTwinEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<GatewayEventBroker>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<EndpointTwinEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<EndpointEventBroker>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<ApplicationTwinEventHandler>()
-                .AsImplementedInterfaces().SingleInstance();
-            builder.RegisterType<ApplicationEventBroker>()
-                .AsImplementedInterfaces().SingleInstance();
+            // 3.) Handlers for twin and device change events ...
+            builder.RegisterModule<RegistryTwinEventHandlers>();
 
             // ... publish to registered event bus
             builder.RegisterType<EventBusHost>()

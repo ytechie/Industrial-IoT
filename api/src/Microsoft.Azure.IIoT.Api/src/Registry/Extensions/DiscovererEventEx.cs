@@ -21,6 +21,7 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
             this DiscovererEventModel model) {
             return new DiscovererEventApiModel {
                 EventType = (DiscovererEventType)model.EventType,
+                Id = model.Id,
                 IsPatch = model.IsPatch,
                 Discoverer = model.Discoverer.Map<DiscovererApiModel>()
             };

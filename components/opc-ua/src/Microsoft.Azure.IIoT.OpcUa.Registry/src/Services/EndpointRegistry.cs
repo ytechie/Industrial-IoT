@@ -421,45 +421,47 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
             var unchanged = 0;
             var removed = 0;
 
-            // Remove or disable an endpoint
-            foreach (var item in remove) {
-                try {
-                    // Only touch applications the discoverer owns.
-                    if (item.DiscovererId == discovererId) {
-                        if (hardDelete) {
-                            var device = await _iothub.GetAsync(item.DeviceId);
-                            // First we update any registration
-                            var existingEndpoint = device.ToEndpointRegistration(false);
-                            if (!string.IsNullOrEmpty(existingEndpoint.SupervisorId)) {
-                                await SetSupervisorTwinSecretAsync(existingEndpoint.SupervisorId,
-                                    device.Id, null);
+            if (!(result.RegisterOnly ?? false)) {
+                // Remove or disable an endpoint
+                foreach (var item in remove) {
+                    try {
+                        // Only touch applications the discoverer owns.
+                        if (item.DiscovererId == discovererId) {
+                            if (hardDelete) {
+                                var device = await _iothub.GetAsync(item.DeviceId);
+                                // First we update any registration
+                                var existingEndpoint = device.ToEndpointRegistration(false);
+                                if (!string.IsNullOrEmpty(existingEndpoint.SupervisorId)) {
+                                    await SetSupervisorTwinSecretAsync(existingEndpoint.SupervisorId,
+                                        device.Id, null);
+                                }
+                                // Then hard delete...
+                                await _iothub.DeleteAsync(item.DeviceId);
+                                await _broker.NotifyAllAsync(l => l.OnEndpointDeletedAsync(context,
+                                    item.DeviceId, item.ToServiceModel()));
                             }
-                            // Then hard delete...
-                            await _iothub.DeleteAsync(item.DeviceId);
-                            await _broker.NotifyAllAsync(l => l.OnEndpointDeletedAsync(context,
-                                item.DeviceId, item.ToServiceModel()));
-                        }
-                        else if (!(item.IsDisabled ?? false)) {
-                            var endpoint = item.ToServiceModel();
-                            var update = endpoint.ToEndpointRegistration(true);
-                            await _iothub.PatchAsync(item.Patch(update), true);
-                            await _broker.NotifyAllAsync(
-                                l => l.OnEndpointDisabledAsync(context, endpoint));
+                            else if (!(item.IsDisabled ?? false)) {
+                                var endpoint = item.ToServiceModel();
+                                var update = endpoint.ToEndpointRegistration(true);
+                                await _iothub.PatchAsync(item.Patch(update), true);
+                                await _broker.NotifyAllAsync(
+                                    l => l.OnEndpointDisabledAsync(context, endpoint));
+                            }
+                            else {
+                                unchanged++;
+                                continue;
+                            }
+                            removed++;
                         }
                         else {
+                            // Skip the ones owned by other supervisors
                             unchanged++;
-                            continue;
                         }
-                        removed++;
                     }
-                    else {
-                        // Skip the ones owned by other supervisors
+                    catch (Exception ex) {
                         unchanged++;
+                        _logger.Error(ex, "Exception during discovery removal.");
                     }
-                }
-                catch (Exception ex) {
-                    unchanged++;
-                    _logger.Error(ex, "Exception during discovery removal.");
                 }
             }
 
@@ -471,13 +473,19 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Services {
                         // Get the new one we will patch over the existing one...
                         var patch = change.First(x =>
                             EndpointRegistrationEx.Logical.Equals(x, exists));
-                        await ApplyActivationFilterAsync(result.DiscoveryConfig?.ActivationFilter,
-                            patch, context);
+                        if (exists.Activated ?? false) {
+                            patch.ActivationState = exists.ActivationState;
+                        }
+                        else {
+                            await ApplyActivationFilterAsync(result.DiscoveryConfig?.ActivationFilter,
+                                patch, context);
+                        }
                         if (exists != patch) {
                             await _iothub.PatchAsync(exists.Patch(patch), true);
                             var endpoint = patch.ToServiceModel();
-                            await _broker.NotifyAllAsync(
-                                l => l.OnEndpointUpdatedAsync(context, endpoint));
+
+                           // await _broker.NotifyAllAsync(
+                           //     l => l.OnEndpointUpdatedAsync(context, endpoint));
                             if (exists.IsDisabled ?? false) {
                                 await _broker.NotifyAllAsync(
                                     l => l.OnEndpointEnabledAsync(context, endpoint));

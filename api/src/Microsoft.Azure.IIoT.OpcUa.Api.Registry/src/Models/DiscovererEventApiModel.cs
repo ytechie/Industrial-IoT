@@ -18,6 +18,13 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public DiscovererEventType EventType { get; set; }
 
         /// <summary>
+        /// Discoverer id
+        /// </summary>
+        [JsonProperty(PropertyName = "id",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Discoverer
         /// </summary>
         [JsonProperty(PropertyName = "discoverer",

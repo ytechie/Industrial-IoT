@@ -314,10 +314,16 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
             /// <inheritdoc />
             public bool Equals(ApplicationInfoModel x, ApplicationInfoModel y) {
-                return
-                    x.GetSiteOrGatewayId() == y.GetSiteOrGatewayId() &&
-                    x.ApplicationType == y.ApplicationType &&
-                    x.ApplicationUri.EqualsIgnoreCase(y.ApplicationUri);
+                if (x.GetSiteOrGatewayId() != y.GetSiteOrGatewayId()) {
+                    return false;
+                }
+                if (x.ApplicationType != y.ApplicationType) {
+                    return false;
+                }
+                if (!x.ApplicationUri.EqualsIgnoreCase(y.ApplicationUri)) {
+                    return false;
+                }
+                return true;
             }
 
             /// <inheritdoc />

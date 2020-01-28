@@ -62,13 +62,25 @@ namespace Microsoft.Azure.IIoT.OpcUa.Registry.Models {
 
         /// <inheritdoc/>
         public override bool Equals(object obj) {
-            var registration = obj as EntityRegistration;
-            return registration != null &&
-                DeviceId == registration.DeviceId &&
-                DeviceType == registration.DeviceType &&
-                SiteId == registration.SiteId &&
-                (IsDisabled ?? false) == (registration.IsDisabled ?? false) &&
-                NotSeenSince == registration.NotSeenSince;
+            if (!(obj is EntityRegistration registration)) {
+                return false;
+            }
+            if (DeviceId != registration.DeviceId) {
+                return false;
+            }
+            if (DeviceType != registration.DeviceType) {
+                return false;
+            }
+            if (SiteId != registration.SiteId) {
+                return false;
+            }
+            if ((IsDisabled ?? false) != (registration.IsDisabled ?? false)) {
+                return false;
+            }
+            if (NotSeenSince != registration.NotSeenSince) {
+                return false;
+            }
+            return true;
         }
 
         /// <inheritdoc/>

@@ -18,7 +18,14 @@ namespace Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models {
         public PublisherEventType EventType { get; set; }
 
         /// <summary>
-        /// Application
+        /// Publisher id
+        /// </summary>
+        [JsonProperty(PropertyName = "id",
+            NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Publisher
         /// </summary>
         [JsonProperty(PropertyName = "publisher",
             NullValueHandling = NullValueHandling.Ignore)]
