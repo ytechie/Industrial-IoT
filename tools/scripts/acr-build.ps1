@@ -49,9 +49,10 @@ $Path = Resolve-Path -LiteralPath $Path
 $buildRoot = & $getroot -startDir $Path -fileName ".dockerignore"
 # Get meta data
 $metadata = Get-Content -Raw -Path (join-path $Path "container.json") `
-    | ConvertFrom-Json
+| ConvertFrom-Json
 
 # get and set build information from gitversion, git or version content
+$latestTag = "latest"
 $sourceTag = $env:Version_Prefix
 if ([string]::IsNullOrEmpty($sourceTag)) {
     try {
@@ -112,6 +113,7 @@ if ([string]::IsNullOrEmpty($branchName)) {
 }
 
 # Set namespace name based on branch name
+$releaseBuild = $false
 if ([string]::IsNullOrEmpty($branchName) -or ($branchName -eq "HEAD")) {
     Write-Warning "Error - Branch '$($branchName)' invalid - using default."
     $namespace = "deletemesoon/"
@@ -122,15 +124,16 @@ else {
     if ($namespace.StartsWith("feature/")) {
         $namespace = $namespace.Replace("feature/", "")
     }
-    elseif ($namespace.StartsWith("release/")) {
-        $namespace = "master"
+    elseif ($namespace.StartsWith("release/") -or ($namespace -eq "master")) {
+        $namespace = "public"
+        $releaseBuild = $true
     }
     $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))
     $namespace = "$($namespace)/"
 
-    if (![string]::IsNullOrEmpty($Registry)) {
+    if (![string]::IsNullOrEmpty($Registry) -and ($Registry -ne "industrialiot")) {
         # if we build from release or from master and registry is provided we leave namespace empty
-        if ($branchName.StartsWith("release/") -or ($branchName -eq "master")) {
+        if ($releaseBuild) {
             $namespace = ""
         }
     }
@@ -150,7 +153,14 @@ if (![string]::IsNullOrEmpty($Subscription)) {
 if ([string]::IsNullOrEmpty($Registry)) {
     $Registry = $env.BUILD_REGISTRY
     if ([string]::IsNullOrEmpty($Registry)) {
-        $Registry = "industrialiotdev"
+        if ($releaseBuild) {
+            # Make sure we do not override latest in release builds - this is done manually later.
+            $latestTag = "preview"
+            $Registry = "industrialiot"
+        }
+        else {
+            $Registry = "industrialiotdev"
+        }
         Write-Warning "No registry specified - using $($Registry).azurecr.io."
     }
 }
@@ -184,22 +194,12 @@ if (![string]::IsNullOrEmpty($metadata.tag)) {
     $tagPrefix = "$($metadata.tag)-"
 }
 
-# do not push latest during master / release builds - release to latest happens later
-if (![string]::IsNullOrEmpty($namespace)) {
-    Write-Host "Pushing '$($sourceTag)' build for $($branchName) to $($namespace)."
-    $topTag = "latest"
-}
-else {
-    Write-Host "Pushing '$($sourceTag)' build as preview build."
-    $topTag = "preview"
-}
-
-$fullImageName = "$($Registry).azurecr.io/$($namespace)$($imageName):$($tagPrefix)$($topTag)$($tagPostfix)"
+$fullImageName = "$($Registry).azurecr.io/$($namespace)$($imageName):$($tagPrefix)$($sourceTag)$($tagPostfix)"
 Write-Host "Full image name: $($fullImageName)"
 
 $manifest = @" 
 image: $($fullImageName)
-tags: [$($sourceTag)]
+tags: [$($tagPrefix)$($latestTag)$($tagPostfix)]
 manifests:
 "@
 
@@ -284,20 +284,24 @@ $definitions | ForEach-Object {
         "--file", $dockerfile,
         "--image", $image
     )
-
     $argumentList += $buildContext
-    $jobs += Start-Job -Name $platform -ArgumentList $argumentList `
-        -ScriptBlock {
-        Write-Host "az $($args)"
-        & az $args 2>&1 | ForEach-Object { "$_" }
+
+    # $jobs += Start-Job -Name $image -ArgumentList $argumentList -ScriptBlock 
+    # {
+        #  $argumentList = $args
+
+        Write-Host "Building ... az $($argumentList | Out-String)..."
+        & az $argumentList 2>&1 | ForEach-Object { "$_" }
         if ($LastExitCode -ne 0) {
-            Write-Warning "az $($args) failed - 2nd attempt..."
-            & az $args 2>&1 | ForEach-Object { "$_" }
+            Write-Warning "az $($argumentList | Out-String) failed with $($LastExitCode) - 2nd attempt..."
+            & az $argumentList 2>&1 | ForEach-Object { "$_" }
             if ($LastExitCode -ne 0) {
-                throw "Error: 'az $($args)' 2nd attempt failed with $($LastExitCode)."
+                throw "Error: 'az $($argumentList | Out-String)' 2nd attempt failed with $($LastExitCode)."
             }
         }
-    }
+        Write-Host "... az $($argumentList | Out-String) completed"
+    # }
+    
     # Append to manifest
     if (![string]::IsNullOrEmpty($os)) {
         $manifest +=
@@ -314,11 +318,13 @@ $definitions | ForEach-Object {
     }
 }
 
-# Wait until all jobs are completed
-Receive-Job -Job $jobs -WriteEvents -Wait | Out-Host
-$jobs | Out-Host
-$jobs | Where-Object { $_.State -ne "Completed" } | ForEach-Object {
-    throw "ERROR: Building $($_.Name). resulted in $($_.State)."
+if ($jobs.Count -ne 0) {
+    # Wait until all jobs are completed
+    Receive-Job -Job $jobs -WriteEvents -Wait | Out-Host
+    $jobs | Out-Host
+    $jobs | Where-Object { $_.State -ne "Completed" } | ForEach-Object {
+        throw "ERROR: Building $($_.Name). resulted in $($_.State)."
+    }
 }
 Write-Host "All build jobs completed successfully."
 Write-Host ""

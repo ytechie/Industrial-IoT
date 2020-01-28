@@ -74,7 +74,7 @@ Function Select-Context() {
 
     $contextFile = Join-Path $script:ScriptDir ".user"
     if (!$context) {
-        if (8) {
+        if (Test-Path $contextFile) {
             $profile = Import-AzContext -Path $contextFile
             if (($null -ne $profile) `
                     -and ($null -ne $profile.Context) `
@@ -490,16 +490,24 @@ Function New-Deployment() {
             $templateParameters.Add("dockerServer", $creds.dockerServer)
             $templateParameters.Add("dockerUser", $creds.dockerUser)
             $templateParameters.Add("dockerPassword", $creds.dockerPassword)
+            
+            # see acr-build.ps1 for naming logic
             $namespace = $branchName
             if ($namespace.StartsWith("feature/")) {
                 $namespace = $namespace.Replace("feature/", "")
             }
-            elseif ($namespace.StartsWith("release/")) {
-                $namespace = "master"
+            elseif ($namespace.StartsWith("release/") -or ($namespace -eq "master")) {
+                $namespace = "public"
             }
             $namespace = $namespace.Replace("_", "/").Substring(0, [Math]::Min($namespace.Length, 24))
             $templateParameters.Add("imagesNamespace", $namespace)
+            $templateParameters.Add("imagesTag", "latest")
             Write-Host "Using latest $($namespace) images from $($creds.dockerServer)."
+        }
+        else {
+            $templateParameters.Add("dockerServer", "mcr.microsoft.com")
+            $templateParameters.Add("imagesTag", "preview")
+            Write-Host "Using preview images from mcr.microsoft.com."
         }
 
         if ($script:type -eq "all") {
